@@ -1,15 +1,22 @@
-import { NgModule, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing-module';
 import { App } from './app';
-import {TranslateModule, TranslatePipe} from '@ngx-translate/core';
-import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
-import {NgxSpinnerModule} from 'ngx-spinner';
-import {ToastrModule, ToastrService} from 'ngx-toastr';
-import {provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
-import {provideTranslateHttpLoader} from '@ngx-translate/http-loader';
-import {LayoutModule} from './layout/layout-module';
+
+import { TranslateModule, TranslatePipe } from '@ngx-translate/core';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgxSpinnerModule } from 'ngx-spinner';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
+
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+
+import { LayoutModule } from './layout/layout-module';
+
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { AuthInterceptor } from './auth/auth.interceptor';
+
 
 @NgModule({
   declarations: [
@@ -17,11 +24,13 @@ import {LayoutModule} from './layout/layout-module';
   ],
   imports: [
     BrowserModule,
+
     TranslateModule.forRoot(),
+
     AppRoutingModule,
     NgbModule,
     NgxSpinnerModule,
-    TranslateModule.forRoot(),
+
     ToastrModule.forRoot({
       timeOut: 5000,
       positionClass: 'toast-top-right',
@@ -29,6 +38,7 @@ import {LayoutModule} from './layout/layout-module';
       progressAnimation: 'increasing',
       preventDuplicates: true,
     }),
+
     LayoutModule,
   ],
   providers: [
@@ -37,11 +47,16 @@ import {LayoutModule} from './layout/layout-module';
       prefix: './assets/i18n/',
       suffix: '.json'
     }),
+
     TranslatePipe,
     ToastrService,
 
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
   ],
-  exports: [],
   bootstrap: [App]
 })
 export class AppModule { }

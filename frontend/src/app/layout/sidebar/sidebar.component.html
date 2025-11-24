@@ -12,8 +12,6 @@
             <img src="https://perenitysoftware.com/wp-content/uploads/2020/05/logo-perenity-software.svg" height="30">
           </span>
         }
-
-
       </a>
     </div>
 
@@ -21,23 +19,26 @@
     <ul class="sidebar-menu-list">
       @for (section of sections; track $index; let i = $index) {
         <li class="sidebar-section">
+
           <!-- Section Header -->
           <div class="section-header" (click)="toggleSection(i)">
             <i [class]="section.icon"></i>
+
             @if (!isSidebarCollapsed) {
               <span class="section-title">{{ section.title }}</span>
             }
+
             @if (!isSidebarCollapsed && section.items?.length) {
               <i class="fas fa-chevron-down" [class.collapsed]="section.collapsed"></i>
             }
           </div>
 
-          <!-- Section Items -->
+          <!-- Items -->
           @if (section.items?.length && !section.collapsed && !isSidebarCollapsed) {
             <ul class="section-items">
               @for (item of section.items; track item.label) {
                 <li>
-                  <a [routerLink]="item.route" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
+                  <a [routerLink]="item.route" routerLinkActive="active">
                     <i [class]="item.icon"></i>
                     <span class="item-label">{{ item.label }}</span>
                   </a>
@@ -48,5 +49,6 @@
         </li>
       }
     </ul>
+
   </div>
 </div>
