@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:8080',
+  apiUrl: 'http://localhost:8081',
   version: "v1.0.0",
   defaultLanguage: 'fr',
   languages:  ['en', 'fr'],

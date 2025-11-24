@@ -1733,17 +1733,20 @@ public class DataInitializer {
             /* =========================================================
              * 10. UTILISATEUR ADMIN
              * ========================================================= */
+
             UtilisateurEntity adminUser = UtilisateurEntity.builder()
-                    .code("admin")          // doit matcher le username Keycloak
-                    .firstName("Admin")
-                    .lastName("User")
-                    .email("admin@local")
+                    .code("admin")  // doit matcher preferred_username du token
+                    .firstName("Bilal")
+                    .lastName("Sajai")
+                    .email("bilalsajai1966@gmail.com")  // doit matcher l'email du JWT
+                    .keycloakId("b2fdcd04-7266-4ad7-b48f-95cebbf19197") // sub du JWT
                     .actif(true)
                     .profil(profilAdmin)
                     .createdAt(now)
                     .build();
 
             utilisateurRepository.save(adminUser);
+
 
             System.out.println(">>> Base initialisée avec données de test complètes.");
         };
