@@ -16,11 +16,13 @@ import { LayoutModule } from './layout/layout-module';
 
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from './auth/auth.interceptor';
+import { AuthCallbackComponent } from './auth/auth-callback/auth-callback.component';
 
 
 @NgModule({
   declarations: [
-    App
+    App,
+    AuthCallbackComponent
   ],
   imports: [
     BrowserModule,

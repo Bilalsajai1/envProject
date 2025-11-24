@@ -1,10 +1,19 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import {DashboardComponent} from './layout/dashboard/dashboard.component';
-import {MainLayout} from './layout/main-layout/main-layout';
-import {AuthGuard} from './auth/auth.guard';
+import { DashboardComponent } from './layout/dashboard/dashboard.component';
+import { MainLayout } from './layout/main-layout/main-layout';
+import { AuthGuard } from './auth/auth.guard';
+import {AuthCallbackComponent} from './auth/auth-callback/auth-callback.component';
 
 const routes: Routes = [
+
+  // === CALLBACK KEYCLOAK (PAS DE GUARD) ===
+  {
+    path: 'auth/callback',
+    component: AuthCallbackComponent
+  },
+
+  // === ROUTES PROTÉGÉES ===
   {
     path: '',
     component: MainLayout,
@@ -26,8 +35,13 @@ const routes: Routes = [
 
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
-  }
+  },
 
+  // === CATCH-ALL ===
+  {
+    path: '**',
+    redirectTo: ''
+  }
 ];
 
 @NgModule({

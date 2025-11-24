@@ -31,7 +31,7 @@ export class AuthService {
 
   /** Récupérer le token depuis Keycloak Storage */
   getToken(): string | null {
-    return localStorage.getItem('kc_token');
+    return localStorage.setItem('kc_token', access_token);
   }
 
   /** Déconnexion : redirect vers Keycloak */
