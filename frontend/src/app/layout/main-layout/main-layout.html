@@ -1,0 +1,14 @@
+<div class="layout-container">
+  <!-- Topbar -->
+  <app-topbar (sidebarToggle)="onSidebarToggle($event)"></app-topbar>
+
+  <div class="layout-body">
+    <!-- Sidebar -->
+    <app-sidebar [isSidebarCollapsed]="isSidebarCollapsed"></app-sidebar>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>

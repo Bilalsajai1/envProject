@@ -1,0 +1,154 @@
+.sidebar {
+  width: 260px;
+  background-color: var(--principal-dark);
+  color: var(--white);
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: all 0.3s ease-in-out;
+  display: flex;
+  top: 0;
+  left: 0;
+  flex-direction: column;
+  z-index: 1000;
+  box-shadow: 2px 0 5px var(--overlay-black-10);
+  height: 100%;
+  min-height: 100%;
+
+  &.sidebar-collapsed {
+    width: 60px;
+
+    .sidebar-logo {
+      color: var(--white);
+      text-decoration: none;
+      font-size: 1.5rem;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .section-header {
+      justify-content: center;
+    }
+
+    .section-title,
+    .item-label,
+    .fa-chevron-down {
+      display: none;
+    }
+  }
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0;
+  flex: 1;
+}
+
+.sidebar-logo {
+  padding: 1rem 0;
+  border-bottom: 1px solid #34495e;
+  text-align: center;
+  flex-shrink: 0;
+
+  a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+  }
+}
+
+.sidebar-menu-list {
+  list-style: none;
+  padding: 1rem 0;
+  margin: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-section {
+  margin-bottom: 0.5rem;
+  flex-shrink: 0;
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    color: #bdc3c7;
+    font-weight: 500;
+    user-select: none;
+
+    &:hover {
+      background-color: #34495e;
+      color: #ecf0f1;
+    }
+
+    i:first-child {
+      font-size: 1.1rem;
+      min-width: 1.2rem;
+    }
+
+    .fa-chevron-down {
+      margin-left: auto;
+      font-size: 0.8rem;
+      transition: transform 0.2s ease;
+
+      &.collapsed {
+        transform: rotate(-90deg);
+      }
+    }
+  }
+
+  .section-title {
+    flex: 1;
+    font-size: 0.9rem;
+  }
+}
+
+.section-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background-color: #1a252f;
+
+  li {
+    margin: 0;
+
+    a {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem 1.5rem;
+      text-decoration: none;
+      color: #95a5a6;
+      transition: all 0.2s ease;
+      font-size: 0.9rem;
+
+      &:hover {
+        background-color: #34495e;
+        color: #ecf0f1;
+        padding-left: 1.7rem;
+      }
+
+      &.active {
+        background-color: #3498db;
+        color: #fff;
+        border-left: 3px solid #2980b9;
+      }
+
+      i {
+        font-size: 1rem;
+        min-width: 1.2rem;
+      }
+    }
+  }
+}
+
+.item-label {
+  flex: 1;
+}

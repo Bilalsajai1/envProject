@@ -1,0 +1,115 @@
+.text-primary {
+  color: var(--principal) !important;
+}
+
+.btn-primary {
+  background-color: var(--principal) !important;
+  border-color: var(--principal) !important;
+}
+
+.form-control:disabled, .form-control[readonly] {
+  background-color: var(--minor) !important;
+  border: var(--border-3) solid var(--minor);
+}
+.form-control[ngbdatepicker] {
+  background-color: var(--second) !important;
+}
+
+.form-control {
+  background-color: var(--second) !important;
+  font-size: var(--fs-3) !important;
+  height: var(--input-heigth) !important;
+}
+
+.form-control-text-erea {
+  background-color: var(--second) !important;
+  font-size: var(--fs-3) !important;
+  width: 100% !important;
+  border: var(--border-3) solid var(--minor);
+  transition: none;
+
+}
+
+.form-control-text-erea:focus {
+  border-color: var(--minor) !important;
+  outline: none;
+}
+
+
+.was-validated .form-control-text-erea:invalid, .form-control-text-erea.is-invalid{
+  border: var(--border-3) solid var(--danger) !important;
+}
+
+.calculable {
+  background-color: var(--optional) !important;
+}
+
+.form-radio-primary .form-check-input:checked {
+  border: var(--border-1) solid var(--principal) !important;
+  background-color: unset !important;
+}
+.form-radio-primary .form-check-input {
+  border: var(--border-2) solid var(--minor);
+}
+
+.form-switch-md .form-check-input:checked {
+  border: var(--border-1) solid var(--principal);
+  background-color: var(--principal) !important;
+  left: var(--form-check-size-1) !important;
+}
+.form-switch-md .form-check-input {
+  border: var(--border-2) solid var(--minor);
+  left: var(--form-check-size-1) !important;
+}
+
+.mat-label{
+  color: var(--default);
+}
+
+.section-transaction {
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  font-size: 12px !important;
+  border-bottom: 1px solid var(--principal) !important;
+}
+
+.section-transaction-icone, .dropdown-form-icon {
+  color: var(--principal) !important;
+  font-size: var(--icon-size-1) !important;
+  float: right;
+  cursor: pointer;
+}
+
+.custom-ng-selec {
+  .ng-select-container {
+    background-color: red !important;
+  }
+}
+
+
+.input-group-text{
+  color: var(--default) !important;
+}
+
+.ng-select.ng-select-single .ng-select-container .ng-value-container, .ng-select.ng-select-single .ng-select-container .ng-value-container .ng-value{
+  color: var(--default) !important;
+  font-size: var(--fs-3);
+}
+.ng-select .ng-dropdown-panel .ng-option{
+  color: var(--default);
+  font-size: var(--fs-3);
+}
+
+.text-value {
+  font-weight: lighter !important;
+  overflow: inherit !important;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  height: 25px;
+  font-size: 11px;
+}
+
+
+.height-40{
+  height: 40px !important;
+}

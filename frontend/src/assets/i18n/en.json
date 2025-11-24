@@ -1,0 +1,270 @@
+{
+  "HEADER": {
+    "NOTIFICATIONS": {
+      "TITLE": "Notifications",
+      "MARK_AS_READ": "Tout marquer comme lu",
+      "EMPTY": "Aucune notification pour le moment !",
+      "VIEW_ALL": "Afficher tout",
+      "DESCRIPTION": "Description",
+      "DATE_INSERT": "Date d'insertion"
+    },
+    "LOGIN": {
+      "PROFILE": "Profil",
+      "MY_WALLET": "Mon portefeuille",
+      "SETTINGS": "Paramètres",
+      "LOCK_SCREEN": "Verrouiller l'écran",
+      "LOGOUT": "Déconnexion"
+    },
+    "SEARCH": "Recherche"
+  },
+  "HOMEPAGE": {
+    "WIDGET": {
+      "LABEL": "Bienvenue sur le tableau de bord Manar",
+      "WARNING_EXISTING_WIDGET_TEXT": "Ce widget est déjà ajouté à votre client",
+      "ACTIVITE": "Activité",
+      "OBJECTIF": "Objectif",
+      "PERIODICITE": "Périodicité"
+    }
+  },
+  "MODULES": {
+    "AUTHORIZATION": {
+      "TITLE": "Habilitation",
+      "USERS": {
+        "TITLE": "Gestion des utilisateurs",
+        "USERNAME": "Nom d'utilisateur",
+        "FIRSTNAME": "Prénom",
+        "LASTNAME": "Nom",
+        "EMAIL": "Email",
+        "ENABLED": "Activer",
+        "DISABLED": "Désactiver",
+        "FLAG_ACTIF": "Actif",
+        "PASSWORD": "Mot de passe",
+        "NEW_USER": "Nouvel utilisateur",
+        "TIERS": "Tiers",
+        "PROFILE": "Profil",
+        "DELETE_USER": "Êtes-vous sûr de vouloir supprimer l'utilisateur ",
+        "FRONT": "Front",
+        "TRADER": "Trader",
+        "RISK": "Risk",
+        "BACK": "Back",
+        "SALES": "Sales",
+        "PASSWORD_CONFIRMATION": "Confirmation du mot de passe"
+      },
+      "PROFILE": {
+        "TITLE": "Gestion des profils",
+        "MENU": "Menu",
+        "ID": "Identifiant",
+        "LABEL": "Libellé",
+        "ALL_ROLES": "Tous les rôles",
+        "ADMIN_PROFILE": "PROFIL ADMINISTRATEUR",
+        "NEW_PROFILE": "Nouveau profil"
+      }
+    },
+    "LIVE_MARKET": {
+      "TITLE": "Marchés En Direct",
+      "MARKET_ACTION": {
+        "TITLE": "Marchés Action",
+        "MY_VALUES": {
+          "TITLE": "Mes Valeurs"
+        },
+        "CONTINUOUS_ACTION": {
+          "TITLE": "Actions en Continu"
+        },
+        "FIXING_ACTIONS": {
+          "TITLE": "Actions Fixing"
+        },
+        "AOC_SECONDARY_RIGHTS": {
+          "TITLE": "Droits Secondaires AOC"
+        },
+        "AOF_SECONDARY_RIGHTS": {
+          "TITLE": "Droits Secondaires AOF"
+        },
+        "BONDS_PERCENTAGE": {
+          "TITLE": "Obligations en Pourcentage"
+        },
+        "BONDS_DIRHAM": {
+          "TITLE": "Obligations en Dirham"
+        }
+      },
+      "OPCVM": {
+        "TITLE": "OPCVM"
+      },
+      "OPV": {
+        "TITLE": "OPV"
+      }
+
+    },
+    "MARKET_INFO": {
+      "TITLE": "Infos Marché",
+      "PALMARES": {
+        "TITLE": "Palmarès"
+      },
+      "SECURITY_FACT_SHEET": {
+        "TITLE": "Fiche Valeur"
+      },
+      "FICHE_OPCVM": {
+        "TITLE": "Fiche OPCVM"
+      },
+      "INDICES": {
+        "TITLE": "Indices"
+      }
+    },
+    "MY_ACCOUNT": {
+      "TITLE": "Mon Compte",
+      "POSITION": {
+        "TITLE": "Position"
+      },
+      "ORDER_BOOK": {
+        "TITLE": "Carnet d'ordre"
+      },
+      "VALUED_PORTFOLIO": {
+        "TITLE": "Portefeuille Valorisé"
+      },
+      "HISTORICAL_PORTFOLIO": {
+        "TITLE": "Portefeuille Historique"
+      },
+      "TRANSACTION_HISTORY": {
+        "TITLE": "Historique des Opérations"
+      },
+      "ORDER_HISTORY": {
+        "TITLE": "Historique des Ordres"
+      }
+    },
+    "SERVICES": {
+      "TITLE": "Services",
+      "PUBLICATIONS": {
+        "TITLE": "Publications"
+      },
+      "GLOSSARY": {
+        "TITLE": "Lexique"
+      },
+      "PREFERENCES": {
+        "TITLE": "Préférences"
+      },
+      "CONTACT": {
+        "TITLE": "Contact"
+      }
+    },
+    "NEWS": {
+      "TITLE": "Actualités"
+    },
+    "SHARED": {
+      "TABLE": {
+        "PAGE": "Page",
+        "TOUT": "Tout",
+        "DE": "De",
+        "ELEMENTS": "Éléments"
+      },
+      "ROLES": {
+        "ACCESS": "Accès",
+        "CREATE": "Création",
+        "DELETE": "Suppression",
+        "EDIT": "Modification"
+      }
+    }
+  },
+  "BUTTONS": {
+    "RESET": "Réinitialiser",
+    "SEARCH": "Rechercher",
+    "EXECUTE": "Exécuter",
+    "ANNULER_EXECUTION": "Annuler l'exécution",
+    "SAVE": "Enregistrer",
+    "EDIT": "Modifier",
+    "ADD": "Ajouter",
+    "CANCEL": "Annuler",
+    "VALID": "Valider",
+    "VALID_AND_SAVE": "Enregistrer et valider",
+    "DOWNLOAD": "Télécharger",
+    "ROUTER": "Retour",
+    "DELETE": "Supprimer",
+    "VIEW": "Afficher",
+    "CLONE": "Dupliquer",
+    "CONFIRM": "Confirmer",
+    "REJECT": "Rejeter",
+    "EXPORT": "Exporter",
+    "GENERATE": "Générer",
+    "OK": "OK",
+    "SELECT": "Sélectionner",
+    "SEND": "Envoyer",
+    "DETAIL": "Détail",
+    "NOUVEAU": "Nouveau",
+    "CLOSE": "Fermer",
+    "CONSULTER": "Consulter"
+  },
+  "VALIDATION": {
+    "REQUIRED": "Ce champ est obligatoire.",
+    "EMAIL": "Veuillez saisir une adresse e-mail valide.",
+    "MINLENGTH": "Ce champ doit contenir au moins {{requiredLength}} caractères.",
+    "MAXLENGTH": "Ce champ ne peut pas dépasser {{requiredLength}} caractères.",
+    "PATTERN": "Le format saisi est invalide.",
+    "INVALID": "Valeur invalide.",
+    "NOT_SAME_PASSWORD": "Les mots de passe ne correspondent pas."
+  },
+  "ERROR": {
+    "last.dummy": "Traduction factice",
+    "TITLE": "ERREUR",
+    "USER_ALREADY_EXISTS": "Ce nom d'utilisateur existe déjà",
+    "PROFIL_ALREADY_EXISTS": "Le profil existe déjà",
+    "ACCES_NON_AUTORISE": "Accès non autorisé",
+    "UNDEFINED_ERROR_CODE": "Un incident technique est survenu.\nVeuillez réessayer ultérieurement. Merci",
+    "INDISPONIBLE_SERVICE": "Service momentanément indisponible.\nVeuillez réessayer plus tard",
+    "NOT_FOUND": "Non trouvé",
+    "NO_DATA_TO_DISPLAY": "Aucune donnée à afficher",
+    "NO_DOCUMENTS_IMPORTED": "Aucun document n'a été importé"
+  },
+  "LOGIN": {
+    "WELCOME_BACK": "Welcome back!",
+    "CONTINUE_TO": "Sign in to continue to",
+    "ADMIN_AREA": "Admin Area",
+    "USERNAME": "Username",
+    "USERNAME_PLACEHOLDER": "Enter your username",
+    "USERNAME_REQUIRED": "Username is required",
+    "USERNAME_MIN_LENGTH": "Username must contain at least 3 characters",
+    "PASSWORD": "Password",
+    "PASSWORD_PLACEHOLDER": "Enter your password",
+    "PASSWORD_REQUIRED": "Password is required",
+    "PASSWORD_MIN_LENGTH": "Password must contain at least 6 characters",
+    "REMEMBER_ME": "Remember me",
+    "FORGOT_PASSWORD": "Forgot password?",
+    "SIGN_IN": "Sign in",
+    "TOGGLE_PASSWORD_VISIBILITY": "Show/Hide password",
+    "COPYRIGHT": "Perenity Software. All Rights Reserved",
+    "VERSION": "Version"
+  },
+  "PAGES": {
+    "COMMON": {
+      "VALIDER": "Validate",
+      "ANNULER": "Cancel"
+    },
+    "ACCOUNT": {
+      "RESET_PASSWORD": {
+        "ANCIEN_MOT_PASSE": "Current password",
+        "NOUVEAU_MOT_PASSE": "New password",
+        "CONFIRMER_MOT_PASSE": "Confirm password"
+      }
+    }
+  },
+  "SHARED": {
+    "PLACEHOLDER": {
+      "MOT_PASSE_ACTUEL": "Current password",
+      "NOUVEAU_MOT_PASSE": "New password",
+      "CONFIRMER_MOT_PASSE": "Confirm new password"
+    }
+  },
+  "FORGOT_PASSWORD": {
+    "TITLE": "Forgot Your Password?",
+    "SUBTITLE": "Enter your username and email address and we'll send you a link to reset your password.",
+    "USERNAME": "Username",
+    "USERNAME_PLACEHOLDER": "Enter your username",
+    "USERNAME_REQUIRED": "Username is required",
+    "USERNAME_MIN_LENGTH": "Username must be at least 3 characters",
+    "EMAIL": "Email Address",
+    "EMAIL_PLACEHOLDER": "Enter your email address",
+    "EMAIL_REQUIRED": "Email is required",
+    "EMAIL_INVALID": "Please enter a valid email address",
+    "SUBMIT_BUTTON": "Reset Password",
+    "BACK_TO_LOGIN": "Back to Login",
+    "SUCCESS_MESSAGE": "If your email is registered, you will receive a password reset link shortly.",
+    "ERROR_MESSAGE": "An error occurred. Please try again later."
+  }
+}

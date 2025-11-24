@@ -1,0 +1,40 @@
+<h2>Projets pour le type : {{ typeCode }}</h2>
+
+<div class="toolbar">
+  <button type="button" (click)="goBackToTypes()">← Retour aux types</button>
+</div>
+
+@if (loading) {
+  <div class="loading">Chargement...</div>
+}
+
+@if (error) {
+  <div class="error">{{ error }}</div>
+}
+
+@if (!loading && !error && projects.length === 0) {
+  <div class="empty-message">
+    Aucun projet pour ce type d’environnement.
+  </div>
+}
+
+@if (!loading && !error && projects.length > 0) {
+  <table class="table">
+    <thead>
+    <tr>
+      <th>Code</th>
+      <th>Libellé</th>
+      <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+      @for (p of projects; track p.code) {
+        <tr (click)="goToEnvironments(p)" class="clickable-row">
+          <td>{{ p.code }}</td>
+          <td>{{ p.libelle }}</td>
+          <td>{{ p.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

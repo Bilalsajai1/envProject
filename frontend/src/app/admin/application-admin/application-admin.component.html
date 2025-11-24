@@ -1,0 +1,78 @@
+<!-- src/app/admin/pages/application-admin/application-admin.component.html -->
+<div class="page-card">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Gestion des applications</div>
+      <div class="page-subtitle">
+        Administration de la table de référence des applications (FRONT, BACK, KEYCLOAK, ...).
+      </div>
+    </div>
+    <div class="page-actions">
+      <button class="primary" (click)="openCreateForm()">+ Nouvelle application</button>
+    </div>
+  </div>
+
+  <div *ngIf="loading">Chargement...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <table class="table" *ngIf="!loading && applications.length > 0">
+    <thead>
+    <tr>
+      <th>Code</th>
+      <th>Libellé</th>
+      <th>Description</th>
+      <th>Actif</th>
+      <th style="width: 160px;">Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let app of applications">
+      <td>{{ app.code }}</td>
+      <td>{{ app.libelle }}</td>
+      <td>{{ app.description }}</td>
+      <td>{{ app.actif ? 'Oui' : 'Non' }}</td>
+      <td class="table-actions">
+        <button class="secondary" (click)="openEditForm(app)">Modifier</button>
+        <button class="danger" (click)="delete(app)">Supprimer</button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="!loading && applications.length === 0" class="empty-state">
+    Aucune application pour le moment.
+  </div>
+
+  <!-- FORM -->
+  <div *ngIf="showForm" class="form-card">
+    <h3>{{ isEditing ? 'Modifier une application' : 'Nouvelle application' }}</h3>
+
+    <form (ngSubmit)="submitForm()">
+      <div class="form-row">
+        <label>Code *</label>
+        <input [(ngModel)]="form.code" name="code" />
+      </div>
+      <div class="form-row">
+        <label>Libellé *</label>
+        <input [(ngModel)]="form.libelle" name="libelle" />
+      </div>
+      <div class="form-row">
+        <label>Description</label>
+        <textarea [(ngModel)]="form.description" name="description"></textarea>
+      </div>
+      <div class="form-row">
+        <label>
+          <input type="checkbox" [(ngModel)]="form.actif" name="actif" />
+          Actif
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="primary">
+          {{ isEditing ? 'Enregistrer' : 'Créer' }}
+        </button>
+        <button type="button" class="secondary" (click)="cancelForm()">Annuler</button>
+      </div>
+    </form>
+  </div>
+</div>

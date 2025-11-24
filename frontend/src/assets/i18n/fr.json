@@ -1,0 +1,273 @@
+{
+  "HEADER": {
+    "NOTIFICATIONS": {
+      "TITLE": "Notifications",
+      "MARK_AS_READ": "Tout marquer comme lu",
+      "EMPTY": "Aucune notification pour le moment !",
+      "VIEW_ALL": "Afficher tout",
+      "DESCRIPTION": "Description",
+      "DATE_INSERT": "Date d'insertion"
+    },
+    "LOGIN": {
+      "PROFILE": "Profil",
+      "MY_WALLET": "Mon portefeuille",
+      "SETTINGS": "Paramètres",
+      "LOCK_SCREEN": "Verrouiller l'écran",
+      "LOGOUT": "Déconnexion"
+    },
+    "SEARCH": "Recherche"
+  },
+  "HOMEPAGE": {
+    "WIDGET": {
+      "LABEL": "Bienvenue sur le tableau de bord Manar",
+      "WARNING_EXISTING_WIDGET_TEXT": "Ce widget est déjà ajouté à votre client",
+      "ACTIVITE": "Activité",
+      "OBJECTIF": "Objectif",
+      "PERIODICITE": "Périodicité"
+    }
+  },
+  "MODULES": {
+    "AUTHORIZATION": {
+      "TITLE": "Habilitation",
+      "USERS": {
+        "TITLE": "Gestion des utilisateurs",
+        "USERNAME": "Nom d'utilisateur",
+        "FIRSTNAME": "Prénom",
+        "LASTNAME": "Nom",
+        "EMAIL": "Email",
+        "ENABLED": "Activer",
+        "DISABLED": "Désactiver",
+        "FLAG_ACTIF": "Actif",
+        "PASSWORD": "Mot de passe",
+        "NEW_USER": "Nouvel utilisateur",
+        "TIERS": "Tiers",
+        "PROFILE": "Profil",
+        "DELETE_USER": "Êtes-vous sûr de vouloir supprimer l'utilisateur ",
+        "FRONT": "Front",
+        "TRADER": "Trader",
+        "RISK": "Risk",
+        "BACK": "Back",
+        "SALES": "Sales",
+        "PASSWORD_CONFIRMATION": "Confirmation du mot de passe"
+      },
+      "PROFILE": {
+        "TITLE": "Gestion des profils",
+        "MENU": "Menu",
+        "ID": "Identifiant",
+        "LABEL": "Libellé",
+        "ALL_ROLES": "Tous les rôles",
+        "ADMIN_PROFILE": "PROFIL ADMINISTRATEUR",
+        "NEW_PROFILE": "Nouveau profil"
+      }
+    },
+    "LIVE_MARKET": {
+      "TITLE": "Marchés En Direct",
+      "MARKET_ACTION": {
+        "TITLE": "Marchés Action",
+        "MY_VALUES": {
+          "TITLE": "Mes Valeurs"
+        },
+        "CONTINUOUS_ACTION": {
+          "TITLE": "Actions en Continu"
+        },
+        "FIXING_ACTIONS": {
+          "TITLE": "Actions Fixing"
+        },
+        "AOC_SECONDARY_RIGHTS": {
+          "TITLE": "Droits Secondaires AOC"
+        },
+        "AOF_SECONDARY_RIGHTS": {
+          "TITLE": "Droits Secondaires AOF"
+        },
+        "BONDS_PERCENTAGE": {
+          "TITLE": "Obligations en Pourcentage"
+        },
+        "BONDS_DIRHAM": {
+          "TITLE": "Obligations en Dirham"
+        }
+      },
+      "OPCVM": {
+        "TITLE": "OPCVM"
+      },
+      "OPV": {
+        "TITLE": "OPV"
+      }
+
+    },
+    "MARKET_INFO": {
+      "TITLE": "Infos Marché",
+      "PALMARES": {
+        "TITLE": "Palmarès"
+      },
+      "SECURITY_FACT_SHEET": {
+        "TITLE": "Fiche Valeur"
+      },
+      "FICHE_OPCVM": {
+        "TITLE": "Fiche OPCVM"
+      },
+      "INDICES": {
+        "TITLE": "Indices"
+      }
+    },
+    "MY_ACCOUNT": {
+      "TITLE": "Mon Compte",
+      "POSITION": {
+        "TITLE": "Position"
+      },
+      "ORDER_BOOK": {
+        "TITLE": "Carnet d'ordre"
+      },
+      "VALUED_PORTFOLIO": {
+        "TITLE": "Portefeuille Valorisé"
+      },
+      "HISTORICAL_PORTFOLIO": {
+        "TITLE": "Portefeuille Historique"
+      },
+      "TRANSACTION_HISTORY": {
+        "TITLE": "Historique des Opérations"
+      },
+      "ORDER_HISTORY": {
+        "TITLE": "Historique des Ordres"
+      }
+    },
+    "SERVICES": {
+      "TITLE": "Services",
+      "PUBLICATIONS": {
+        "TITLE": "Publications"
+      },
+      "GLOSSARY": {
+        "TITLE": "Lexique"
+      },
+      "PREFERENCES": {
+        "TITLE": "Préférences"
+      },
+      "CONTACT": {
+        "TITLE": "Contact"
+      }
+    },
+    "NEWS": {
+      "TITLE": "Actualités"
+    },
+    "SHARED": {
+      "TABLE": {
+        "PAGE": "Page",
+        "TOUT": "Tout",
+        "DE": "De",
+        "ELEMENTS": "Éléments"
+      },
+      "ROLES": {
+        "ACCESS": "Accès",
+        "CREATE": "Création",
+        "DELETE": "Suppression",
+        "EDIT": "Modification"
+      }
+    }
+  },
+  "BUTTONS": {
+    "RESET": "Réinitialiser",
+    "SEARCH": "Rechercher",
+    "EXECUTE": "Exécuter",
+    "ANNULER_EXECUTION": "Annuler l'exécution",
+    "SAVE": "Enregistrer",
+    "EDIT": "Modifier",
+    "ADD": "Ajouter",
+    "CANCEL": "Annuler",
+    "VALID": "Valider",
+    "VALID_AND_SAVE": "Enregistrer et valider",
+    "DOWNLOAD": "Télécharger",
+    "ROUTER": "Retour",
+    "DELETE": "Supprimer",
+    "VIEW": "Afficher",
+    "CLONE": "Dupliquer",
+    "CONFIRM": "Confirmer",
+    "REJECT": "Rejeter",
+    "EXPORT": "Exporter",
+    "GENERATE": "Générer",
+    "OK": "OK",
+    "SELECT": "Sélectionner",
+    "SEND": "Envoyer",
+    "DETAIL": "Détail",
+    "NOUVEAU": "Nouveau",
+    "CLOSE": "Fermer",
+    "CONSULTER": "Consulter"
+  },
+  "VALIDATION": {
+    "REQUIRED": "Ce champ est obligatoire.",
+    "EMAIL": "Veuillez saisir une adresse e-mail valide.",
+    "MINLENGTH": "Ce champ doit contenir au moins {{requiredLength}} caractères.",
+    "MAXLENGTH": "Ce champ ne peut pas dépasser {{requiredLength}} caractères.",
+    "PATTERN": "Le format saisi est invalide.",
+    "INVALID": "Valeur invalide.",
+    "NOT_SAME_PASSWORD": "Les mots de passe ne correspondent pas."
+  },
+  "ERROR": {
+    "last.dummy": "Traduction factice",
+    "TITLE": "ERREUR",
+    "USER_ALREADY_EXISTS": "Ce nom d'utilisateur existe déjà",
+    "PROFIL_ALREADY_EXISTS": "Le profil existe déjà",
+    "ACCES_NON_AUTORISE": "Accès non autorisé",
+    "UNDEFINED_ERROR_CODE": "Un incident technique est survenu.\nVeuillez réessayer ultérieurement. Merci",
+    "INDISPONIBLE_SERVICE": "Service momentanément indisponible.\nVeuillez réessayer plus tard",
+    "NOT_FOUND": "Non trouvé",
+    "NO_DATA_TO_DISPLAY": "Aucune donnée à afficher",
+    "NO_DOCUMENTS_IMPORTED": "Aucun document n'a été importé"
+  },
+  "LOGIN": {
+    "WELCOME_BACK": "Bienvenue !",
+    "CONTINUE_TO": "Connectez-vous pour accéder à votre",
+    "ADMIN_AREA": "Espace Administrateur",
+    "USERNAME": "Nom d'utilisateur",
+    "USERNAME_PLACEHOLDER": "Entrez votre nom d'utilisateur",
+    "USERNAME_REQUIRED": "Le nom d'utilisateur est requis",
+    "USERNAME_MIN_LENGTH": "Le nom d'utilisateur doit contenir au moins 3 caractères",
+    "PASSWORD": "Mot de passe",
+    "PASSWORD_PLACEHOLDER": "Entrez votre mot de passe",
+    "PASSWORD_REQUIRED": "Le mot de passe est requis",
+    "PASSWORD_MIN_LENGTH": "Le mot de passe doit contenir au moins 6 caractères",
+    "REMEMBER_ME": "Se souvenir de moi",
+    "FORGOT_PASSWORD": "Mot de passe oublié ?",
+    "SIGN_IN": "Se connecter",
+    "TOGGLE_PASSWORD_VISIBILITY": "Afficher/Masquer le mot de passe",
+    "COPYRIGHT": "Perenity Software. All Rights Reserved",
+    "VERSION": "Version"
+  },
+  "PAGES": {
+    "COMMON": {
+      "VALIDER": "Valider",
+      "ANNULER": "Annuler"
+    },
+    "ACCOUNT": {
+      "RESET_PASSWORD": {
+        "ANCIEN_MOT_PASSE": "Ancien mot de passe",
+        "NOUVEAU_MOT_PASSE": "Nouveau mot de passe",
+        "CONFIRMER_MOT_PASSE": "Confirmer le mot de passe"
+      }
+    }
+
+  },
+  "SHARED": {
+    "PLACEHOLDER": {
+      "MOT_PASSE_ACTUEL": "Mot de passe actuel",
+      "NOUVEAU_MOT_PASSE": "Nouveau mot de passe",
+      "CONFIRMER_MOT_PASSE": "Confirmez le nouveau mot de passe"
+    }
+  },
+  "FORGOT_PASSWORD": {
+    "TITLE": "Mot de passe oublié ?",
+    "SUBTITLE": "Entrez votre nom d'utilisateur et votre adresse e-mail et nous vous enverrons un lien pour réinitialiser votre mot de passe.",
+    "USERNAME": "Nom d'utilisateur",
+    "USERNAME_PLACEHOLDER": "Entrez votre nom d'utilisateur",
+    "USERNAME_REQUIRED": "Le nom d'utilisateur est requis",
+    "USERNAME_MIN_LENGTH": "Le nom d'utilisateur doit contenir au moins 3 caractères",
+    "EMAIL": "Adresse e-mail",
+    "EMAIL_PLACEHOLDER": "Entrez votre adresse e-mail",
+    "EMAIL_REQUIRED": "L'adresse e-mail est requise",
+    "EMAIL_INVALID": "Veuillez entrer une adresse e-mail valide",
+    "SUBMIT_BUTTON": "Réinitialiser le mot de passe",
+    "BACK_TO_LOGIN": "Retour à la connexion",
+    "SUCCESS_MESSAGE": "Si votre adresse e-mail est enregistrée, vous recevrez un lien de réinitialisation sous peu.",
+    "ERROR_MESSAGE": "Une erreur s'est produite. Veuillez réessayer plus tard."
+  }
+}
+
+
