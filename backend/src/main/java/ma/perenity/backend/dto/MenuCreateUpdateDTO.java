@@ -3,9 +3,8 @@ package ma.perenity.backend.dto;
 import lombok.Data;
 
 @Data
-public class MenuDTO {
+public class MenuCreateUpdateDTO {
 
-    private Long id;
     private String code;
     private String libelle;
     private String route;
@@ -14,8 +13,5 @@ public class MenuDTO {
     private Boolean visible;
 
     private Long parentId;
-    private String parentCode;
-
     private Long environmentTypeId;
-    private String environmentTypeCode;
 }

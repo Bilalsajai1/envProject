@@ -8,6 +8,7 @@ import ma.perenity.backend.entities.ProfilEntity;
 import ma.perenity.backend.entities.RoleEntity;
 import ma.perenity.backend.entities.UtilisateurEntity;
 import ma.perenity.backend.excepion.ResourceNotFoundException;
+import ma.perenity.backend.mapper.MenuMapper;
 import ma.perenity.backend.repository.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -24,6 +25,7 @@ public class AuthService {
     private final ProfilRoleRepository profilRoleRepository;
     private final RoleRepository roleRepository;
     private final MenuRepository menuRepository;
+    private final MenuMapper menuMapper;  // 🔥 AJOUT
 
     public AuthContextDTO getCurrentUserContext() {
 
@@ -48,7 +50,9 @@ public class AuthService {
                 .profilCode(profil.getCode())
                 .profilLibelle(profil.getLibelle())
                 .roles(roles.stream().map(RoleEntity::getCode).toList())
-                .menus(menus.stream().map(MenuDTO::from).toList())
+                .menus(
+                        menus.stream().map(menuMapper::toDTO).toList()   // 🔥 NOUVEAU MAPPING
+                )
                 .build();
     }
 }
