@@ -1,40 +1,25 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
-import {TranslateService} from '@ngx-translate/core';
-import {environment} from '../configuration/environement.config';
-import {AuthService} from './auth/auth-service';
+// app.ts
+import { Component, OnInit } from '@angular/core';
+import { AuthService } from './auth/auth-service';
 
 @Component({
   selector: 'app-root',
-  templateUrl: './app.html',
   standalone: false,
-  styleUrl: './app.scss'
+  templateUrl: './app.html'
 })
 export class App implements OnInit {
+
   constructor(private auth: AuthService) {}
 
-  private translate = inject(TranslateService);
-
   ngOnInit(): void {
-    this.auth.init().subscribe({
-      next: () => console.log("Auth loaded"),
-      error: () => console.warn("Not authenticated yet")
-    });
-    this.initializeTranslation();
-  }
-  private initializeTranslation(): void {
-    const supportedLangs = environment.languages;
-    const storedLang = localStorage.getItem('user-language');
-
-
-    const languageToUse = storedLang && supportedLangs.includes(storedLang)
-      ? storedLang
-      : 'fr';
-
-    if (!storedLang || !supportedLangs.includes(storedLang)) {
-      localStorage.setItem('user-language', languageToUse);
+    const token = this.auth.getToken();
+    if (token) {
+      this.auth.init().subscribe({
+        next: () => console.log('User context loaded'),
+        error: (err) => console.warn('Error loading user context', err)
+      });
+    } else {
+      console.log('Not authenticated yet');
     }
-
-    this.translate.use(languageToUse);
   }
 }
-

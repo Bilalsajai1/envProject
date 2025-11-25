@@ -1,25 +1,31 @@
+// src/app/auth/auth-interceptor.ts
 import { Injectable } from '@angular/core';
 import {
-  HttpInterceptor,
-  HttpRequest,
+  HttpEvent,
   HttpHandler,
-  HttpEvent
+  HttpInterceptor,
+  HttpRequest
 } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { AuthService } from './auth-service';
+import {environment} from '../../configuration/environement.config';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
 
+  constructor(private authService: AuthService) {}
+
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    const token = this.authService.getToken();
 
-    const token = localStorage.getItem('kc_token');
-
-    if (token) {
-      req = req.clone({
+    // On n’ajoute le Bearer que pour les appels vers l’API backend
+    if (token && req.url.startsWith(environment.apiUrl)) {
+      const cloned = req.clone({
         setHeaders: {
           Authorization: `Bearer ${token}`
         }
       });
+      return next.handle(cloned);
     }
 
     return next.handle(req);

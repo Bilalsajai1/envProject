@@ -6,14 +6,13 @@ import { AuthGuard } from './auth/auth.guard';
 import {AuthCallbackComponent} from './auth/auth-callback/auth-callback.component';
 
 const routes: Routes = [
-
-  // === CALLBACK KEYCLOAK (PAS DE GUARD) ===
+  // Callback Keycloak : PAS de guard ici
   {
     path: 'auth/callback',
     component: AuthCallbackComponent
   },
 
-  // === ROUTES PROTÉGÉES ===
+  // Le reste de l’appli est protégé
   {
     path: '',
     component: MainLayout,
@@ -37,11 +36,8 @@ const routes: Routes = [
     ]
   },
 
-  // === CATCH-ALL ===
-  {
-    path: '**',
-    redirectTo: ''
-  }
+  // fallback
+  { path: '**', redirectTo: '' }
 ];
 
 @NgModule({

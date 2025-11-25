@@ -1,20 +1,20 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject, tap } from 'rxjs';
+import { AuthContext } from '../environement/models/auth-context.model';
+import { HttpClient } from '@angular/common/http';
 import {environment} from '../../configuration/environement.config';
-import {BehaviorSubject, tap} from 'rxjs';
-import {AuthContext} from '../environement/models/auth-context.model';
-import {HttpClient} from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private apiUrl = environment.apiUrl;
 
+  private apiUrl = environment.apiUrl;
   auth$ = new BehaviorSubject<AuthContext | null>(null);
 
   constructor(private http: HttpClient) {}
 
-  /** Charge /auth/me au démarrage */
+  /** Charge /auth/me APRES que le token soit déjà stocké */
   init() {
     return this.http.get<AuthContext>(`${this.apiUrl}/auth/me`).pipe(
       tap(ctx => {
@@ -24,17 +24,22 @@ export class AuthService {
     );
   }
 
-  /** Retourne true si utilisateur chargé */
-  isLoggedIn(): boolean {
-    return this.auth$.value !== null;
-  }
-
-  /** Récupérer le token depuis Keycloak Storage */
+  /** Retourne le token Keycloak */
   getToken(): string | null {
-    return localStorage.setItem('kc_token', access_token);
+    return localStorage.getItem('kc_token');
   }
 
-  /** Déconnexion : redirect vers Keycloak */
+  /** Sauvegarde du token Keycloak après le callback */
+  saveToken(token: string): void {
+    localStorage.setItem('kc_token', token);
+  }
+
+  /** Vérifie si un utilisateur est connecté */
+  isLoggedIn(): boolean {
+    return !!this.getToken();
+  }
+
+  /** Déconnexion */
   logout(): void {
     localStorage.clear();
 

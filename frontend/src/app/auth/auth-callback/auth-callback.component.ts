@@ -1,25 +1,27 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
+import {AuthService} from '../auth-service';
 
 @Component({
   selector: 'app-auth-callback',
   standalone: false,
-  template: `<p>Authentification...</p>`
+  template: '<p>Authentification...</p>'
 })
 export class AuthCallbackComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private auth: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
-
     const code = this.route.snapshot.queryParamMap.get('code');
+
     if (!code) {
-      console.error("No code received");
+      console.error('No code found in callback');
       return;
     }
 
@@ -27,17 +29,27 @@ export class AuthCallbackComponent implements OnInit {
       .set('grant_type', 'authorization_code')
       .set('client_id', 'angular-client')
       .set('code', code)
-      .set('redirect_uri', 'http://localhost:4200/');
+      .set('redirect_uri', 'http://localhost:4200/auth/callback');
 
     this.http.post<any>(
       'http://localhost:8080/realms/env-mgmt/protocol/openid-connect/token',
-      body
+      body,
+      {
+        headers: new HttpHeaders({
+          'Content-Type': 'application/x-www-form-urlencoded'
+        })
+      }
     ).subscribe({
-      next: (res) => {
-        localStorage.setItem('kc_token', res.access_token);
-        this.router.navigate(['/']);
+      next: async (res) => {
+
+        this.auth.saveToken(res.access_token);
+
+        this.auth.init().subscribe({
+          next: () => this.router.navigate(['/dashboard']),
+          error: () => this.router.navigate(['/'])
+        });
       },
-      error: (err) => console.error(err)
+      error: err => console.error(err)
     });
   }
 }
