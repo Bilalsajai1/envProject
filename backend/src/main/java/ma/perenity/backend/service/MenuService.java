@@ -11,4 +11,6 @@ public interface MenuService {
     MenuDTO create(MenuCreateUpdateDTO dto);
     MenuDTO update(Long id, MenuCreateUpdateDTO dto);
     void delete(Long id);
+    List<MenuDTO> findByEnvironmentTypeCode(String envTypeCode);
+
 }

@@ -1,0 +1,29 @@
+/* src/app/admin/menu-admin/menu-admin.component.scss */
+
+.roles-list {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+.role-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+}
+
+.role-code {
+  font-weight: 600;
+}
+
+.role-libelle {
+  flex: 1;
+}
+
+.role-action {
+  font-size: 0.8rem;
+  color: #777;
+}

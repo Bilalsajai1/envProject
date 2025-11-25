@@ -40,5 +40,14 @@ public class MenuRoleController {
     public ResponseEntity<List<RoleEntity>> unassignedRoles() {
         return ResponseEntity.ok(menuRoleService.getUnassignedRoles());
     }
+    @PostMapping("/{menuId}/roles")
+    public ResponseEntity<Void> updateRolesForMenu(
+            @PathVariable Long menuId,
+            @RequestBody List<Long> roleIds
+    ) {
+        menuRoleService.updateRoles(menuId, roleIds);
+        return ResponseEntity.ok().build();
+    }
+
 }
 

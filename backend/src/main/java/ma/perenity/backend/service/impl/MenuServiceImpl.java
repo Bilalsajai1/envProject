@@ -95,4 +95,14 @@ public class MenuServiceImpl implements MenuService {
 
         menuRepository.delete(entity);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MenuDTO> findByEnvironmentTypeCode(String envTypeCode) {
+        return menuRepository
+                .findByEnvironmentType_CodeAndVisibleTrueOrderByOrdreAsc(envTypeCode)
+                .stream()
+                .map(mapper::toDTO)
+                .toList();
+    }
 }

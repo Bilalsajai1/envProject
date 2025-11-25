@@ -28,13 +28,13 @@
               <span class="section-title">{{ section.title }}</span>
             }
 
-            @if (!isSidebarCollapsed && section.items?.length) {
+            @if (!isSidebarCollapsed && section.items.length) {
               <i class="fas fa-chevron-down" [class.collapsed]="section.collapsed"></i>
             }
           </div>
 
           <!-- Items -->
-          @if (section.items?.length && !section.collapsed && !isSidebarCollapsed) {
+          @if (section.items.length && !section.collapsed && !isSidebarCollapsed) {
             <ul class="section-items">
               @for (item of section.items; track item.label) {
                 <li>

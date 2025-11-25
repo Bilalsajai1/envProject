@@ -1,6 +1,7 @@
 package ma.perenity.backend.config;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import ma.perenity.backend.entities.*;
 import ma.perenity.backend.entities.enums.ActionType;
 import ma.perenity.backend.repository.*;
@@ -14,6 +15,7 @@ import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
+@Slf4j
 public class DataInitializer {
 
     private final ProfilRepository profilRepository;
@@ -27,6 +29,11 @@ public class DataInitializer {
     private final ApplicationRepository applicationRepository;
     private final EnvApplicationRepository envApplicationRepository;
 
+    private LocalDateTime now() {
+        // On tronque les secondes pour avoir des dates plus propres
+        return LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+    }
+
     private LocalDateTime dMinus(LocalDateTime base, int days) {
         return base.minusDays(days);
     }
@@ -37,10 +44,11 @@ public class DataInitializer {
 
             // Si déjà initialisé, ne rien faire
             if (profilRepository.count() > 0) {
+                log.info(">>> Données déjà initialisées, on ne réinjecte pas.");
                 return;
             }
 
-            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime now = now();
 
             /* =========================================================
              * 1. TYPES D’ENVIRONNEMENT
@@ -66,7 +74,7 @@ public class DataInitializer {
             environmentTypeRepository.saveAll(List.of(editionType, integrationType, clientType));
 
             /* =========================================================
-             * 2. MENUS (1 menu par type)
+             * 2. MENUS (1 menu par type d’environnement)
              * ========================================================= */
             MenuEntity menuEdition = MenuEntity.builder()
                     .code("MENU_EDITION")
@@ -179,7 +187,7 @@ public class DataInitializer {
             ));
 
             /* =========================================================
-             * 5. PROFIL_ROLE (assignation)
+             * 5. PROFIL_ROLE (assignation des rôles aux profils)
              * ========================================================= */
 
             // ADMIN : a tous les rôles
@@ -540,9 +548,8 @@ public class DataInitializer {
             ));
 
             /* =========================================================
-             * 9. ENV_APPLICATIONS (liens Env <-> App) AVEC DONNÉES ALÉATOIRES
+             * 9. ENV_APPLICATIONS (liens Env <-> App) AVEC DONNÉES
              * ========================================================= */
-
 
             // ---- EDITION - DEV (8 applications) ----
             EnvApplicationEntity devFront = EnvApplicationEntity.builder()
@@ -878,9 +885,6 @@ public class DataInitializer {
                     .build();
 
             // ---- INTEGRATION - Env Test Client / DEMO PROD / DEMO RISK (7 apps) ----
-            // Pour simplifier, on réutilise le même set d’apps que REC/PG sans Jenkins,
-            // mais avec des hosts/ports/dates différents.
-
             EnvApplicationEntity intTestFront = EnvApplicationEntity.builder()
                     .environnement(envTestClient)
                     .application(appFrontManar)
@@ -986,7 +990,7 @@ public class DataInitializer {
                     .createdAt(now)
                     .build();
 
-            // DEMO PROD (copie avec variations)
+            // DEMO PROD
             EnvApplicationEntity demoProdFront = EnvApplicationEntity.builder()
                     .environnement(envDemoProd)
                     .application(appFrontManar)
@@ -1092,7 +1096,7 @@ public class DataInitializer {
                     .createdAt(now)
                     .build();
 
-            // DEMO RISK (idem pattern)
+            // DEMO RISK
             EnvApplicationEntity demoRiskFront = EnvApplicationEntity.builder()
                     .environnement(envDemoRisk)
                     .application(appFrontManar)
@@ -1747,8 +1751,7 @@ public class DataInitializer {
 
             utilisateurRepository.save(adminUser);
 
-
-            System.out.println(">>> Base initialisée avec données de test complètes.");
+            log.info(">>> Base initialisée avec données de test complètes.");
         };
     }
 }

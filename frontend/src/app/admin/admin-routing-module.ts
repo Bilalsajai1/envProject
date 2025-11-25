@@ -2,6 +2,8 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import {ProjectAdminComponent} from './project-admin/project-admin.component';
 import {ApplicationAdminComponent} from './application-admin/application-admin.component';
+import {MenuAdminComponent} from './menu-admin/menu-admin.component';
+import {ProfileAdminComponent} from './profile-admin/profile-admin.component';
 
 const routes: Routes = [
   {
@@ -11,6 +13,14 @@ const routes: Routes = [
   {
     path: 'applications',
     component: ApplicationAdminComponent
+  },
+  {
+    path: 'menus',
+    component: MenuAdminComponent
+  },
+  {
+    path: 'profiles',
+    component: ProfileAdminComponent
   },
   {
     path: '',

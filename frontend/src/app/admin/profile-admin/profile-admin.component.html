@@ -1,0 +1,117 @@
+<div class="page-card">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Gestion des profils</div>
+      <div class="page-subtitle">
+        Administration des profils utilisateurs (ensemble de rôles).
+      </div>
+    </div>
+    <div class="page-actions">
+      <button class="primary" (click)="openCreateForm()">+ Nouveau profil</button>
+    </div>
+  </div>
+
+  <div *ngIf="loading">Chargement...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <table class="table" *ngIf="!loading && profils.length > 0">
+    <thead>
+    <tr>
+      <th>Code</th>
+      <th>Libellé</th>
+      <th>Description</th>
+      <th>Admin</th>
+      <th>Actif</th>
+      <th style="width: 220px;">Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let p of profils">
+      <td>{{ p.code }}</td>
+      <td>{{ p.libelle }}</td>
+      <td>{{ p.description }}</td>
+      <td>{{ p.admin ? 'Oui' : 'Non' }}</td>
+      <td>{{ p.actif ? 'Oui' : 'Non' }}</td>
+      <td class="table-actions">
+        <button class="secondary" (click)="openEditForm(p)">Modifier</button>
+        <button class="secondary" (click)="openRolePanel(p)">Rôles</button>
+        <button class="danger" (click)="deleteProfil(p)">Supprimer</button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="!loading && profils.length === 0" class="empty-state">
+    Aucun profil pour le moment.
+  </div>
+
+  <!-- FORM PROFIL -->
+  <div *ngIf="showForm" class="form-card">
+    <h3>{{ isEditing ? 'Modifier un profil' : 'Nouveau profil' }}</h3>
+
+    <form (ngSubmit)="submitForm()">
+      <div class="form-row">
+        <label>Code *</label>
+        <input [(ngModel)]="form.code" name="code" />
+      </div>
+      <div class="form-row">
+        <label>Libellé *</label>
+        <input [(ngModel)]="form.libelle" name="libelle" />
+      </div>
+      <div class="form-row">
+        <label>Description</label>
+        <textarea [(ngModel)]="form.description" name="description"></textarea>
+      </div>
+      <div class="form-row">
+        <label>
+          <input type="checkbox" [(ngModel)]="form.admin" name="admin" />
+          Profil administrateur
+        </label>
+      </div>
+      <div class="form-row">
+        <label>
+          <input type="checkbox" [(ngModel)]="form.actif" name="actif" />
+          Actif
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="primary">
+          {{ isEditing ? 'Enregistrer' : 'Créer' }}
+        </button>
+        <button type="button" class="secondary" (click)="cancelForm()">Annuler</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- PANNEAU RÔLES -->
+  <div *ngIf="showRolePanel" class="role-panel">
+    <div class="role-panel-header">
+      <h3>Rôles du profil {{ selectedProfil?.code }}</h3>
+      <button type="button" class="secondary" (click)="closeRolePanel()">Fermer</button>
+    </div>
+
+    <div *ngIf="loadingRoles">Chargement des rôles...</div>
+
+    <div *ngIf="!loadingRoles">
+      <div class="role-list">
+        <div class="role-item" *ngFor="let r of roles">
+          <label>
+            <input
+              type="checkbox"
+              [checked]="selectedRoleIds.includes(r.id)"
+              (change)="onToggleRole(r.id, $event.target.checked)"
+            />
+            <span class="role-code">{{ r.code }}</span>
+            <span class="role-libelle">{{ r.libelle }}</span>
+            <span class="role-action" *ngIf="r.action">[{{ r.action }}]</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="role-panel-actions">
+        <button class="primary" (click)="saveRoles()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>

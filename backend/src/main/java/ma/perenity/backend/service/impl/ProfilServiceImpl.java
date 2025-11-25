@@ -19,6 +19,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -37,7 +39,7 @@ public class ProfilServiceImpl implements ProfilService {
     @Override
     public ProfilDTO getById(Long id) {
         ProfilEntity profil = profilRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Profil introuvable"));
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Profil introuvable"));
         return mapper.toDto(profil);
     }
 
@@ -61,7 +63,7 @@ public class ProfilServiceImpl implements ProfilService {
     public ProfilDTO update(Long id, ProfilCreateUpdateDTO dto) {
 
         ProfilEntity profil = profilRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Profil introuvable"));
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Profil introuvable"));
 
         profil.setCode(dto.getCode());
         profil.setLibelle(dto.getLibelle());
@@ -78,10 +80,13 @@ public class ProfilServiceImpl implements ProfilService {
     @Override
     public void delete(Long id) {
         ProfilEntity profil = profilRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Profil introuvable"));
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Profil introuvable"));
 
-        profilRepository.delete(profil);
+        // Suppression logique
+        profil.setActif(false);
+        profilRepository.save(profil);
     }
+
 
     @Override
     public List<Long> getRoleIds(Long profilId) {
@@ -92,7 +97,7 @@ public class ProfilServiceImpl implements ProfilService {
     public void assignRoles(Long profilId, List<Long> roleIds) {
 
         ProfilEntity profil = profilRepository.findById(profilId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Profil introuvable"));
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Profil introuvable"));
 
         // supprimer anciens rôles
         profilRoleRepository.deleteByProfilId(profilId);

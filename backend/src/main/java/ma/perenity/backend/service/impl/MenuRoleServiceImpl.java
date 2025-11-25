@@ -62,4 +62,27 @@ public class MenuRoleServiceImpl implements MenuRoleService {
     public List<RoleEntity> getUnassignedRoles() {
         return roleRepository.findRolesWithoutMenu();
     }
+
+    @Override
+    public void updateRoles(Long menuId, List<Long> roleIds) {
+
+        MenuEntity menu = menuRepository.findById(menuId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Menu introuvable"));
+
+        // Retirer tous les rôles actuels
+        List<RoleEntity> current = roleRepository.findRolesByMenu(menuId);
+        for (RoleEntity r : current) {
+            r.setMenu(null);
+            roleRepository.save(r);
+        }
+
+        // Assigner les nouveaux rôles
+        for (Long roleId : roleIds) {
+            RoleEntity r = roleRepository.findById(roleId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Rôle introuvable"));
+            r.setMenu(menu);
+            roleRepository.save(r);
+        }
+    }
+
 }

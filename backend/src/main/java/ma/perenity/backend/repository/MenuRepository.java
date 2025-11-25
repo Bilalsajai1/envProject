@@ -18,5 +18,7 @@ public interface MenuRepository extends JpaRepository<MenuEntity, Long> {
     List<MenuEntity> findMenusByRoles(@Param("roleIds") List<Long> roleIds);
 
     List<MenuEntity> findByVisibleTrueOrderByOrdreAsc();
+    List<MenuEntity> findByEnvironmentType_CodeAndVisibleTrueOrderByOrdreAsc(String code);
+
 
 }

@@ -13,4 +13,6 @@ public interface MenuRoleService {
     void removeRoleFromMenu(Long menuId, Long roleId);
 
     List<RoleEntity> getUnassignedRoles();
+
+    void updateRoles(Long menuId, List<Long> roleIds);
 }

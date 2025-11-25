@@ -25,6 +25,10 @@ public class MenuController {
     public ResponseEntity<MenuDTO> get(@PathVariable Long id) {
         return ResponseEntity.ok(menuService.findById(id));
     }
+    @GetMapping("/by-environment-type/{code}")
+    public ResponseEntity<List<MenuDTO>> getByEnvironmentType(@PathVariable String code) {
+        return ResponseEntity.ok(menuService.findByEnvironmentTypeCode(code));
+    }
 
     @PostMapping
     public ResponseEntity<MenuDTO> create(@RequestBody MenuCreateUpdateDTO dto) {
