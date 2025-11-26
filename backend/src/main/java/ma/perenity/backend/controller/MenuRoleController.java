@@ -1,5 +1,6 @@
 package ma.perenity.backend.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import ma.perenity.backend.entities.RoleEntity;
 import ma.perenity.backend.service.MenuRoleService;
@@ -43,11 +44,9 @@ public class MenuRoleController {
     @PostMapping("/{menuId}/roles")
     public ResponseEntity<Void> updateRolesForMenu(
             @PathVariable Long menuId,
-            @RequestBody List<Long> roleIds
+            @Valid @RequestBody List<Long> roleIds
     ) {
         menuRoleService.updateRoles(menuId, roleIds);
         return ResponseEntity.ok().build();
     }
-
 }
-

@@ -1,11 +1,11 @@
 package ma.perenity.backend.entities;
 
-
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
-
 
 @Entity
 @Table(name = "UTILISATEUR")
@@ -38,11 +38,15 @@ public class UtilisateurEntity {
     @Column(nullable = false)
     private Boolean actif = true;
 
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    @Column(nullable = true)  // ✅ FIX
     private LocalDateTime updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PROFIL_ID", nullable = false)
-
     private ProfilEntity profil;
 }

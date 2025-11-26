@@ -64,25 +64,30 @@ public class MenuRoleServiceImpl implements MenuRoleService {
     }
 
     @Override
+    @Transactional
     public void updateRoles(Long menuId, List<Long> roleIds) {
 
         MenuEntity menu = menuRepository.findById(menuId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Menu introuvable"));
 
-        // Retirer tous les rôles actuels
-        List<RoleEntity> current = roleRepository.findRolesByMenu(menuId);
-        for (RoleEntity r : current) {
-            r.setMenu(null);
-            roleRepository.save(r);
+        // 1. Récupérer tous les rôles actuellement associés à ce menu
+        List<RoleEntity> currentRoles = roleRepository.findRolesByMenu(menuId);
+
+        // 2. Désassocier les rôles non présents dans la nouvelle liste
+        for (RoleEntity role : currentRoles) {
+            if (!roleIds.contains(role.getId())) {
+                role.setMenu(null);
+                roleRepository.save(role);
+            }
         }
 
-        // Assigner les nouveaux rôles
+        // 3. Associer les nouveaux rôles
         for (Long roleId : roleIds) {
-            RoleEntity r = roleRepository.findById(roleId)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Rôle introuvable"));
-            r.setMenu(menu);
-            roleRepository.save(r);
+            RoleEntity role = roleRepository.findById(roleId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            "Rôle introuvable : " + roleId));
+            role.setMenu(menu);
+            roleRepository.save(role);
         }
     }
-
 }

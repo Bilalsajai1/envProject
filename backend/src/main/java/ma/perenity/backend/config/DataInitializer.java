@@ -117,7 +117,10 @@ public class DataInitializer {
                     .description("Profil administrateur")
                     .admin(true)
                     .actif(true)
-                    .createdAt(now)
+                    .createdAt(now)    // ✅ Initialisé explicitement
+                    .updatedAt(now)    // ✅ Initialisé explicitement
+                    .createdBy("SYSTEM")
+                    .updatedBy("SYSTEM")
                     .build();
 
             ProfilEntity profilDev = ProfilEntity.builder()
@@ -127,6 +130,9 @@ public class DataInitializer {
                     .admin(false)
                     .actif(true)
                     .createdAt(now)
+                    .updatedAt(now)
+                    .createdBy("SYSTEM")
+                    .updatedBy("SYSTEM")
                     .build();
 
             ProfilEntity profilConsult = ProfilEntity.builder()
@@ -136,6 +142,9 @@ public class DataInitializer {
                     .admin(false)
                     .actif(true)
                     .createdAt(now)
+                    .updatedAt(now)
+                    .createdBy("SYSTEM")
+                    .updatedBy("SYSTEM")
                     .build();
 
             profilRepository.saveAll(List.of(profilAdmin, profilDev, profilConsult));

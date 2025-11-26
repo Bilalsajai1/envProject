@@ -1,5 +1,6 @@
 package ma.perenity.backend.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import ma.perenity.backend.dto.ProfilCreateUpdateDTO;
 import ma.perenity.backend.dto.ProfilDTO;
@@ -27,13 +28,13 @@ public class ProfilController {
     }
 
     @PostMapping
-    public ResponseEntity<ProfilDTO> create(@RequestBody ProfilCreateUpdateDTO dto) {
+    public ResponseEntity<ProfilDTO> create(@Valid @RequestBody ProfilCreateUpdateDTO dto) {
         return ResponseEntity.ok(service.create(dto));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ProfilDTO> update(@PathVariable Long id,
-                                            @RequestBody ProfilCreateUpdateDTO dto) {
+                                            @Valid @RequestBody ProfilCreateUpdateDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 
@@ -52,7 +53,7 @@ public class ProfilController {
     @PostMapping("/{id}/roles")
     public ResponseEntity<Void> assignRoles(
             @PathVariable Long id,
-            @RequestBody List<Long> roleIds) {
+            @Valid @RequestBody List<Long> roleIds) {
 
         service.assignRoles(id, roleIds);
         return ResponseEntity.noContent().build();

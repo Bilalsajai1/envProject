@@ -13,6 +13,7 @@ import ma.perenity.backend.repository.MenuRepository;
 import ma.perenity.backend.repository.RoleRepository;
 import ma.perenity.backend.service.RoleService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
@@ -22,6 +23,7 @@ import static org.springframework.http.HttpStatus.*;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class RoleServiceImpl implements RoleService {
 
     private final RoleRepository roleRepository;
