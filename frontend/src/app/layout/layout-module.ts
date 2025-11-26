@@ -8,6 +8,7 @@ import {TranslateModule, TranslatePipe} from '@ngx-translate/core';
 import {RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
 import {NgbDropdown, NgbDropdownMenu, NgbDropdownToggle} from '@ng-bootstrap/ng-bootstrap';
 import {NgxSpinnerComponent} from 'ngx-spinner';
+import {EnvironementModule} from '../environement/environement-module';
 
 
 
@@ -31,7 +32,8 @@ import {NgxSpinnerComponent} from 'ngx-spinner';
     NgxSpinnerComponent,
     RouterOutlet,
     RouterLink,
-    RouterLinkActive
+    RouterLinkActive,
+    EnvironementModule
   ]
 })
 export class LayoutModule { }

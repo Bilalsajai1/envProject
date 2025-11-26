@@ -7,6 +7,7 @@ import { ApplicationListComponent } from './pages/application-list/application-l
 import { EnvironmentListComponent } from './pages/environement-list/environement-list.component';
 import { EnvironmentTypeListComponent } from './pages/environement-type-list/environement-type-list.component';
 import { ProjectListComponent } from './pages/project-list/project-list.component';
+import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
 
 
 @NgModule({
@@ -16,11 +17,15 @@ import { ProjectListComponent } from './pages/project-list/project-list.componen
     ApplicationListComponent,
     EnvironmentListComponent,
     EnvironmentTypeListComponent,
-    ProjectListComponent
+    ProjectListComponent,
+    BreadcrumbComponent
+  ],
+  exports: [
+    BreadcrumbComponent
   ],
   imports: [
     CommonModule,
-    EnvironementRoutingModule ,
+    EnvironementRoutingModule,
     FormsModule
   ]
 })

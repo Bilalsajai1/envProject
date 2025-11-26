@@ -3,16 +3,15 @@ import { RouterModule, Routes } from '@angular/router';
 import { DashboardComponent } from './layout/dashboard/dashboard.component';
 import { MainLayout } from './layout/main-layout/main-layout';
 import { AuthGuard } from './auth/auth.guard';
-import {AuthCallbackComponent} from './auth/auth-callback/auth-callback.component';
+import { RoleGuard } from './auth/role.guard';  // ✅ IMPORT
+import { AuthCallbackComponent } from './auth/auth-callback/auth-callback.component';
 
 const routes: Routes = [
-  // Callback Keycloak : PAS de guard ici
   {
     path: 'auth/callback',
     component: AuthCallbackComponent
   },
 
-  // Le reste de l’appli est protégé
   {
     path: '',
     component: MainLayout,
@@ -28,6 +27,8 @@ const routes: Routes = [
 
       {
         path: 'admin',
+        canActivate: [RoleGuard],  // ✅ AJOUTER LE GUARD
+        data: { roles: ['ADMIN'] }, // ✅ SPÉCIFIER LES RÔLES REQUIS
         loadChildren: () =>
           import('./admin/admin-module').then(m => m.AdminModule)
       },
@@ -36,7 +37,6 @@ const routes: Routes = [
     ]
   },
 
-  // fallback
   { path: '**', redirectTo: '' }
 ];
 

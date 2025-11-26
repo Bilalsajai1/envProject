@@ -5,6 +5,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {EnvironnementService} from '../../services/environement-service';
 import {EnvironmentTypeService} from '../../services/environnement-type-service';
 import {ToastrService} from 'ngx-toastr';
+import {BreadcrumbService} from '../../breadcrumb/breadcrumb.component';
 
 @Component({
   selector: 'app-environement-list',
@@ -43,15 +44,22 @@ export class EnvironmentListComponent implements OnInit {
     private environmentTypeService: EnvironmentTypeService,
     private route: ActivatedRoute,
     private router: Router,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private breadcrumbService: BreadcrumbService
   ) {}
 
 
   ngOnInit(): void {
     this.typeCode = this.route.snapshot.paramMap.get('typeCode') || '';
-
     const projectIdParam = this.route.snapshot.paramMap.get('projectId');
     this.projectId = projectIdParam ? +projectIdParam : 0;
+
+
+    this.breadcrumbService.setBreadcrumbs([
+      { label: this.typeCode.toUpperCase(), url: `/environment/${this.typeCode}` },
+      { label: 'Projets', url: `/environment/${this.typeCode}/projects` },
+      { label: `Projet ${this.projectId}`, url: `/environment/${this.typeCode}/projects/${this.projectId}/environments` }
+    ]);
 
     this.loadEnvironmentTypesAndData();
   }

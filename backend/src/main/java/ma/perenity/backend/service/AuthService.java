@@ -47,6 +47,7 @@ public class AuthService {
                 .userId(user.getId())
                 .username(user.getLastName() + " " + user.getFirstName())
                 .email(user.getEmail())
+                .admin(profil.getAdmin())
                 .profilCode(profil.getCode())
                 .profilLibelle(profil.getLibelle())
                 .roles(roles.stream().map(RoleEntity::getCode).toList())

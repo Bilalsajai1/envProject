@@ -14,6 +14,7 @@ export interface AuthContext {
 
   profilCode: string;
   profilLibelle: string;
+  admin: boolean;  // ✅ AJOUTER CETTE LIGNE
 
   roles: string[];
   menus: MenuDTO[];

@@ -3,6 +3,7 @@ import {EnvironmentType} from '../../models/environment-type.model';
 import {EnvironmentTypeService} from '../../services/environnement-type-service';
 import {Router} from '@angular/router';
 import {ToastrService} from 'ngx-toastr';
+import {BreadcrumbService} from '../../breadcrumb/breadcrumb.component';
 
 @Component({
   selector: 'app-environement-type-list',
@@ -29,10 +30,15 @@ export class EnvironmentTypeListComponent implements  OnInit {
   constructor(
     private service: EnvironmentTypeService,
     private router: Router,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private breadcrumbService: BreadcrumbService
   ) {}
 
   ngOnInit(): void {
+    this.breadcrumbService.setBreadcrumbs([
+      { label: 'Types d\'environnement', url: '/environment' }
+    ]);
+
     this.load();
   }
 

@@ -17,7 +17,7 @@ public class AuthContextDTO {
 
     private String profilCode;
     private String profilLibelle;
-
+    private Boolean admin;
     private List<String> roles;
     private List<MenuDTO> menus;
 }

@@ -3,6 +3,7 @@ import {EnvApplication} from '../../models/env-application.model';
 import {ActivatedRoute, Router} from '@angular/router';
 import {EnvApplicationService} from '../../services/env-application-service';
 import {ToastrService} from 'ngx-toastr';
+import {BreadcrumbService} from '../../breadcrumb/breadcrumb.component';
 
 @Component({
   selector: 'app-application-list',
@@ -43,7 +44,8 @@ export class ApplicationListComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private service: EnvApplicationService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private breadcrumbService: BreadcrumbService
   ) {}
 
   ngOnInit(): void {
@@ -54,6 +56,14 @@ export class ApplicationListComponent implements OnInit {
 
     this.envId = envIdParam ? +envIdParam : 0;
     this.projectId = projectIdParam ? +projectIdParam : 0;
+
+    this.breadcrumbService.setBreadcrumbs([
+      { label: this.typeCode.toUpperCase(), url: `/environment/${this.typeCode}` },
+      { label: 'Projets', url: `/environment/${this.typeCode}/projects` },
+      { label: `Projet ${this.projectId}`, url: `/environment/${this.typeCode}/projects/${this.projectId}/environments` },
+      { label: `Env ${this.envId}`, url: `/environment/${this.typeCode}/projects/${this.projectId}/environments/${this.envId}/applications` },
+      { label: 'Applications', url: '' }
+    ]);
 
     this.load();
   }

@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {Projet} from '../../models/projet.model';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ProjetService} from '../../services/projet-service';
+import {BreadcrumbService} from '../../breadcrumb/breadcrumb.component';
 
 @Component({
   selector: 'app-project-list',
@@ -19,11 +20,18 @@ export class ProjectListComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private projetService: ProjetService
+    private projetService: ProjetService ,
+    private breadcrumbService: BreadcrumbService
   ) {}
 
   ngOnInit(): void {
     this.typeCode = this.route.snapshot.paramMap.get('typeCode') || '';
+
+    this.breadcrumbService.setBreadcrumbs([
+      { label: this.typeCode.toUpperCase(), url: `/environment/${this.typeCode}` },
+      { label: 'Projets', url: `/environment/${this.typeCode}/projects` }
+    ]);
+
     this.loadProjects();
   }
 
