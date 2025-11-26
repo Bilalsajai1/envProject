@@ -9,11 +9,23 @@ import { Role } from '../models/role.model';
 })
 export class RoleService {
 
-  private readonly apiUrl = environment.apiUrl;
+  private readonly apiUrl = `${environment.apiUrl}/roles`;
 
   constructor(private http: HttpClient) {}
 
-  getAllRoles(): Observable<Role[]> {
-    return this.http.get<Role[]>(`${this.apiUrl}/roles`);
+  getAll(): Observable<Role[]> {
+    return this.http.get<Role[]>(this.apiUrl);
+  }
+
+  getById(id: number): Observable<Role> {
+    return this.http.get<Role>(`${this.apiUrl}/${id}`);
+  }
+
+  getByMenu(menuId: number): Observable<Role[]> {
+    return this.http.get<Role[]>(`${this.apiUrl}/by-menu/${menuId}`);
+  }
+
+  getByEnv(envId: number): Observable<Role[]> {
+    return this.http.get<Role[]>(`${this.apiUrl}/by-env/${envId}`);
   }
 }

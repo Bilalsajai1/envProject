@@ -1,230 +1,82 @@
-<div class="user-admin-page page-card">
+<!-- user-admin.component.html (extrait) -->
 
-  <!-- HEADER -->
-  <div class="page-header">
-    <div>
-      <div class="page-title">Gestion des utilisateurs</div>
-      <div class="page-subtitle">
-        Création des comptes, affectation des profils & préparation des droits (projets / environnements).
-      </div>
-    </div>
-    <div class="page-actions">
-      <button class="secondary" (click)="loadUsers()">↻ Rafraîchir</button>
-      <button class="primary" (click)="openCreateForm()">+ Nouvel utilisateur</button>
-    </div>
+<div class="page-header">
+  <h1>Users</h1>
+  <button mat-raised-button color="primary" (click)="openCreateForm()">
+    + Nouvel utilisateur
+  </button>
+</div>
+
+<div class="card light-card">
+  <div class="card-header">
+    <input
+      type="text"
+      placeholder="Search (code, nom, email)..."
+      [(ngModel)]="search"
+      (ngModelChange)="onSearchChange($event)"
+    />
   </div>
 
-  <div class="user-admin-body">
+  <div class="filters-row">
+    <input placeholder="Code" [(ngModel)]="filters.code" (ngModelChange)="onFilterChange()" />
+    <input placeholder="Prénom" [(ngModel)]="filters.firstName" (ngModelChange)="onFilterChange()" />
+    <input placeholder="Nom" [(ngModel)]="filters.lastName" (ngModelChange)="onFilterChange()" />
+    <input placeholder="Email" [(ngModel)]="filters.email" (ngModelChange)="onFilterChange()" />
 
-    <!-- COLONNE GAUCHE : LISTE USERS -->
-    <div class="user-list-panel">
-      <div class="user-list-header">
-        <input
-          type="text"
-          placeholder="Rechercher (nom, email, code)..."
-          [(ngModel)]="search"
-        />
-        <button (click)="loadUsers()">Rechercher</button>
-      </div>
+    <select [(ngModel)]="filters.profilId" (ngModelChange)="onFilterChange()">
+      <option [ngValue]="null">Tous profils</option>
+      <option *ngFor="let p of profils" [ngValue]="p.id">{{ p.libelle }}</option>
+    </select>
 
-      <div class="user-list-content">
-        @if (loadingUsers) {
-          <div class="loading">Chargement des utilisateurs...</div>
-        }
-
-        @if (userError) {
-          <div class="error">{{ userError }}</div>
-        }
-
-        @if (!loadingUsers && !userError && users.length === 0) {
-          <div class="empty-state">
-            Aucun utilisateur pour le moment.
-          </div>
-        }
-
-        @if (!loadingUsers && !userError && users.length > 0) {
-          <ul class="user-list">
-            @for (u of users; track u.id) {
-              <li
-                (click)="onSelect(u)"
-                [class.selected]="selectedUser?.id === u.id"
-              >
-                <div class="avatar">
-                  {{ getInitials(u) }}
-                </div>
-                <div class="info">
-                  <div class="name">
-                    {{ u.lastName }} {{ u.firstName }}
-                  </div>
-                  <div class="email">
-                    {{ u.email }}
-                  </div>
-                  <div class="profil">
-                    {{ getProfilLibelle(u) || 'Profil non défini' }}
-                  </div>
-                </div>
-                <div class="status">
-                  <span class="badge" [class.inactive]="!u.actif">
-                    {{ u.actif ? 'Actif' : 'Inactif' }}
-                  </span>
-                </div>
-                <div class="row-actions">
-                  <button class="icon-btn" (click)="deleteUser(u); $event.stopPropagation()">
-                    <i class="fas fa-trash"></i>
-                  </button>
-                </div>
-              </li>
-            }
-          </ul>
-        }
-      </div>
-    </div>
-
-    <!-- COLONNE DROITE : DETAILS / FORM / TABS -->
-    <div class="user-detail-panel">
-
-      @if (!selectedUser && !showForm) {
-        <div class="empty-detail">
-          <p>Sélectionne un utilisateur à gauche ou crée un nouveau compte.</p>
-        </div>
-      }
-
-      <!-- FORMULAIRE CREATION / EDITION -->
-      @if (showForm) {
-        <div class="form-card">
-          <h3>{{ isEditing ? 'Modifier un utilisateur' : 'Nouvel utilisateur' }}</h3>
-
-          <form (ngSubmit)="submitForm()">
-            <div class="form-row">
-              <label>Code *</label>
-              <input [(ngModel)]="form.code" name="code" />
-            </div>
-            <div class="form-row two-cols">
-              <div>
-                <label>Nom *</label>
-                <input [(ngModel)]="form.lastName" name="lastName" />
-              </div>
-              <div>
-                <label>Prénom *</label>
-                <input [(ngModel)]="form.firstName" name="firstName" />
-              </div>
-            </div>
-            <div class="form-row">
-              <label>Email *</label>
-              <input type="email" [(ngModel)]="form.email" name="email" />
-            </div>
-
-            <div class="form-row">
-              <label>Profil</label>
-              <select [(ngModel)]="form.profilId" name="profilId">
-                <option [ngValue]="undefined">-- Aucun profil --</option>
-                @for (p of profils; track p.id) {
-                  <option [ngValue]="p.id">
-                    {{ p.code }} - {{ p.libelle }}
-                  </option>
-                }
-              </select>
-            </div>
-
-            <div class="form-row">
-              <label>
-                <input type="checkbox" [(ngModel)]="form.actif" name="actif" />
-                Compte actif
-              </label>
-            </div>
-
-            <div class="form-actions">
-              <button type="submit" class="primary">
-                {{ isEditing ? 'Enregistrer' : 'Créer' }}
-              </button>
-              <button type="button" class="secondary" (click)="cancelForm()">Annuler</button>
-            </div>
-          </form>
-        </div>
-      }
-
-      <!-- DETAILS + TABS POUR UTILISATEUR SELECTIONNE -->
-      @if (!showForm && selectedUser) {
-        <div class="user-detail-card">
-
-          <div class="user-header">
-            <div class="avatar-big">
-              {{ getInitials(selectedUser) }}
-            </div>
-            <div class="user-header-info">
-              <div class="user-name">
-                {{ selectedUser.lastName }} {{ selectedUser.firstName }}
-              </div>
-              <div class="user-email">
-                {{ selectedUser.email }}
-              </div>
-              <div class="user-profil">
-                Profil :
-                <b>{{ getProfilLibelle(selectedUser) || 'Non défini' }}</b>
-              </div>
-            </div>
-            <div class="user-header-actions">
-              <button class="secondary" (click)="openEditForm()">Modifier</button>
-            </div>
-          </div>
-
-          <!-- TABS -->
-          <div class="tabs">
-            <button
-              class="tab-btn"
-              [class.active]="activeTab === 'INFO'"
-              (click)="setActiveTab('INFO')"
-            >
-              Infos & Profil
-            </button>
-            <button
-              class="tab-btn"
-              [class.active]="activeTab === 'PERMISSIONS'"
-              (click)="setActiveTab('PERMISSIONS')"
-            >
-              Droits par environnement
-            </button>
-            <button
-              class="tab-btn"
-              [class.active]="activeTab === 'ROLES'"
-              (click)="setActiveTab('ROLES')"
-            >
-              Rôles directs
-            </button>
-          </div>
-
-          <!-- CONTENU TAB INFO -->
-          @if (activeTab === 'INFO') {
-            <div class="tab-panel">
-              <h4>Résumé du compte</h4>
-              <ul class="info-list">
-                <li><span>Code</span><strong>{{ selectedUser.code }}</strong></li>
-                <li><span>Nom</span><strong>{{ selectedUser.lastName }}</strong></li>
-                <li><span>Prénom</span><strong>{{ selectedUser.firstName }}</strong></li>
-                <li><span>Email</span><strong>{{ selectedUser.email }}</strong></li>
-                <li>
-                  <span>Statut</span>
-                  <strong>{{ selectedUser.actif ? 'Actif' : 'Inactif' }}</strong>
-                </li>
-                <li>
-                  <span>Profil</span>
-                  <strong>{{ getProfilLibelle(selectedUser) || 'Non défini' }}</strong>
-                </li>
-              </ul>
-
-              <p class="hint">
-                <i class="fas fa-info-circle"></i>
-                Cet utilisateur sera synchronisé avec Keycloak via son email et son profil métier.
-              </p>
-            </div>
-          }
-
-
-        </div>
-      }
-
-    </div>
-
+    <select [(ngModel)]="filters.actif" (ngModelChange)="onFilterChange()">
+      <option [ngValue]="null">Tous</option>
+      <option [ngValue]="true">Actifs</option>
+      <option [ngValue]="false">Inactifs</option>
+    </select>
   </div>
 
+  <table class="table table-striped table-hover light-table">
+    <thead>
+    <tr>
+      <th>Code</th>
+      <th>Nom complet</th>
+      <th>Email</th>
+      <th>Profil</th>
+      <th>Actif</th>
+      <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let u of users"
+        [class.selected]="selectedUser?.id === u.id"
+        (click)="onSelect(u)">
+      <td>{{ u.code }}</td>
+      <td>{{ u.lastName }} {{ u.firstName }}</td>
+      <td>{{ u.email }}</td>
+      <td>{{ getProfilLibelle(u) }}</td>
+      <td>
+        <span class="badge" [class.badge-success]="u.actif" [class.badge-danger]="!u.actif">
+          {{ u.actif ? 'Oui' : 'Non' }}
+        </span>
+      </td>
+      <td>
+        <button mat-icon-button (click)="openEditForm(); $event.stopPropagation()">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="deleteUser(u); $event.stopPropagation()">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <!-- Paginator (exemple Angular Material) -->
+  <mat-paginator
+    [length]="totalElements"
+    [pageSize]="pageSize"
+    [pageIndex]="pageIndex"
+    [pageSizeOptions]="[5, 10, 20, 50]"
+    (page)="onPageChange($event.pageIndex, $event.pageSize)">
+  </mat-paginator>
 </div>

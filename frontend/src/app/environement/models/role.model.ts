@@ -1,13 +1,17 @@
 export interface Role {
   id: number;
+
   code: string;
-  libelle?: string;
-  action?: string; // CONSULT, CREATE, UPDATE, DELETE...
-  actif?: boolean;
+  libelle: string;
+  action: 'CONSULT' | 'CREATE' | 'UPDATE' | 'DELETE';
+  actif: boolean;
 
-  menuId?: number;
-  menuCode?: string;
+  menuId?: number | null;
+  menuCode?: string | null;
 
-  environnementId?: number;
-  environnementCode?: string;
+  environnementId?: number | null;
+  environnementCode?: string | null;
+
+  createdAt?: string;
+  updatedAt?: string;
 }

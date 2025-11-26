@@ -1,127 +1,170 @@
-<div class="role-admin">
+<div class="role-admin-page">
 
-  <div class="header">
-    <div class="titles">
-      <h1>Gestion des rôles & permissions</h1>
-      <p>
-        Assigne les droits <b>CONSULT / CREATE / UPDATE / DELETE</b>
-        aux profils utilisateurs.
-      </p>
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>Rôles & Permissions</h1>
+      <p>Assigner les droits par utilisateur, profil et type d’environnement.</p>
     </div>
-
-    <button
-      class="btn-primary"
-      (click)="save()"
-      [disabled]="!selectedProfil || saving"
-    >
-      <span *ngIf="!saving">💾 Enregistrer les permissions</span>
-      <span *ngIf="saving">⏳ Enregistrement...</span>
-    </button>
+    <div class="topbar-right">
+      <button
+        class="btn-primary"
+        [disabled]="saving || !selectedUser"
+        (click)="savePermissions()">
+        <span *ngIf="!saving">Enregistrer les permissions</span>
+        <span *ngIf="saving">Enregistrement...</span>
+      </button>
+    </div>
   </div>
 
-  <div class="content">
+  <div class="content-layout">
 
-    <!-- COLONNE GAUCHE : PROFILS -->
-    <div class="profils-card">
-      <div class="card-header">
-        <h2>Profils</h2>
+    <!-- COLONNE GAUCHE : USERS -->
+    <div class="left-panel light-card">
+      <div class="panel-header">
+        <h2>Utilisateurs</h2>
         <input
           type="text"
-          placeholder="Rechercher un profil..."
-          [(ngModel)]="profilSearch"
-        />
+          placeholder="Search utilisateur (nom, email, code)..."
+          [(ngModel)]="userSearch"
+          (ngModelChange)="onUserSearchChange($event)" />
       </div>
 
-      <div class="profil-list" *ngIf="!loadingProfils; else loadingProfilsTpl">
-        <button
-          class="profil-item"
-          *ngFor="let p of filteredProfils()"
-          (click)="selectProfil(p)"
-          [class.active]="selectedProfil?.id === p.id"
-        >
+      <div class="user-list" *ngIf="!loadingUsers; else usersLoadingTpl">
+        <div
+          class="user-item"
+          *ngFor="let u of users"
+          [class.selected]="selectedUser?.id === u.id"
+          (click)="onSelectUser(u)">
           <div class="avatar">
-            {{ getProfilInitials(p) }}
+            {{ (u.firstName || u.lastName || u.code || 'U').charAt(0) | uppercase }}
           </div>
-          <div class="info">
-            <div class="libelle">{{ p.libelle }}</div>
-            <div class="code">{{ p.code }}</div>
+          <div class="user-text">
+            <div class="user-name">{{ getUserDisplay(u) }}</div>
+            <div class="user-email">{{ u.email }}</div>
+            <div class="user-profil" *ngIf="getUserProfilLabel(u)">
+              {{ getUserProfilLabel(u) }}
+            </div>
           </div>
-        </button>
+          <div class="user-status">
+            <span class="badge" [class.badge-success]="u.actif" [class.badge-danger]="!u.actif">
+              {{ u.actif ? 'Actif' : 'Inactif' }}
+            </span>
+          </div>
+        </div>
 
-        <div *ngIf="filteredProfils().length === 0" class="empty">
-          Aucun profil trouvé.
+        <div *ngIf="users.length === 0" class="empty-state">
+          Aucun utilisateur trouvé.
         </div>
       </div>
 
-      <ng-template #loadingProfilsTpl>
-        <div class="loading">Chargement des profils...</div>
+      <ng-template #usersLoadingTpl>
+        <div class="loading-state">Chargement des utilisateurs...</div>
       </ng-template>
+
+      <!-- Paginator simple (si tu utilises mat-paginator) -->
+      <mat-paginator
+        [length]="totalElements"
+        [pageSize]="pageSize"
+        [pageIndex]="pageIndex"
+        [pageSizeOptions]="[10, 20, 50]"
+        (page)="onUserPageChange($event.pageIndex, $event.pageSize)">
+      </mat-paginator>
     </div>
 
-    <!-- COLONNE DROITE : ROLES -->
-    <div class="roles-card">
-      <div *ngIf="selectedProfil; else noProfilTpl">
+    <!-- COLONNE DROITE : BLOCS PAR TYPE D’ENVIRONNEMENT -->
+    <div class="right-panel">
 
-        <div class="card-header">
-          <div>
-            <h2>Rôles disponibles</h2>
-            <p>
-              Profil sélectionné :
-              <span class="badge">{{ selectedProfil?.libelle }} ({{ selectedProfil?.code }})</span>
-            </p>
-          </div>
-        </div>
-
-        <div class="roles-table-wrapper" *ngIf="!loadingRoles; else loadingRolesTpl">
-
-          <table class="roles-table">
-            <thead>
-            <tr>
-              <th>Code</th>
-              <th>Libellé</th>
-              <th>Action</th>
-              <th>Menu</th>
-              <th>Environnement</th>
-              <th>Assigné</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr *ngFor="let r of roles">
-              <td>{{ r.code }}</td>
-              <td>{{ r.libelle }}</td>
-              <td>
-                <span class="chip chip-action">{{ r.action }}</span>
-              </td>
-              <td>{{ r.menuCode || '—' }}</td>
-              <td>{{ r.environnementCode || '—' }}</td>
-              <td class="center">
-                <input
-                  type="checkbox"
-                  [checked]="isRoleSelected(r.id)"
-                  (change)="toggleRole(r.id, $event.target.checked)"
-                />
-              </td>
-            </tr>
-            </tbody>
-          </table>
-
-          <div *ngIf="roles.length === 0" class="empty">
-            Aucun rôle configuré pour le moment.
-          </div>
-        </div>
-
-        <ng-template #loadingRolesTpl>
-          <div class="loading">Chargement des rôles...</div>
-        </ng-template>
-
+      <div *ngIf="!selectedUser" class="empty-state large">
+        Sélectionne un utilisateur à gauche pour configurer ses permissions.
       </div>
 
-      <ng-template #noProfilTpl>
-        <div class="no-selection">
-          <p>Sélectionne un profil à gauche pour gérer ses rôles.</p>
+      <div *ngIf="selectedUser" class="permissions-container">
+
+        <div class="user-header light-card">
+          <div class="user-header-main">
+            <div class="avatar big">
+              {{ (selectedUser.firstName || selectedUser.lastName || selectedUser.code || 'U').charAt(0) | uppercase }}
+            </div>
+            <div>
+              <div class="user-name-big">{{ getUserDisplay(selectedUser) }}</div>
+              <div class="user-email">{{ selectedUser.email }}</div>
+            </div>
+          </div>
+          <div class="user-header-meta">
+            <div class="meta-item">
+              <span class="meta-label">Profil</span>
+              <span class="meta-value">{{ getUserProfilLabel(selectedUser) || '—' }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Statut</span>
+              <span class="meta-value">
+                <span class="badge" [class.badge-success]="selectedUser.actif" [class.badge-danger]="!selectedUser.actif">
+                  {{ selectedUser.actif ? 'Actif' : 'Inactif' }}
+                </span>
+              </span>
+            </div>
+          </div>
         </div>
-      </ng-template>
+
+        <div *ngIf="loadingPermissions" class="loading-state">
+          Chargement des permissions...
+        </div>
+
+        <div class="env-blocks" *ngIf="!loadingPermissions">
+
+          <div *ngFor="let block of envBlocks" class="env-block light-card">
+            <div class="env-block-header">
+              <div>
+                <h2>{{ getEnvTypeLabel(block) }}</h2>
+                <p>Configurer les droits sur les menus / environnements de ce type.</p>
+              </div>
+            </div>
+
+            <div class="env-units">
+              <div *ngFor="let unit of block.units" class="env-unit">
+                <div class="env-unit-header">
+                  <div>
+                    <div class="env-unit-title">
+                      {{ unit.label }}
+                    </div>
+                    <div class="env-unit-sub" *ngIf="unit.environnementCode">
+                      Env : {{ unit.environnementCode }}
+                    </div>
+                  </div>
+
+                  <div class="env-unit-toggle">
+                    <label>
+                      <input
+                        type="checkbox"
+                        [checked]="unitHasAllActions(unit)"
+                        (change)="toggleUnit(unit, $event.target.checked)" />
+                      <span>Tout</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="env-actions">
+                  <label
+                    class="action-chip"
+                    *ngFor="let a of unit.actions">
+                    <input
+                      type="checkbox"
+                      [checked]="isRoleChecked(a.roleId)"
+                      (change)="toggleRole(a.roleId)" />
+                    <span class="action-label">{{ a.action }}</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
     </div>
 
   </div>
+
 </div>

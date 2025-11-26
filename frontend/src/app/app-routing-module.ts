@@ -9,8 +9,8 @@ import { AuthGuard } from './auth/auth.guard';
 
 import { UserAdminComponent } from './admin/user-admin/user-admin.component';
 import { DashboardComponent } from './layout/dashboard/dashboard.component';
-import {RoleAdminComponent} from './admin/role-admin/role-admin.component';
-import {EnvTypeAdminComponent} from './admin/env-type-admin/env-type-admin.component';
+import { RoleAdminComponent } from './admin/role-admin/role-admin.component';
+import { EnvTypeAdminComponent } from './admin/env-type-admin/env-type-admin.component';
 
 const routes: Routes = [
   // 1) Login & callback (PAS de guard)
@@ -23,29 +23,28 @@ const routes: Routes = [
     component: MainLayout,
     canActivate: [AuthGuard],
     children: [
-      // Home = admin/users (car tu as un seul user admin pour le moment)
+      // Home = admin/users (pour l’instant)
       { path: '', redirectTo: 'admin/users', pathMatch: 'full' },
 
       // --- ADMIN ZONE ---
       { path: 'admin/users', component: UserAdminComponent },
       { path: 'admin/roles', component: RoleAdminComponent },
 
-      // 3 menus pour les types d’environnements
-      // Exemple : EDITION, INTEGRATION, CLIENT
+      // Types d’environnements : /admin/env-types/EDITION, /admin/env-types/INTEGRATION, etc.
       {
-        path: 'admin/env-types/:typeCode',
+        path: 'admin/env-types/:code',   // ⚠️ :code pour matcher EnvTypeAdminComponent
         component: EnvTypeAdminComponent
       },
 
-      // Dashboard (non utilisé comme home pour l’instant, mais dispo)
+      // Dashboard (optionnel)
       { path: 'dashboard', component: DashboardComponent },
 
-      // Fallback interne
+      // Fallback interne → retourne sur users admin
       { path: '**', redirectTo: 'admin/users' }
     ]
   },
 
-  // Fallback global
+  // Fallback global (si rien ne matche, on renvoie vers login)
   { path: '**', redirectTo: 'login' }
 ];
 

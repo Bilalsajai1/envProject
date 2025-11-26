@@ -1,43 +1,60 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { environment } from '../../../configuration/environement.config';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../configuration/environement.config';
 import { User } from '../models/user.model';
 
-@Injectable({ providedIn: 'root' })
+export interface UserSearchRequest {
+  page: number;
+  size: number;
+  sort?: string;
+
+  text?: string;
+  code?: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  actif?: boolean | null;
+  profilId?: number | null;
+}
+
+export interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
 export class UserService {
 
-  private baseUrl = `${environment.apiUrl}/users`;
+  private readonly apiUrl = `${environment.apiUrl}/users`;
 
   constructor(private http: HttpClient) {}
 
-  /** Liste des users (avec option de recherche, pour AdminUser) */
-  getAllUsers(search?: string): Observable<User[]> {
-    let params = new HttpParams();
-    if (search) {
-      params = params.set('search', search);
-    }
-    return this.http.get<User[]>(this.baseUrl, { params });
-  }
-
-  /** Alias pour la datatable simple */
-  list(): Observable<User[]> {
-    return this.getAllUsers();
+  searchUsers(req: UserSearchRequest): Observable<PageResponse<User>> {
+    return this.http.post<PageResponse<User>>(
+      `${this.apiUrl}/search`,
+      req
+    );
   }
 
   getById(id: number): Observable<User> {
-    return this.http.get<User>(`${this.baseUrl}/${id}`);
+    return this.http.get<User>(`${this.apiUrl}/${id}`);
   }
 
-  create(dto: Partial<User>): Observable<User> {
-    return this.http.post<User>(this.baseUrl, dto);
+  createUser(payload: Partial<User>): Observable<User> {
+    return this.http.post<User>(this.apiUrl, payload);
   }
 
-  update(id: number, dto: Partial<User>): Observable<User> {
-    return this.http.put<User>(`${this.baseUrl}/${id}`, dto);
+  updateUser(id: number, payload: Partial<User>): Observable<User> {
+    return this.http.put<User>(`${this.apiUrl}/${id}`, payload);
   }
 
-  delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  deleteUser(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

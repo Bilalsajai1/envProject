@@ -11,6 +11,9 @@ import { UserAdminComponent } from './user-admin/user-admin.component';
 import { ProfilRoleComponent } from './profil-role/profil-role.component';
 import { RoleAdminComponent } from './role-admin/role-admin.component';
 import { EnvTypeAdminComponent } from './env-type-admin/env-type-admin.component';
+import {MatIcon} from "@angular/material/icon-module.d";
+import {MatPaginator} from '@angular/material/paginator.d';
+import {MatButton, MatIconButton} from '@angular/material/button';
 
 @NgModule({
   declarations: [
@@ -26,7 +29,11 @@ import { EnvTypeAdminComponent } from './env-type-admin/env-type-admin.component
   imports: [
     CommonModule,
     FormsModule,
-    AdminRoutingModule
+    AdminRoutingModule,
+    MatIcon,
+    MatPaginator,
+    MatButton,
+    MatIconButton
   ]
 })
 export class AdminModule {}

@@ -1,7 +1,8 @@
+// src/app/admin/user-admin/user-admin.component.ts
 import { Component, OnInit } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { User } from '../../environement/models/user.model';
-import { UserService } from '../../environement/services/user-service';
+import { UserService, UserSearchRequest } from '../../environement/services/user-service';
 import { Profil } from '../../environement/models/profil.model';
 import { ProfilService } from '../../environement/services/profil-service';
 
@@ -13,16 +14,19 @@ import { ProfilService } from '../../environement/services/profil-service';
 })
 export class UserAdminComponent implements OnInit {
 
-  // Liste users (colonne gauche)
+  // données
   users: User[] = [];
+  profils: Profil[] = [];
+
+  // état chargement / erreur
   loadingUsers = false;
   userError?: string;
-  search = '';
+  loadingProfils = false;
 
-  // Sélection
+  // sélection
   selectedUser?: User;
 
-  // Formulaire CRUD user
+  // form CRUD
   showForm = false;
   isEditing = false;
   currentId?: number;
@@ -36,11 +40,23 @@ export class UserAdminComponent implements OnInit {
     profilId: undefined
   };
 
-  // Profils pour choisir dans un select
-  profils: Profil[] = [];
-  loadingProfils = false;
+  // search / filtres
+  search = ''; // text global (code / nom / email)
+  filters = {
+    code: '',
+    firstName: '',
+    lastName: '',
+    email: '',
+    actif: null as boolean | null,
+    profilId: null as number | null
+  };
 
-  // Tabs
+  // pagination
+  pageIndex = 0;
+  pageSize = 10;
+  totalElements = 0;
+
+  // onglets
   activeTab: 'INFO' | 'PERMISSIONS' | 'ROLES' = 'INFO';
 
   constructor(
@@ -50,33 +66,11 @@ export class UserAdminComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadUsers();
     this.loadProfils();
+    this.loadUsers();
   }
 
-  // ---------- LOAD DATA ----------
-
-  loadUsers(): void {
-    this.loadingUsers = true;
-    this.userError = undefined;
-
-    this.userService.getAllUsers(this.search).subscribe({
-      next: (data: User[]) => {
-        this.users = data;
-        this.loadingUsers = false;
-
-        if (!this.selectedUser && this.users.length > 0) {
-          this.onSelect(this.users[0]);
-        }
-      },
-      error: (err: any) => {
-        console.error(err);
-        this.userError = 'Erreur lors du chargement des utilisateurs.';
-        this.toastr.error(this.userError);
-        this.loadingUsers = false;
-      }
-    });
-  }
+  // ---------------- LOAD DATA ----------------
 
   loadProfils(): void {
     this.loadingProfils = true;
@@ -93,7 +87,43 @@ export class UserAdminComponent implements OnInit {
     });
   }
 
-  // ---------- SELECTION ----------
+  loadUsers(): void {
+    this.loadingUsers = true;
+    this.userError = undefined;
+
+    const request: UserSearchRequest = {
+      page: this.pageIndex,
+      size: this.pageSize,
+      sort: 'code,asc',
+      text: this.search?.trim() || undefined,
+      code: this.filters.code || undefined,
+      firstName: this.filters.firstName || undefined,
+      lastName: this.filters.lastName || undefined,
+      email: this.filters.email || undefined,
+      actif: this.filters.actif,
+      profilId: this.filters.profilId
+    };
+
+    this.userService.searchUsers(request).subscribe({
+      next: (page) => {
+        this.users = page.content;
+        this.totalElements = page.totalElements;
+        this.loadingUsers = false;
+
+        if (!this.selectedUser && this.users.length > 0) {
+          this.onSelect(this.users[0]);
+        }
+      },
+      error: (err: any) => {
+        console.error(err);
+        this.userError = 'Erreur lors du chargement des utilisateurs.';
+        this.toastr.error(this.userError);
+        this.loadingUsers = false;
+      }
+    });
+  }
+
+  // ---------------- SELECTION ----------------
 
   onSelect(u: User): void {
     this.selectedUser = u;
@@ -103,7 +133,26 @@ export class UserAdminComponent implements OnInit {
     this.activeTab = 'INFO';
   }
 
-  // ---------- CRUD FORM ----------
+  // ---------------- FILTRES / SEARCH / PAGINATION ----------------
+
+  onSearchChange(value: string): void {
+    this.search = value;
+    this.pageIndex = 0;
+    this.loadUsers();
+  }
+
+  onFilterChange(): void {
+    this.pageIndex = 0;
+    this.loadUsers();
+  }
+
+  onPageChange(pageIndex: number, pageSize: number): void {
+    this.pageIndex = pageIndex;
+    this.pageSize = pageSize;
+    this.loadUsers();
+  }
+
+  // ---------------- CRUD FORM ----------------
 
   openCreateForm(): void {
     this.showForm = true;
@@ -127,7 +176,6 @@ export class UserAdminComponent implements OnInit {
     this.showForm = true;
     this.isEditing = true;
     this.currentId = u.id;
-
     this.form = {
       code: u.code,
       firstName: u.firstName,
@@ -160,28 +208,27 @@ export class UserAdminComponent implements OnInit {
     };
 
     if (this.isEditing && this.currentId) {
-      // 🔁 update
-      this.userService.update(this.currentId, payload).subscribe({
+      this.userService.updateUser(this.currentId, payload).subscribe({
         next: () => {
           this.toastr.success('Utilisateur mis à jour.');
           this.showForm = false;
           this.loadUsers();
         },
         error: (err: any) => {
-          const msg = err?.error?.message || 'Erreur lors de la mise à jour.';
+          const msg = err.error?.message || 'Erreur lors de la mise à jour.';
           this.toastr.error(msg);
         }
       });
     } else {
-      // ➕ create
-      this.userService.create(payload).subscribe({
+      this.userService.createUser(payload).subscribe({
         next: () => {
           this.toastr.success('Utilisateur créé.');
           this.showForm = false;
+          this.pageIndex = 0;
           this.loadUsers();
         },
         error: (err: any) => {
-          const msg = err?.error?.message || 'Erreur lors de la création.';
+          const msg = err.error?.message || 'Erreur lors de la création.';
           this.toastr.error(msg);
         }
       });
@@ -193,22 +240,23 @@ export class UserAdminComponent implements OnInit {
       return;
     }
 
-    this.userService.delete(u.id).subscribe({
+    this.userService.deleteUser(u.id).subscribe({
       next: () => {
         this.toastr.success('Utilisateur supprimé.');
         if (this.selectedUser?.id === u.id) {
           this.selectedUser = undefined;
         }
+        this.pageIndex = 0;
         this.loadUsers();
       },
       error: (err: any) => {
-        const msg = err?.error?.message || 'Erreur lors de la suppression.';
+        const msg = err.error?.message || 'Erreur lors de la suppression.';
         this.toastr.error(msg);
       }
     });
   }
 
-  // ---------- TABS ----------
+  // ---------------- TABS ----------------
 
   setActiveTab(tab: 'INFO' | 'PERMISSIONS' | 'ROLES'): void {
     this.activeTab = tab;
