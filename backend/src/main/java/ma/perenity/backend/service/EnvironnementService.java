@@ -22,16 +22,17 @@ public class EnvironnementService {
     private final EnvironnementRepository environnementRepository;
     private final ProjetRepository projetRepository;
     private final EnvironmentTypeRepository typeRepository;
-
     private final EnvironnementMapper mapper;
 
     // =====================================================
-    // GET : environnements par projet et type
+    // GET : environnements actifs par projet + type (via type.code)
     // =====================================================
 
     public List<EnvironnementDTO> getEnvironmentsByProjetAndType(Long projetId, String typeCode) {
+
         return environnementRepository.findByProjetAndType(projetId, typeCode)
                 .stream()
+                .filter(EnvironnementEntity::getActif) // garder juste les actifs
                 .map(mapper::toDto)
                 .toList();
     }
@@ -50,8 +51,9 @@ public class EnvironnementService {
         ProjetEntity projet = projetRepository.findById(dto.getProjetId())
                 .orElseThrow(() -> new ResourceNotFoundException("Projet not found with id = " + dto.getProjetId()));
 
-        EnvironmentTypeEntity type = typeRepository.findById(dto.getTypeId())
-                .orElseThrow(() -> new ResourceNotFoundException("EnvironmentType not found with id = " + dto.getTypeId()));
+        // recherche via typeCode
+        EnvironmentTypeEntity type = typeRepository.findByCode(dto.getTypeCode())
+                .orElseThrow(() -> new ResourceNotFoundException("Type not found: " + dto.getTypeCode()));
 
         EnvironnementEntity env = mapper.toEntity(dto);
 
@@ -74,8 +76,7 @@ public class EnvironnementService {
 
         EnvironnementEntity env = getByIdOrThrow(id);
 
-        // MapStruct met à jour seulement les champs du DTO (sans toucher au projet/type)
-        mapper.updateEntity(env, dto);
+        mapper.updateEntity(env, dto); // partiel
 
         env.setUpdatedAt(LocalDateTime.now());
         environnementRepository.save(env);
@@ -88,9 +89,11 @@ public class EnvironnementService {
     // =====================================================
 
     public void delete(Long id) {
-        if (!environnementRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Application not found with id = " + id);
-        }
-        environnementRepository.deleteById(id);
+        EnvironnementEntity entity = getByIdOrThrow(id);
+
+        entity.setActif(false);
+        entity.setUpdatedAt(LocalDateTime.now());
+
+        environnementRepository.save(entity);
     }
 }

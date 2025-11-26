@@ -21,8 +21,8 @@ public class EnvironnementDTO {
     private String description;
 
     private Boolean actif;
-    @NotBlank()
+
     private Long projetId;
-    @NotBlank()
-    private Long typeId;
+    @NotBlank
+    private String typeCode;
 }

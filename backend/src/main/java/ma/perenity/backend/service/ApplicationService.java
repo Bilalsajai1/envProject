@@ -18,49 +18,77 @@ public class ApplicationService {
     private final ApplicationRepository repository;
     private final ApplicationMapper mapper;
 
+    // ============================================================
+    // GET ALL ACTIVES
+    // ============================================================
     public List<ApplicationDTO> getAll() {
-        return repository.findAll().stream()
+        return repository.findByActifTrue()
+                .stream()
                 .map(mapper::toDto)
                 .toList();
     }
 
+    // ============================================================
+    // GET ALL (ACTIF + INACTIF)
+    // ============================================================
     public List<ApplicationDTO> getAllActive() {
-        return repository.findByActifTrue().stream()
+        return repository.findAll()
+                .stream()
                 .map(mapper::toDto)
                 .toList();
     }
 
+    // ============================================================
+    // GET BY ID (only active)
+    // ============================================================
     public ApplicationDTO getById(Long id) {
         ApplicationEntity entity = repository.findById(id)
+                .filter(ApplicationEntity::getActif) // ne renvoyer que les actifs
                 .orElseThrow(() -> new ResourceNotFoundException("Application not found with id = " + id));
+
         return mapper.toDto(entity);
     }
 
+    // ============================================================
+    // CREATE
+    // ============================================================
     public ApplicationDTO create(ApplicationDTO dto) {
         ApplicationEntity entity = mapper.toEntity(dto);
         entity.setActif(true);
         entity.setCreatedAt(LocalDateTime.now());
+
         entity = repository.save(entity);
         return mapper.toDto(entity);
     }
 
+    // ============================================================
+    // UPDATE
+    // ============================================================
     public ApplicationDTO update(Long id, ApplicationDTO dto) {
+
         ApplicationEntity entity = repository.findById(id)
+                .filter(ApplicationEntity::getActif)
                 .orElseThrow(() -> new ResourceNotFoundException("Application not found with id = " + id));
 
         mapper.updateEntity(entity, dto);
+
         entity.setUpdatedAt(LocalDateTime.now());
-        entity = repository.save(entity);
+        repository.save(entity);
 
         return mapper.toDto(entity);
     }
 
+    // ============================================================
+    // DELETE LOGIQUE
+    // ============================================================
     public void delete(Long id) {
-        if (!repository.existsById(id)) {
-            throw new ResourceNotFoundException("Application not found with id = " + id);
-        }
-        repository.deleteById(id);
+
+        ApplicationEntity entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Application not found with id = " + id));
+
+        entity.setActif(false);
+        entity.setUpdatedAt(LocalDateTime.now());
+
+        repository.save(entity);
     }
-
-
 }

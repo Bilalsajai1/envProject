@@ -7,11 +7,9 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring")
 public interface EnvironnementMapper {
 
-
     @Mapping(target = "projetId", source = "projet.id")
-    @Mapping(target = "typeId", source = "type.id")
+    @Mapping(target = "typeCode", source = "type.code")
     EnvironnementDTO toDto(EnvironnementEntity entity);
-
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "projet", ignore = true)
@@ -20,10 +18,10 @@ public interface EnvironnementMapper {
     @Mapping(target = "roles", ignore = true)
     EnvironnementEntity toEntity(EnvironnementDTO dto);
 
-
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "projet", ignore = true)
     @Mapping(target = "type", ignore = true)
     void updateEntity(@MappingTarget EnvironnementEntity entity, EnvironnementDTO dto);
+
 }

@@ -25,7 +25,9 @@ public class EnvApplicationService {
 
     private final EnvApplicationMapper mapper;
 
-
+    // ============================================================
+    // GET BY ENV (ACTIFS UNIQUEMENT)
+    // ============================================================
     public List<EnvApplicationDTO> getByEnvironnement(Long envId) {
 
         environnementRepository.findById(envId)
@@ -33,12 +35,15 @@ public class EnvApplicationService {
 
         return repository.findByEnvironnementId(envId)
                 .stream()
-                .filter(EnvApplicationEntity::getActif) // <- n'affiche que les actives
+                .filter(EnvApplicationEntity::getActif) // logique : n'afficher que les actifs
                 .map(mapper::toDto)
                 .toList();
     }
 
 
+    // ============================================================
+    // CREATE
+    // ============================================================
     public EnvApplicationDTO create(EnvApplicationDTO dto) {
 
         EnvironnementEntity env = environnementRepository.findById(dto.getEnvironnementId())
@@ -47,9 +52,10 @@ public class EnvApplicationService {
         ApplicationEntity app = applicationRepository.findById(dto.getApplicationId())
                 .orElseThrow(() -> new ResourceNotFoundException("Application not found"));
 
-        // Vérifier si l’application existe déjà dans cet environnement
+        // Vérification doublon
         boolean exists = repository.findByEnvironnementId(dto.getEnvironnementId())
                 .stream()
+                .filter(EnvApplicationEntity::getActif)
                 .anyMatch(a -> a.getApplication().getId().equals(dto.getApplicationId()));
 
         if (exists) {
@@ -57,6 +63,7 @@ public class EnvApplicationService {
         }
 
         EnvApplicationEntity entity = mapper.toEntity(dto);
+        entity.setId(null);
         entity.setEnvironnement(env);
         entity.setApplication(app);
         entity.setActif(true);
@@ -68,12 +75,17 @@ public class EnvApplicationService {
     }
 
 
+    // ============================================================
+    // UPDATE
+    // ============================================================
     public EnvApplicationDTO update(Long id, EnvApplicationDTO dto) {
 
         EnvApplicationEntity entity = repository.findById(id)
+                .filter(EnvApplicationEntity::getActif)
                 .orElseThrow(() -> new ResourceNotFoundException("EnvApplication not found"));
 
         mapper.updateEntity(entity, dto);
+
         entity.setUpdatedAt(LocalDateTime.now());
 
         entity = repository.save(entity);
@@ -82,11 +94,18 @@ public class EnvApplicationService {
     }
 
 
+    // ============================================================
+    // DELETE LOGIQUE
+    // ============================================================
     public void delete(Long id) {
-        if (!repository.existsById(id)) {
-            throw new ResourceNotFoundException("Application not found with id = " + id);
-        }
-        repository.deleteById(id);
-    }
 
+        EnvApplicationEntity entity = repository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("EnvApplication not found with id = " + id));
+
+        entity.setActif(false);
+        entity.setUpdatedAt(LocalDateTime.now());
+
+        repository.save(entity);
+    }
 }

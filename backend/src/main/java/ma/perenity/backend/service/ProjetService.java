@@ -26,7 +26,7 @@ public class ProjetService {
 
 
     public List<ProjetDTO> getAll() {
-        return projetRepository.findAll()
+        return projetRepository.findByActifTrue()
                 .stream()
                 .map(this::toDto)
                 .toList();
@@ -67,13 +67,17 @@ public class ProjetService {
         return toDto(entity);
     }
 
-    public void delete(Long id) {
-        if (!projetRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Projet introuvable avec id = " + id);
-        }
 
-        projetRepository.deleteById(id);
+    public void delete(Long id) {
+        ProjetEntity projet = projetRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Projet introuvable"));
+
+        projet.setActif(false);
+        projet.setUpdatedAt(LocalDateTime.now());
+
+        projetRepository.save(projet);
     }
+
 
     private ProjetDTO toDto(ProjetEntity p) {
         return ProjetDTO.builder()

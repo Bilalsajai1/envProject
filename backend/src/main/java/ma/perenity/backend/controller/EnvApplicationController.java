@@ -7,7 +7,6 @@ import ma.perenity.backend.service.EnvApplicationService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
 @RestController
 @RequestMapping("/env-applications")
 @RequiredArgsConstructor

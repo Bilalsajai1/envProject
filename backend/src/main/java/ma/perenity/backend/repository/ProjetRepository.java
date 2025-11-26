@@ -1,5 +1,6 @@
 package ma.perenity.backend.repository;
 
+import ma.perenity.backend.entities.ApplicationEntity;
 import ma.perenity.backend.entities.ProjetEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -17,4 +18,5 @@ public interface ProjetRepository extends JpaRepository<ProjetEntity, Long> {
             WHERE t.code = :typeCode
             """)
     List<ProjetEntity> findByEnvironmentTypeCode(@Param("typeCode") String typeCode);
+    List<ProjetEntity> findByActifTrue();
 }

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface EnvironnementRepository extends JpaRepository<EnvironnementEntity, Long> {
 
@@ -24,5 +25,6 @@ public interface EnvironnementRepository extends JpaRepository<EnvironnementEnti
     );
 
     long countByActifTrue();
+    Optional<EnvironnementEntity> findByActifTrue();
 
 }
