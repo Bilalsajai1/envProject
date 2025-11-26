@@ -13,7 +13,7 @@ public class RoleDTO {
     private Long id;
     private String code;
     private String libelle;
-    private String action;       // ActionType sous forme de String
+    private String action;
     private Boolean actif;
 
     private Long menuId;

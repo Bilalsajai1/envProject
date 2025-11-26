@@ -31,8 +31,8 @@ public class EnvApplicationDTO {
     private Integer port;
     private String url;
     private String username;
-    private String password;       // input only
-    private String passwordMasked; // output only
+    private String password;
+    private String passwordMasked;
 
     private String description;
     private Boolean actif;
