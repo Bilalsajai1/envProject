@@ -1,0 +1,127 @@
+<div class="role-admin">
+
+  <div class="header">
+    <div class="titles">
+      <h1>Gestion des rôles & permissions</h1>
+      <p>
+        Assigne les droits <b>CONSULT / CREATE / UPDATE / DELETE</b>
+        aux profils utilisateurs.
+      </p>
+    </div>
+
+    <button
+      class="btn-primary"
+      (click)="save()"
+      [disabled]="!selectedProfil || saving"
+    >
+      <span *ngIf="!saving">💾 Enregistrer les permissions</span>
+      <span *ngIf="saving">⏳ Enregistrement...</span>
+    </button>
+  </div>
+
+  <div class="content">
+
+    <!-- COLONNE GAUCHE : PROFILS -->
+    <div class="profils-card">
+      <div class="card-header">
+        <h2>Profils</h2>
+        <input
+          type="text"
+          placeholder="Rechercher un profil..."
+          [(ngModel)]="profilSearch"
+        />
+      </div>
+
+      <div class="profil-list" *ngIf="!loadingProfils; else loadingProfilsTpl">
+        <button
+          class="profil-item"
+          *ngFor="let p of filteredProfils()"
+          (click)="selectProfil(p)"
+          [class.active]="selectedProfil?.id === p.id"
+        >
+          <div class="avatar">
+            {{ getProfilInitials(p) }}
+          </div>
+          <div class="info">
+            <div class="libelle">{{ p.libelle }}</div>
+            <div class="code">{{ p.code }}</div>
+          </div>
+        </button>
+
+        <div *ngIf="filteredProfils().length === 0" class="empty">
+          Aucun profil trouvé.
+        </div>
+      </div>
+
+      <ng-template #loadingProfilsTpl>
+        <div class="loading">Chargement des profils...</div>
+      </ng-template>
+    </div>
+
+    <!-- COLONNE DROITE : ROLES -->
+    <div class="roles-card">
+      <div *ngIf="selectedProfil; else noProfilTpl">
+
+        <div class="card-header">
+          <div>
+            <h2>Rôles disponibles</h2>
+            <p>
+              Profil sélectionné :
+              <span class="badge">{{ selectedProfil?.libelle }} ({{ selectedProfil?.code }})</span>
+            </p>
+          </div>
+        </div>
+
+        <div class="roles-table-wrapper" *ngIf="!loadingRoles; else loadingRolesTpl">
+
+          <table class="roles-table">
+            <thead>
+            <tr>
+              <th>Code</th>
+              <th>Libellé</th>
+              <th>Action</th>
+              <th>Menu</th>
+              <th>Environnement</th>
+              <th>Assigné</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let r of roles">
+              <td>{{ r.code }}</td>
+              <td>{{ r.libelle }}</td>
+              <td>
+                <span class="chip chip-action">{{ r.action }}</span>
+              </td>
+              <td>{{ r.menuCode || '—' }}</td>
+              <td>{{ r.environnementCode || '—' }}</td>
+              <td class="center">
+                <input
+                  type="checkbox"
+                  [checked]="isRoleSelected(r.id)"
+                  (change)="toggleRole(r.id, $event.target.checked)"
+                />
+              </td>
+            </tr>
+            </tbody>
+          </table>
+
+          <div *ngIf="roles.length === 0" class="empty">
+            Aucun rôle configuré pour le moment.
+          </div>
+        </div>
+
+        <ng-template #loadingRolesTpl>
+          <div class="loading">Chargement des rôles...</div>
+        </ng-template>
+
+      </div>
+
+      <ng-template #noProfilTpl>
+        <div class="no-selection">
+          <p>Sélectionne un profil à gauche pour gérer ses rôles.</p>
+        </div>
+      </ng-template>
+    </div>
+
+  </div>
+</div>

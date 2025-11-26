@@ -1,0 +1,241 @@
+.role-admin {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1.5rem;
+  gap: 1.5rem;
+  background: #0b1120;
+  color: #e5e7eb;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+
+  .titles {
+    h1 {
+      margin: 0;
+      font-size: 1.6rem;
+    }
+    p {
+      margin: 0.25rem 0 0;
+      color: #9ca3af;
+      font-size: 0.9rem;
+    }
+  }
+
+  .btn-primary {
+    border: none;
+    border-radius: 999px;
+    padding: 0.6rem 1.2rem;
+    background: linear-gradient(135deg, #4f46e5, #14b8a6);
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+    white-space: nowrap;
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    &:not(:disabled):hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.6);
+    }
+  }
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 1.5rem;
+  flex: 1;
+  min-height: 0;
+}
+
+.profils-card,
+.roles-card {
+  background: radial-gradient(circle at top left, #1f2937, #020617);
+  border-radius: 1rem;
+  padding: 1rem;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.7);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+
+  h2 {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+
+  p {
+    margin: 0;
+    color: #9ca3af;
+    font-size: 0.85rem;
+  }
+
+  input {
+    margin-top: 0.25rem;
+    width: 100%;
+    background: #020617;
+    border-radius: 999px;
+    border: 1px solid #1f2937;
+    padding: 0.4rem 0.8rem;
+    color: #e5e7eb;
+    font-size: 0.85rem;
+    outline: none;
+
+    &:focus {
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.4);
+    }
+  }
+}
+
+.profil-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  overflow-y: auto;
+  padding-right: 0.2rem;
+}
+
+.profil-item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid transparent;
+  background: #020617;
+  padding: 0.45rem 0.6rem;
+  cursor: pointer;
+  transition: background 0.1s ease, transform 0.1s ease, border-color 0.1s ease;
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #4f46e5, #9333ea);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+  }
+
+  .info {
+    display: flex;
+    flex-direction: column;
+    .libelle {
+      font-size: 0.9rem;
+    }
+    .code {
+      font-size: 0.75rem;
+      color: #9ca3af;
+    }
+  }
+
+  &:hover {
+    transform: translateY(-1px);
+    border-color: #4f46e5;
+  }
+
+  &.active {
+    border-color: #22c55e;
+    box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.5);
+  }
+}
+
+.roles-table-wrapper {
+  overflow: auto;
+  flex: 1;
+}
+
+.roles-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+
+  thead {
+    background: #020617;
+    th {
+      text-align: left;
+      padding: 0.4rem 0.5rem;
+      font-weight: 600;
+      border-bottom: 1px solid #1f2937;
+      white-space: nowrap;
+    }
+  }
+
+  tbody tr {
+    border-bottom: 1px solid rgba(31, 41, 55, 0.7);
+    &:hover {
+      background: rgba(15, 23, 42, 0.9);
+    }
+  }
+
+  td {
+    padding: 0.4rem 0.5rem;
+    vertical-align: middle;
+  }
+
+  .center {
+    text-align: center;
+  }
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(79, 70, 229, 0.2);
+  color: #e5e7eb;
+  font-size: 0.75rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  background: #020617;
+  border: 1px solid #4f46e5;
+}
+
+.chip-action {
+  text-transform: uppercase;
+}
+
+.empty {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.loading {
+  font-size: 0.85rem;
+  color: #9ca3af;
+}
+
+.no-selection {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  font-size: 0.9rem;
+}

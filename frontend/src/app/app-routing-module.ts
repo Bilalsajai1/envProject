@@ -1,47 +1,56 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { DashboardComponent } from './layout/dashboard/dashboard.component';
+
+import { AuthCallbackComponent } from './auth/auth-callback/auth-callback.component';
+import { LoginComponent } from './auth/login/login.component';
+
 import { MainLayout } from './layout/main-layout/main-layout';
 import { AuthGuard } from './auth/auth.guard';
-import { RoleGuard } from './auth/role.guard';  // ✅ IMPORT
-import { AuthCallbackComponent } from './auth/auth-callback/auth-callback.component';
+
+import { UserAdminComponent } from './admin/user-admin/user-admin.component';
+import { DashboardComponent } from './layout/dashboard/dashboard.component';
+import {RoleAdminComponent} from './admin/role-admin/role-admin.component';
+import {EnvTypeAdminComponent} from './admin/env-type-admin/env-type-admin.component';
 
 const routes: Routes = [
-  {
-    path: 'auth/callback',
-    component: AuthCallbackComponent
-  },
+  // 1) Login & callback (PAS de guard)
+  { path: 'login', component: LoginComponent },
+  { path: 'auth/callback', component: AuthCallbackComponent },
 
+  // 2) Tout le reste derrière MainLayout + AuthGuard
   {
     path: '',
     component: MainLayout,
     canActivate: [AuthGuard],
     children: [
+      // Home = admin/users (car tu as un seul user admin pour le moment)
+      { path: '', redirectTo: 'admin/users', pathMatch: 'full' },
+
+      // --- ADMIN ZONE ---
+      { path: 'admin/users', component: UserAdminComponent },
+      { path: 'admin/roles', component: RoleAdminComponent },
+
+      // 3 menus pour les types d’environnements
+      // Exemple : EDITION, INTEGRATION, CLIENT
+      {
+        path: 'admin/env-types/:typeCode',
+        component: EnvTypeAdminComponent
+      },
+
+      // Dashboard (non utilisé comme home pour l’instant, mais dispo)
       { path: 'dashboard', component: DashboardComponent },
 
-      {
-        path: 'environment',
-        loadChildren: () =>
-          import('./environement/environement-module').then(m => m.EnvironementModule)
-      },
-
-      {
-        path: 'admin',
-        canActivate: [RoleGuard],  // ✅ AJOUTER LE GUARD
-        data: { roles: ['ADMIN'] }, // ✅ SPÉCIFIER LES RÔLES REQUIS
-        loadChildren: () =>
-          import('./admin/admin-module').then(m => m.AdminModule)
-      },
-
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+      // Fallback interne
+      { path: '**', redirectTo: 'admin/users' }
     ]
   },
 
-  { path: '**', redirectTo: '' }
+  // Fallback global
+  { path: '**', redirectTo: 'login' }
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, { scrollPositionRestoration: 'enabled' })],
   exports: [RouterModule]
 })
 export class AppRoutingModule {}

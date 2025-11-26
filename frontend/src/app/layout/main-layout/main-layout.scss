@@ -1,33 +1,226 @@
-.layout-container {
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  background: #0f172a; // couleur de fond globale (bleu nuit)
+  color: #e5e7eb;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* SIDEBAR */
+
+.sidebar {
+  width: 260px;
+  background: radial-gradient(circle at top left, #1f2937, #020617);
+  border-right: 1px solid rgba(148, 163, 184, 0.2);
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  width: 100%;
-
-  app-topbar {
-    flex-shrink: 0;
-    z-index: 1000;
-  }
+  padding: 16px 12px;
 }
 
-.layout-body {
+.sidebar__brand {
   display: flex;
-  flex: 1;
-  overflow: hidden;
-  width: 100%;
-
-  app-sidebar {
-    flex-shrink: 0;
-    z-index: 999;
-  }
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px 16px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  margin-bottom: 12px;
 }
 
-.main-content {
+.sidebar__logo {
+  width: 40px;
+  height: auto;
+  filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.5));
+}
+
+.sidebar__brand-text .app-name {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.sidebar__brand-text .app-tagline {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.sidebar__nav {
   flex: 1;
+  padding-top: 8px;
+}
+
+.sidebar__section-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6b7280;
+  padding: 12px 10px 4px;
+}
+
+.sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  margin: 2px 4px;
+  border-radius: 8px;
+  color: #e5e7eb;
+  font-size: 13px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.sidebar__link i {
+  font-size: 14px;
+}
+
+.sidebar__link:hover {
+  background: rgba(59, 130, 246, 0.12);
+  transform: translateX(2px);
+}
+
+.sidebar__link.active {
+  background: linear-gradient(90deg, #2563eb, #22c55e);
+  color: #f9fafb;
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+}
+
+.sidebar__footer {
+  padding-top: 8px;
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.sidebar__company {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 4px;
+}
+
+.sidebar__version {
+  background: rgba(15, 23, 42, 0.7);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+/* MAIN AREA */
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(circle at top, #1e293b, #020617);
+}
+
+/* TOPBAR */
+
+.topbar {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  backdrop-filter: blur(12px);
+  background: linear-gradient(to right, rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.75));
+}
+
+.topbar__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.topbar__app {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.topbar__badge {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #2563eb, #22c55e);
+  color: #f9fafb;
+}
+
+.topbar__subtitle {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.topbar__right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.topbar__env {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.topbar__env i {
+  font-size: 13px;
+}
+
+.topbar__user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.topbar__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 0, #22c55e, #2563eb);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #f9fafb;
+}
+
+.topbar__user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar__user-name {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.topbar__user-role {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.topbar__logout {
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 999px;
+  transition: all 0.15s ease;
+}
+
+.topbar__logout:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
+}
+
+/* CONTENT */
+
+.content {
+  flex: 1;
+  padding: 16px 24px 24px;
   overflow-y: auto;
-  overflow-x: hidden;
-  background-color: #f5f5f5;
-  padding: 0;
-  margin: 0;
-  width: 100%;
 }

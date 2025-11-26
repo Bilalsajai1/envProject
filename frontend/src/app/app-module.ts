@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing-module';
@@ -9,17 +10,33 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { LayoutModule } from './layout/layout-module';
-import {AuthCallbackComponent} from './auth/auth-callback/auth-callback.component';
-import {AuthInterceptor} from './auth/auth.interceptor';
+import { AuthCallbackComponent } from './auth/auth-callback/auth-callback.component';
+import { AuthInterceptor } from './auth/auth.interceptor';
+import { LoginComponent } from './auth/login/login.component';
+import { UsersComponent } from './user/users/users.component';
+import { UserFormComponent } from './user/user-form/user-form.component';
+import { ReactiveFormsModule } from '@angular/forms';
 
+// Angular Material
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
   declarations: [
     App,
-    AuthCallbackComponent
+    AuthCallbackComponent,
+    LoginComponent,
+    UsersComponent,
+    UserFormComponent
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     TranslateModule.forRoot(),
     AppRoutingModule,
     NgbModule,
@@ -32,6 +49,16 @@ import {AuthInterceptor} from './auth/auth.interceptor';
       preventDuplicates: true,
     }),
     LayoutModule,
+    ReactiveFormsModule,
+
+    // Material
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    MatIconModule,
+    MatButtonModule,
   ],
   providers: [
     provideHttpClient(withInterceptorsFromDi()),
@@ -45,4 +72,4 @@ import {AuthInterceptor} from './auth/auth.interceptor';
   ],
   bootstrap: [App]
 })
-export class AppModule { }
+export class AppModule {}

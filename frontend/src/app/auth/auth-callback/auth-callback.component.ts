@@ -51,5 +51,6 @@ export class AuthCallbackComponent implements OnInit {
       },
       error: err => console.error(err)
     });
+    this.router.navigate(['/admin/users']);
   }
 }

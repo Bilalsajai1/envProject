@@ -1,0 +1,13 @@
+<div class="header">
+  <h2>Utilisateurs</h2>
+  <button mat-raised-button color="primary" (click)="onAdd()">
+    <mat-icon>add</mat-icon> Nouveau
+  </button>
+</div>
+
+<app-data-table
+  [data]="users"
+  [config]="tableConfig"
+  (edit)="onEdit($event)"
+  (delete)="onDelete($event)">
+</app-data-table>

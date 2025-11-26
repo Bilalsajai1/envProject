@@ -1,0 +1,241 @@
+.env-type-admin {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1.5rem;
+  gap: 1.5rem;
+  background: #020617;
+  color: #e5e7eb;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  .titles {
+    h1 {
+      margin: 0;
+      font-size: 1.6rem;
+    }
+    p {
+      margin: 0.25rem 0 0;
+      color: #9ca3af;
+      font-size: 0.9rem;
+    }
+  }
+
+  .chip-primary {
+    display: inline-flex;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    background: radial-gradient(circle at top left, #6366f1, #14b8a6);
+    font-size: 0.75rem;
+  }
+
+  .actions-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+
+    .action-card {
+      background: #020617;
+      border-radius: 0.75rem;
+      border: 1px solid #1f2937;
+      padding: 0.75rem;
+
+      h3 {
+        margin: 0 0 0.5rem;
+        font-size: 0.95rem;
+      }
+
+      .btn-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+
+        button {
+          flex: 1;
+          min-width: 0;
+          border-radius: 999px;
+          border: 1px solid #374151;
+          background: #020617;
+          color: #e5e7eb;
+          padding: 0.3rem 0.4rem;
+          font-size: 0.75rem;
+          cursor: pointer;
+          transition: background 0.1s, border-color 0.1s, transform 0.1s;
+
+          &:hover:not(:disabled) {
+            background: #111827;
+            border-color: #4f46e5;
+            transform: translateY(-1px);
+          }
+
+          &:disabled {
+            opacity: 0.4;
+            cursor: default;
+          }
+        }
+      }
+    }
+  }
+}
+
+.content {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  flex: 1;
+  min-height: 0;
+}
+
+.col {
+  background: #020617;
+  border-radius: 0.75rem;
+  border: 1px solid #1f2937;
+  padding: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+
+  h2 {
+    margin: 0 0 0.6rem;
+    font-size: 1rem;
+  }
+
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    overflow-y: auto;
+  }
+
+  .item {
+    border-radius: 0.65rem;
+    border: 1px solid transparent;
+    background: #020617;
+    padding: 0.45rem 0.6rem;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.1s, border-color 0.1s, transform 0.1s;
+
+    .title {
+      font-size: 0.9rem;
+    }
+
+    .subtitle {
+      font-size: 0.75rem;
+      color: #9ca3af;
+    }
+
+    &:hover {
+      border-color: #4f46e5;
+      transform: translateY(-1px);
+    }
+
+    &.active {
+      border-color: #22c55e;
+      box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.5);
+    }
+  }
+
+  .empty {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    margin-top: 0.5rem;
+  }
+}
+
+.apps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  overflow-y: auto;
+}
+
+.app-card {
+  border-radius: 0.75rem;
+  border: 1px solid #1f2937;
+  background: radial-gradient(circle at top left, #111827, #020617);
+  padding: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+
+  .app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+
+    .app-title {
+      font-size: 0.9rem;
+    }
+
+    .app-subtitle {
+      font-size: 0.75rem;
+      color: #9ca3af;
+    }
+
+    .status {
+      font-size: 0.7rem;
+      padding: 0.1rem 0.45rem;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+
+      &.inactive {
+        background: rgba(239, 68, 68, 0.15);
+        border-color: rgba(239, 68, 68, 0.4);
+      }
+    }
+  }
+
+  .app-body {
+    .line {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      margin-bottom: 0.1rem;
+
+      .label {
+        color: #9ca3af;
+      }
+      .value {
+        text-align: right;
+      }
+    }
+  }
+
+  .app-actions {
+    display: flex;
+    gap: 0.25rem;
+    margin-top: 0.2rem;
+
+    button {
+      flex: 1;
+      min-width: 0;
+      border-radius: 999px;
+      border: 1px solid #374151;
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 0.7rem;
+      padding: 0.2rem 0.3rem;
+      cursor: pointer;
+      transition: background 0.1s, border-color 0.1s, transform 0.1s;
+
+      &:hover:not(:disabled) {
+        background: #111827;
+        border-color: #4f46e5;
+        transform: translateY(-1px);
+      }
+
+      &:disabled {
+        opacity: 0.4;
+        cursor: default;
+      }
+    }
+  }
+}

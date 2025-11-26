@@ -1,30 +1,24 @@
 import { Component, OnInit } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-import { Profil } from '../../environement/models/profil.model';
 import { ProfilService } from '../../environement/services/profil-service';
-import { Role } from '../../environement/models/role.model';
-import { RoleService } from '../../environement/services/role-service';
-import { forkJoin } from 'rxjs';
+import { Profil } from '../../environement/models/profil.model';
 
 @Component({
   selector: 'app-profile-admin',
   standalone: false,
   templateUrl: './profile-admin.component.html',
-  styleUrl: './profile-admin.component.scss',
+  styleUrls: ['./profile-admin.component.scss'],
 })
 export class ProfileAdminComponent implements OnInit {
 
-  // Liste des profils
   profils: Profil[] = [];
   loading = false;
-  error?: string;
-
-  // Formulaire CRUD
   showForm = false;
-  isEditing = false;
+  editMode = false;
   currentId?: number;
 
-  form: Partial<Profil> = {
+  form: Profil = {
+    id: 0,
     code: '',
     libelle: '',
     description: '',
@@ -32,49 +26,37 @@ export class ProfileAdminComponent implements OnInit {
     actif: true
   };
 
-  // Panneau rôles
-  showRolePanel = false;
-  selectedProfil?: Profil;
-
-  roles: Role[] = [];
-  selectedRoleIds: number[] = [];
-  loadingRoles = false;
-
   constructor(
     private profilService: ProfilService,
-    private roleService: RoleService,
     private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
-    this.load();
+    this.loadProfils();
   }
 
-  load(): void {
+  loadProfils(): void {
     this.loading = true;
-    this.error = undefined;
-
     this.profilService.getAll().subscribe({
-      next: (data) => {
-        this.profils = data;
+      next: (list: Profil[]) => {
+        this.profils = list;
         this.loading = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error(err);
-        this.error = 'Erreur lors du chargement des profils.';
-        this.toastr.error(this.error);
+        this.toastr.error('Erreur lors du chargement des profils.');
         this.loading = false;
       }
     });
   }
 
-  // ---------- CRUD PROFIL ----------
-
-  openCreateForm(): void {
+  openCreate(): void {
     this.showForm = true;
-    this.isEditing = false;
+    this.editMode = false;
     this.currentId = undefined;
+
     this.form = {
+      id: 0,
       code: '',
       libelle: '',
       description: '',
@@ -83,22 +65,22 @@ export class ProfileAdminComponent implements OnInit {
     };
   }
 
-  openEditForm(p: Profil): void {
+  openEdit(p: Profil): void {
     this.showForm = true;
-    this.isEditing = true;
+    this.editMode = true;
     this.currentId = p.id;
     this.form = { ...p };
   }
 
-  cancelForm(): void {
+  cancel(): void {
     this.showForm = false;
-    this.isEditing = false;
+    this.editMode = false;
     this.currentId = undefined;
   }
 
-  submitForm(): void {
+  save(): void {
     if (!this.form.code || !this.form.libelle) {
-      this.toastr.warning('Code et libellé sont obligatoires.');
+      this.toastr.warning('Code et libellé sont obligatoires');
       return;
     }
 
@@ -106,107 +88,55 @@ export class ProfileAdminComponent implements OnInit {
       code: this.form.code,
       libelle: this.form.libelle,
       description: this.form.description,
-      admin: this.form.admin ?? false,
-      actif: this.form.actif ?? true
+      admin: this.form.admin,
+      actif: this.form.actif
     };
 
-    if (this.isEditing && this.currentId) {
+    if (this.editMode && this.currentId) {
       this.profilService.update(this.currentId, payload).subscribe({
         next: () => {
-          this.toastr.success('Profil mis à jour avec succès.');
+          this.toastr.success('Profil mis à jour');
           this.showForm = false;
-          this.load();
+          this.loadProfils();
         },
-        error: (err) => {
-          const msg = err.error?.message || 'Erreur lors de la mise à jour du profil.';
+        error: (err: any) => {
+          console.error(err);
+          const msg = err.error?.message || 'Erreur lors de la mise à jour du profil';
           this.toastr.error(msg);
         }
       });
     } else {
       this.profilService.create(payload).subscribe({
         next: () => {
-          this.toastr.success('Profil créé avec succès.');
+          this.toastr.success('Profil créé');
           this.showForm = false;
-          this.load();
+          this.loadProfils();
         },
-        error: (err) => {
-          const msg = err.error?.message || 'Erreur lors de la création du profil.';
+        error: (err: any) => {
+          console.error(err);
+          const msg = err.error?.message || 'Erreur lors de la création du profil';
           this.toastr.error(msg);
         }
       });
     }
   }
 
-  deleteProfil(p: Profil): void {
+  delete(p: Profil): void {
+    if (!p.id) {
+      return;
+    }
     if (!confirm(`Supprimer le profil ${p.code} ?`)) {
       return;
     }
 
     this.profilService.delete(p.id).subscribe({
       next: () => {
-        this.toastr.success('Profil supprimé avec succès.');
-        this.load();
+        this.toastr.success('Profil supprimé');
+        this.loadProfils();
       },
-      error: (err) => {
-        const msg = err.error?.message || 'Erreur lors de la suppression du profil.';
-        this.toastr.error(msg);
-      }
-    });
-  }
-
-  // ---------- PANNEAU RÔLES ----------
-
-  openRolePanel(p: Profil): void {
-    this.selectedProfil = p;
-    this.showRolePanel = true;
-    this.loadingRoles = true;
-
-    forkJoin({
-      roles: this.roleService.getAllRoles(),
-      roleIds: this.profilService.getRoleIdsForProfil(p.id)
-    }).subscribe({
-      next: ({ roles, roleIds }) => {
-        this.roles = roles;
-        this.selectedRoleIds = roleIds ?? [];
-        this.loadingRoles = false;
-      },
-      error: (err) => {
+      error: (err: any) => {
         console.error(err);
-        this.toastr.error('Erreur lors du chargement des rôles du profil.');
-        this.loadingRoles = false;
-      }
-    });
-  }
-
-  closeRolePanel(): void {
-    this.showRolePanel = false;
-    this.selectedProfil = undefined;
-    this.roles = [];
-    this.selectedRoleIds = [];
-  }
-
-  onToggleRole(roleId: number, checked: boolean): void {
-    if (checked) {
-      if (!this.selectedRoleIds.includes(roleId)) {
-        this.selectedRoleIds.push(roleId);
-      }
-    } else {
-      this.selectedRoleIds = this.selectedRoleIds.filter(id => id !== roleId);
-    }
-  }
-
-  saveRoles(): void {
-    if (!this.selectedProfil) {
-      return;
-    }
-
-    this.profilService.updateRoles(this.selectedProfil.id, this.selectedRoleIds).subscribe({
-      next: () => {
-        this.toastr.success('Rôles du profil mis à jour.');
-        this.closeRolePanel();
-      },
-      error: (err) => {
-        const msg = err.error?.message || 'Erreur lors de la mise à jour des rôles.';
+        const msg = err.error?.message || 'Erreur lors de la suppression du profil';
         this.toastr.error(msg);
       }
     });

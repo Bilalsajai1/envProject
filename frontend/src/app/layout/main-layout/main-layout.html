@@ -1,17 +1,119 @@
-<div class="layout-container">
-  <!-- Topbar -->
-  <app-topbar (sidebarToggle)="onSidebarToggle($event)"></app-topbar>
+<div class="app-shell">
 
-  <!-- ✅ AJOUTER BREADCRUMB ICI -->
-  <app-breadcrumb></app-breadcrumb>
-
-  <div class="layout-body">
-    <!-- Sidebar -->
-    <app-sidebar [isSidebarCollapsed]="isSidebarCollapsed"></app-sidebar>
-
-    <!-- Main Content -->
-    <div class="main-content">
-      <router-outlet></router-outlet>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar__brand">
+      <img
+        src="https://perenitysoftware.com/wp-content/uploads/2020/05/logo-perenity-software.svg"
+        alt="Perenity Software"
+        class="sidebar__logo"
+      />
+      <div class="sidebar__brand-text">
+        <div class="app-name">Environment Mgmt</div>
+        <div class="app-tagline">Admin console</div>
+      </div>
     </div>
+
+    <nav class="sidebar__nav">
+      <div class="sidebar__section-title">Administration</div>
+
+      <a
+        routerLink="/admin/users"
+        routerLinkActive="active"
+        class="sidebar__link"
+      >
+        <i class="fas fa-users"></i>
+        <span>Utilisateurs</span>
+      </a>
+
+      <a
+        routerLink="/admin/roles"
+        routerLinkActive="active"
+        class="sidebar__link"
+      >
+        <i class="fas fa-user-shield"></i>
+        <span>Rôles & Permissions</span>
+      </a>
+
+      <div class="sidebar__section-title">Types d'environnements</div>
+
+      <a
+        routerLink="/admin/env-types/EDITION"
+        routerLinkActive="active"
+        class="sidebar__link"
+      >
+        <i class="fas fa-layer-group"></i>
+        <span>Edition</span>
+      </a>
+
+      <a
+        routerLink="/admin/env-types/INTEGRATION"
+        routerLinkActive="active"
+        class="sidebar__link"
+      >
+        <i class="fas fa-project-diagram"></i>
+        <span>Intégration</span>
+      </a>
+
+      <a
+        routerLink="/admin/env-types/CLIENT"
+        routerLinkActive="active"
+        class="sidebar__link"
+      >
+        <i class="fas fa-cloud"></i>
+        <span>Client</span>
+      </a>
+    </nav>
+
+    <div class="sidebar__footer">
+      <div class="sidebar__company">
+        <span>© {{ currentYear }} Perenity</span>
+        <span class="sidebar__version">v1.0.0</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN AREA -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar__left">
+        <div class="topbar__title">
+          <span class="topbar__app">Environment Management</span>
+          <span class="topbar__badge">Admin</span>
+        </div>
+        <div class="topbar__subtitle">
+          Gestion des utilisateurs, rôles & environnements.
+        </div>
+      </div>
+
+      <div class="topbar__right">
+        <div class="topbar__env">
+          <i class="fas fa-server"></i>
+          <span>Realm :</span>
+          <strong>env-mgmt</strong>
+        </div>
+
+        <div class="topbar__user">
+          <div class="topbar__avatar">
+            {{ userInitials }}
+          </div>
+          <div class="topbar__user-info">
+            <div class="topbar__user-name">{{ userName || 'Admin' }}</div>
+            <div class="topbar__user-role">Profil : {{ profilCode || 'ADMIN' }}</div>
+          </div>
+          <button class="topbar__logout" (click)="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+
   </div>
 </div>

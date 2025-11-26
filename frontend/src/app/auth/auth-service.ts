@@ -40,11 +40,13 @@ export class AuthService {
   }
 
   /** Déconnexion */
-  logout(): void {
-    localStorage.clear();
+  redirectToLogin(): void {
+    const keycloakUrl =
+      'http://localhost:8080/realms/env-mgmt/protocol/openid-connect/auth' +
+      '?client_id=angular-client' +
+      '&redirect_uri=' + encodeURIComponent('http://localhost:4200/auth/callback') +
+      '&response_type=code';
 
-    window.location.href =
-      'http://localhost:8080/realms/env-mgmt/protocol/openid-connect/logout' +
-      '?redirect_uri=http://localhost:4200/';
+    window.location.href = keycloakUrl;
   }
 }
