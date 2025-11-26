@@ -1,5 +1,7 @@
 package ma.perenity.backend.service;
 
+import ma.perenity.backend.dto.PaginatedResponse;
+import ma.perenity.backend.dto.PaginationRequest;
 import ma.perenity.backend.dto.ProfilCreateUpdateDTO;
 import ma.perenity.backend.dto.ProfilDTO;
 
@@ -20,4 +22,6 @@ public interface ProfilService {
     List<Long> getRoleIds(Long profilId);
 
     void assignRoles(Long profilId, List<Long> roleIds);
+    PaginatedResponse<ProfilDTO> search(PaginationRequest req);
+
 }

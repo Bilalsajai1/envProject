@@ -1,6 +1,8 @@
 package ma.perenity.backend.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import ma.perenity.backend.dto.PaginatedResponse;
+import ma.perenity.backend.dto.PaginationRequest;
 import ma.perenity.backend.dto.RoleCreateUpdateDTO;
 import ma.perenity.backend.dto.RoleDTO;
 import ma.perenity.backend.entities.EnvironnementEntity;
@@ -12,6 +14,11 @@ import ma.perenity.backend.repository.EnvironnementRepository;
 import ma.perenity.backend.repository.MenuRepository;
 import ma.perenity.backend.repository.RoleRepository;
 import ma.perenity.backend.service.RoleService;
+import ma.perenity.backend.specification.EntitySpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -153,5 +160,25 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public List<RoleDTO> getByEnvironnement(Long envId) {
         return roleMapper.toDtoList(roleRepository.findByEnvironnementId(envId));
+    }
+    @Override
+    public PaginatedResponse<RoleDTO> search(PaginationRequest req) {
+
+        Sort sort = req.getSortDirection().equalsIgnoreCase("desc")
+                ? Sort.by(req.getSortField()).descending()
+                : Sort.by(req.getSortField()).ascending();
+
+        Pageable pageable = PageRequest.of(req.getPage(), req.getSize(), sort);
+
+        EntitySpecification<RoleEntity> specBuilder = new EntitySpecification<>();
+
+        Page<RoleEntity> page = roleRepository.findAll(
+                specBuilder.getSpecification(req.getFilters()),
+                pageable
+        );
+
+        return PaginatedResponse.fromPage(
+                page.map(roleMapper::toDto)
+        );
     }
 }

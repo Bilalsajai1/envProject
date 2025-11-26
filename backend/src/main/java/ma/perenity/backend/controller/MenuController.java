@@ -3,6 +3,8 @@ package ma.perenity.backend.controller;
 import lombok.RequiredArgsConstructor;
 import ma.perenity.backend.dto.MenuDTO;
 import ma.perenity.backend.dto.MenuCreateUpdateDTO;
+import ma.perenity.backend.dto.PaginatedResponse;
+import ma.perenity.backend.dto.PaginationRequest;
 import ma.perenity.backend.service.MenuService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +35,10 @@ public class MenuController {
     @PostMapping
     public ResponseEntity<MenuDTO> create(@RequestBody MenuCreateUpdateDTO dto) {
         return ResponseEntity.ok(menuService.create(dto));
+    }
+    @PostMapping("/search")
+    public PaginatedResponse<MenuDTO> search(@RequestBody PaginationRequest req) {
+        return menuService.search(req);
     }
 
     @PutMapping("/{id}")

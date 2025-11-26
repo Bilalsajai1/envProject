@@ -2,6 +2,8 @@ package ma.perenity.backend.service;
 
 import lombok.RequiredArgsConstructor;
 import ma.perenity.backend.dto.EnvironnementDTO;
+import ma.perenity.backend.dto.PaginatedResponse;
+import ma.perenity.backend.dto.PaginationRequest;
 import ma.perenity.backend.entities.EnvironmentTypeEntity;
 import ma.perenity.backend.entities.EnvironnementEntity;
 import ma.perenity.backend.entities.ProjetEntity;
@@ -10,6 +12,11 @@ import ma.perenity.backend.mapper.EnvironnementMapper;
 import ma.perenity.backend.repository.EnvironmentTypeRepository;
 import ma.perenity.backend.repository.EnvironnementRepository;
 import ma.perenity.backend.repository.ProjetRepository;
+import ma.perenity.backend.specification.EntitySpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -96,4 +103,26 @@ public class EnvironnementService {
 
         environnementRepository.save(entity);
     }
+
+
+    public PaginatedResponse<EnvironnementDTO> search(PaginationRequest req) {
+
+        Sort sort = req.getSortDirection().equalsIgnoreCase("desc")
+                ? Sort.by(req.getSortField()).descending()
+                : Sort.by(req.getSortField()).ascending();
+
+        Pageable pageable = PageRequest.of(req.getPage(), req.getSize(), sort);
+
+        EntitySpecification<EnvironnementEntity> specBuilder = new EntitySpecification<>();
+
+        Page<EnvironnementEntity> page = environnementRepository.findAll(
+                specBuilder.getSpecification(req.getFilters()),
+                pageable
+        );
+
+        return PaginatedResponse.fromPage(
+                page.map(mapper::toDto)
+        );
+    }
 }
+

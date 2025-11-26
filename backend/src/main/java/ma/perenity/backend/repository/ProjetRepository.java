@@ -3,12 +3,15 @@ package ma.perenity.backend.repository;
 import ma.perenity.backend.entities.ApplicationEntity;
 import ma.perenity.backend.entities.ProjetEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface ProjetRepository extends JpaRepository<ProjetEntity, Long> {
+public interface ProjetRepository extends
+        JpaRepository<ProjetEntity, Long>,
+        JpaSpecificationExecutor<ProjetEntity> {
 
     @Query("""
             SELECT DISTINCT p
@@ -18,5 +21,6 @@ public interface ProjetRepository extends JpaRepository<ProjetEntity, Long> {
             WHERE t.code = :typeCode
             """)
     List<ProjetEntity> findByEnvironmentTypeCode(@Param("typeCode") String typeCode);
+
     List<ProjetEntity> findByActifTrue();
 }

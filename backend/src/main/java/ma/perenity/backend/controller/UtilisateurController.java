@@ -1,5 +1,7 @@
 package ma.perenity.backend.controller;
 import lombok.RequiredArgsConstructor;
+import ma.perenity.backend.dto.PaginatedResponse;
+import ma.perenity.backend.dto.PaginationRequest;
 import ma.perenity.backend.dto.UserCreateUpdateDTO;
 import ma.perenity.backend.dto.UserDTO;
 import ma.perenity.backend.service.UtilisateurService;
@@ -29,6 +31,11 @@ public class UtilisateurController {
     public ResponseEntity<UserDTO> create(@RequestBody UserCreateUpdateDTO dto) {
         return ResponseEntity.ok(service.create(dto));
     }
+    @PostMapping("/search")
+    public PaginatedResponse<UserDTO> search(@RequestBody PaginationRequest req) {
+        return service.search(req);
+    }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<UserDTO> update(

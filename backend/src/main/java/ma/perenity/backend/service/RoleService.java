@@ -1,5 +1,7 @@
 package ma.perenity.backend.service;
 
+import ma.perenity.backend.dto.PaginatedResponse;
+import ma.perenity.backend.dto.PaginationRequest;
 import ma.perenity.backend.dto.RoleCreateUpdateDTO;
 import ma.perenity.backend.dto.RoleDTO;
 
@@ -20,4 +22,6 @@ public interface RoleService {
     List<RoleDTO> getByMenu(Long menuId);
 
     List<RoleDTO> getByEnvironnement(Long envId);
+    PaginatedResponse<RoleDTO> search(PaginationRequest req);
+
 }

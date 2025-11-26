@@ -3,6 +3,8 @@ package ma.perenity.backend.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import ma.perenity.backend.dto.EnvironmentTypeDTO;
+import ma.perenity.backend.dto.PaginatedResponse;
+import ma.perenity.backend.dto.PaginationRequest;
 import ma.perenity.backend.service.EnvironmentTypeService;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +35,10 @@ public class EnvironmentTypeController {
     @PostMapping
     public EnvironmentTypeDTO create(@Valid @RequestBody EnvironmentTypeDTO dto) {
         return service.create(dto);
+    }
+    @PostMapping("/search")
+    public PaginatedResponse<EnvironmentTypeDTO> search(@RequestBody PaginationRequest req) {
+        return service.search(req);
     }
 
     @PutMapping("/{id}")

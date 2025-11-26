@@ -3,6 +3,8 @@ package ma.perenity.backend.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import ma.perenity.backend.dto.ApplicationDTO;
+import ma.perenity.backend.dto.PaginatedResponse;
+import ma.perenity.backend.dto.PaginationRequest;
 import ma.perenity.backend.service.ApplicationService;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +35,10 @@ public class ApplicationController {
     @PostMapping
     public ApplicationDTO create(@Valid @RequestBody ApplicationDTO dto) {
         return service.create(dto);
+    }
+    @PostMapping("/search")
+    public PaginatedResponse<ApplicationDTO> search(@RequestBody PaginationRequest req) {
+        return service.search(req);
     }
 
     @PutMapping("/{id}")

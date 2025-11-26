@@ -2,6 +2,8 @@ package ma.perenity.backend.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import ma.perenity.backend.dto.PaginatedResponse;
+import ma.perenity.backend.dto.PaginationRequest;
 import ma.perenity.backend.dto.ProfilCreateUpdateDTO;
 import ma.perenity.backend.dto.ProfilDTO;
 import ma.perenity.backend.service.ProfilService;
@@ -30,6 +32,10 @@ public class ProfilController {
     @PostMapping
     public ResponseEntity<ProfilDTO> create(@Valid @RequestBody ProfilCreateUpdateDTO dto) {
         return ResponseEntity.ok(service.create(dto));
+    }
+    @PostMapping("/search")
+    public PaginatedResponse<ProfilDTO> search(@RequestBody PaginationRequest req) {
+        return service.search(req);
     }
 
     @PutMapping("/{id}")

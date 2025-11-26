@@ -2,10 +2,17 @@ package ma.perenity.backend.service;
 
 import lombok.RequiredArgsConstructor;
 import ma.perenity.backend.dto.ApplicationDTO;
+import ma.perenity.backend.dto.PaginatedResponse;
+import ma.perenity.backend.dto.PaginationRequest;
 import ma.perenity.backend.entities.ApplicationEntity;
 import ma.perenity.backend.excepion.ResourceNotFoundException;
 import ma.perenity.backend.mapper.ApplicationMapper;
 import ma.perenity.backend.repository.ApplicationRepository;
+import ma.perenity.backend.specification.EntitySpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -90,5 +97,25 @@ public class ApplicationService {
         entity.setUpdatedAt(LocalDateTime.now());
 
         repository.save(entity);
+    }
+
+    public PaginatedResponse<ApplicationDTO> search(PaginationRequest req) {
+
+        Sort sort = req.getSortDirection().equalsIgnoreCase("desc")
+                ? Sort.by(req.getSortField()).descending()
+                : Sort.by(req.getSortField()).ascending();
+
+        Pageable pageable = PageRequest.of(req.getPage(), req.getSize(), sort);
+
+        EntitySpecification<ApplicationEntity> specBuilder = new EntitySpecification<>();
+
+        Page<ApplicationEntity> page = repository.findAll(
+                specBuilder.getSpecification(req.getFilters()),
+                pageable
+        );
+
+        return PaginatedResponse.fromPage(
+                page.map(mapper::toDto)
+        );
     }
 }

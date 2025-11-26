@@ -1,6 +1,8 @@
 package ma.perenity.backend.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import ma.perenity.backend.dto.PaginatedResponse;
+import ma.perenity.backend.dto.PaginationRequest;
 import ma.perenity.backend.dto.UserCreateUpdateDTO;
 import ma.perenity.backend.dto.UserDTO;
 import ma.perenity.backend.entities.ProfilEntity;
@@ -9,6 +11,11 @@ import ma.perenity.backend.mapper.UserMapper;
 import ma.perenity.backend.repository.ProfilRepository;
 import ma.perenity.backend.repository.UtilisateurRepository;
 import ma.perenity.backend.service.UtilisateurService;
+import ma.perenity.backend.specification.EntitySpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -89,4 +96,25 @@ public class UtilisateurServiceImpl implements UtilisateurService {
 
         utilisateurRepository.delete(entity);
     }
+    @Override
+    public PaginatedResponse<UserDTO> search(PaginationRequest req) {
+
+        Sort sort = req.getSortDirection().equalsIgnoreCase("asc")
+                ? Sort.by(req.getSortField()).ascending()
+                : Sort.by(req.getSortField()).descending();
+
+        Pageable pageable = PageRequest.of(req.getPage(), req.getSize(), sort);
+
+        EntitySpecification<UtilisateurEntity> filter = new EntitySpecification<>();
+
+        Page<UtilisateurEntity> page = utilisateurRepository.findAll(
+                filter.getSpecification(req.getFilters()),
+                pageable
+        );
+
+        return PaginatedResponse.fromPage(
+                page.map(userMapper::toDto)
+        );
+    }
+
 }

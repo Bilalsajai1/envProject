@@ -1,5 +1,7 @@
 package ma.perenity.backend.service;
 
+import ma.perenity.backend.dto.PaginatedResponse;
+import ma.perenity.backend.dto.PaginationRequest;
 import ma.perenity.backend.dto.UserCreateUpdateDTO;
 import ma.perenity.backend.dto.UserDTO;
 
@@ -16,4 +18,5 @@ public interface UtilisateurService {
     UserDTO update(Long id, UserCreateUpdateDTO dto);
 
     void delete(Long id);
+    PaginatedResponse<UserDTO> search(PaginationRequest req);
 }

@@ -1,6 +1,8 @@
 package ma.perenity.backend.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import ma.perenity.backend.dto.PaginatedResponse;
+import ma.perenity.backend.dto.PaginationRequest;
 import ma.perenity.backend.dto.ProfilCreateUpdateDTO;
 import ma.perenity.backend.dto.ProfilDTO;
 import ma.perenity.backend.entities.ProfilEntity;
@@ -11,6 +13,11 @@ import ma.perenity.backend.repository.ProfilRepository;
 import ma.perenity.backend.repository.ProfilRoleRepository;
 import ma.perenity.backend.repository.RoleRepository;
 import ma.perenity.backend.service.ProfilService;
+import ma.perenity.backend.specification.EntitySpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -112,5 +119,26 @@ public class ProfilServiceImpl implements ProfilService {
             pr.setRole(role);
             profilRoleRepository.save(pr);
         }
+    }
+
+    @Override
+    public PaginatedResponse<ProfilDTO> search(PaginationRequest req) {
+
+        Sort sort = req.getSortDirection().equalsIgnoreCase("desc")
+                ? Sort.by(req.getSortField()).descending()
+                : Sort.by(req.getSortField()).ascending();
+
+        Pageable pageable = PageRequest.of(req.getPage(), req.getSize(), sort);
+
+        EntitySpecification<ProfilEntity> specBuilder = new EntitySpecification<>();
+
+        Page<ProfilEntity> page = profilRepository.findAll(
+                specBuilder.getSpecification(req.getFilters()),
+                pageable
+        );
+
+        return PaginatedResponse.fromPage(
+                page.map(mapper::toDto)
+        );
     }
 }

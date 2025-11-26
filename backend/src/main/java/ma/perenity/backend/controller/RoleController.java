@@ -2,6 +2,8 @@ package ma.perenity.backend.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import ma.perenity.backend.dto.PaginatedResponse;
+import ma.perenity.backend.dto.PaginationRequest;
 import ma.perenity.backend.dto.RoleCreateUpdateDTO;
 import ma.perenity.backend.dto.RoleDTO;
 import ma.perenity.backend.service.RoleService;
@@ -33,6 +35,11 @@ public class RoleController {
         RoleDTO created = roleService.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
+    @PostMapping("/search")
+    public PaginatedResponse<RoleDTO> search(@RequestBody PaginationRequest req) {
+        return roleService.search(req);
+    }
+
 
     @PutMapping("/{id}")
     public RoleDTO update(@PathVariable Long id,
