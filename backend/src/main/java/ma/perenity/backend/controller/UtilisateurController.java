@@ -1,10 +1,13 @@
 package ma.perenity.backend.controller;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import ma.perenity.backend.dto.PaginatedResponse;
 import ma.perenity.backend.dto.PaginationRequest;
 import ma.perenity.backend.dto.UserCreateUpdateDTO;
 import ma.perenity.backend.dto.UserDTO;
 import ma.perenity.backend.service.UtilisateurService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,20 +31,19 @@ public class UtilisateurController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDTO> create(@RequestBody UserCreateUpdateDTO dto) {
-        return ResponseEntity.ok(service.create(dto));
-    }
-    @PostMapping("/search")
-    public PaginatedResponse<UserDTO> search(@RequestBody PaginationRequest req) {
-        return service.search(req);
+    public ResponseEntity<UserDTO> create(@Valid @RequestBody UserCreateUpdateDTO dto) {
+        UserDTO created = service.create(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
+    @PostMapping("/search")
+    public ResponseEntity<PaginatedResponse<UserDTO>> search(@RequestBody PaginationRequest req) {
+        return ResponseEntity.ok(service.search(req));
+    }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> update(
-            @PathVariable Long id,
-            @RequestBody UserCreateUpdateDTO dto
-    ) {
+    public ResponseEntity<UserDTO> update(@PathVariable Long id,
+                                          @Valid @RequestBody UserCreateUpdateDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 

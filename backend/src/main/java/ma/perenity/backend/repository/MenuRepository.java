@@ -8,8 +8,9 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface MenuRepository extends JpaRepository<MenuEntity, Long> ,
+public interface MenuRepository extends JpaRepository<MenuEntity, Long>,
         JpaSpecificationExecutor<MenuEntity> {
+
     @Query("""
                 SELECT DISTINCT m
                 FROM MenuEntity m
@@ -21,5 +22,5 @@ public interface MenuRepository extends JpaRepository<MenuEntity, Long> ,
 
     List<MenuEntity> findByEnvironmentType_CodeAndVisibleTrueOrderByOrdreAsc(String code);
 
-
+    boolean existsByCode(String code);
 }

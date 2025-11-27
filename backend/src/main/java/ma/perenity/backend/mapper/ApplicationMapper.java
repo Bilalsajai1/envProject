@@ -16,5 +16,5 @@ public interface ApplicationMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "envApplications", ignore = true)
-    void updateEntity(@MappingTarget ApplicationEntity entity, ApplicationDTO dto);
+    void updateEntityFromDto(ApplicationDTO dto, @MappingTarget ApplicationEntity entity);
 }

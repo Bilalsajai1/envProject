@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface EnvironnementRepository extends
         JpaRepository<EnvironnementEntity, Long>,
@@ -26,5 +25,9 @@ public interface EnvironnementRepository extends
             @Param("projetId") Long projetId,
             @Param("typeCode") String typeCode
     );
+
     long countByActifTrue();
+
+
+    List<EnvironnementEntity> findByProjet_IdAndType_CodeAndActifTrue(Long projetId, String typeCode);
 }

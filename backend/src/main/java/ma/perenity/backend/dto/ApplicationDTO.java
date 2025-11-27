@@ -10,12 +10,17 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class ApplicationDTO {
+
     private Long id;
-    @NotBlank()
+
+    @NotBlank
     private String code;
-    @NotBlank()
+
+    @NotBlank
     private String libelle;
+
     @Size(max = 255)
     private String description;
+
     private Boolean actif;
 }

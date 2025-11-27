@@ -23,5 +23,5 @@ public interface EnvApplicationMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "environnement", ignore = true)
     @Mapping(target = "application", ignore = true)
-    void updateEntity(@MappingTarget EnvApplicationEntity entity, EnvApplicationDTO dto);
+    void updateEntityFromDto(EnvApplicationDTO dto, @MappingTarget EnvApplicationEntity entity);
 }

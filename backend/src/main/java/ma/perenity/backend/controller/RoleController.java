@@ -21,45 +21,45 @@ public class RoleController {
     private final RoleService roleService;
 
     @GetMapping
-    public List<RoleDTO> getAll() {
-        return roleService.getAll();
+    public ResponseEntity<List<RoleDTO>> getAll() {
+        return ResponseEntity.ok(roleService.getAll());
     }
 
     @GetMapping("/{id}")
-    public RoleDTO getOne(@PathVariable Long id) {
-        return roleService.getById(id);
+    public ResponseEntity<RoleDTO> getOne(@PathVariable Long id) {
+        return ResponseEntity.ok(roleService.getById(id));
     }
 
     @PostMapping
-    public ResponseEntity<RoleDTO> create(@RequestBody @Valid RoleCreateUpdateDTO dto) {
+    public ResponseEntity<RoleDTO> create(@Valid @RequestBody RoleCreateUpdateDTO dto) {
         RoleDTO created = roleService.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
+
     @PostMapping("/search")
-    public PaginatedResponse<RoleDTO> search(@RequestBody PaginationRequest req) {
-        return roleService.search(req);
+    public ResponseEntity<PaginatedResponse<RoleDTO>> search(@RequestBody PaginationRequest req) {
+        return ResponseEntity.ok(roleService.search(req));
     }
 
-
     @PutMapping("/{id}")
-    public RoleDTO update(@PathVariable Long id,
-                          @RequestBody @Valid RoleCreateUpdateDTO dto) {
-        return roleService.update(id, dto);
+    public ResponseEntity<RoleDTO> update(@PathVariable Long id,
+                                          @Valid @RequestBody RoleCreateUpdateDTO dto) {
+        return ResponseEntity.ok(roleService.update(id, dto));
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         roleService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/by-menu/{menuId}")
-    public List<RoleDTO> getByMenu(@PathVariable Long menuId) {
-        return roleService.getByMenu(menuId);
+    public ResponseEntity<List<RoleDTO>> getByMenu(@PathVariable Long menuId) {
+        return ResponseEntity.ok(roleService.getByMenu(menuId));
     }
 
     @GetMapping("/by-env/{envId}")
-    public List<RoleDTO> getByEnv(@PathVariable Long envId) {
-        return roleService.getByEnvironnement(envId);
+    public ResponseEntity<List<RoleDTO>> getByEnv(@PathVariable Long envId) {
+        return ResponseEntity.ok(roleService.getByEnvironnement(envId));
     }
 }

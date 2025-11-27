@@ -1,6 +1,5 @@
 package ma.perenity.backend.entities;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,14 +24,13 @@ public class EnvironmentTypeEntity {
     @Column(length = 100)
     private String libelle;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean actif = true;
 
     @OneToMany(mappedBy = "type")
-
     private List<EnvironnementEntity> environnements;
 
     @OneToMany(mappedBy = "environmentType")
-
     private List<MenuEntity> menus;
 }

@@ -1,3 +1,4 @@
+/*
 package ma.perenity.backend.config;
 
 import lombok.RequiredArgsConstructor;
@@ -50,9 +51,11 @@ public class DataInitializer {
 
             LocalDateTime now = now();
 
-            /* =========================================================
+            */
+/* =========================================================
              * 1. TYPES D’ENVIRONNEMENT
-             * ========================================================= */
+             * ========================================================= *//*
+
             EnvironmentTypeEntity editionType = EnvironmentTypeEntity.builder()
                     .code("EDITION")
                     .libelle("Environnement Édition")
@@ -73,9 +76,11 @@ public class DataInitializer {
 
             environmentTypeRepository.saveAll(List.of(editionType, integrationType, clientType));
 
-            /* =========================================================
+            */
+/* =========================================================
              * 2. MENUS (1 menu par type d’environnement)
-             * ========================================================= */
+             * ========================================================= *//*
+
             MenuEntity menuEdition = MenuEntity.builder()
                     .code("MENU_EDITION")
                     .libelle("Environnement Édition")
@@ -108,19 +113,21 @@ public class DataInitializer {
 
             menuRepository.saveAll(List.of(menuEdition, menuIntegration, menuClient));
 
-            /* =========================================================
+            */
+/* =========================================================
              * 3. PROFILS
-             * ========================================================= */
+             * ========================================================= *//*
+
             ProfilEntity profilAdmin = ProfilEntity.builder()
                     .code("ADMIN")
                     .libelle("Administrateur")
                     .description("Profil administrateur")
                     .admin(true)
                     .actif(true)
-                    .createdAt(now)    // ✅ Initialisé explicitement
-                    .updatedAt(now)    // ✅ Initialisé explicitement
-                    .createdBy("SYSTEM")
-                    .updatedBy("SYSTEM")
+                        // ✅ Initialisé explicitement
+                        // ✅ Initialisé explicitement
+                    
+                    
                     .build();
 
             ProfilEntity profilDev = ProfilEntity.builder()
@@ -129,10 +136,7 @@ public class DataInitializer {
                     .description("Développeur interne")
                     .admin(false)
                     .actif(true)
-                    .createdAt(now)
-                    .updatedAt(now)
-                    .createdBy("SYSTEM")
-                    .updatedBy("SYSTEM")
+
                     .build();
 
             ProfilEntity profilConsult = ProfilEntity.builder()
@@ -141,23 +145,25 @@ public class DataInitializer {
                     .description("Consultation uniquement")
                     .admin(false)
                     .actif(true)
-                    .createdAt(now)
-                    .updatedAt(now)
-                    .createdBy("SYSTEM")
-                    .updatedBy("SYSTEM")
+                    
+                    
+                    
+                    
                     .build();
 
             profilRepository.saveAll(List.of(profilAdmin, profilDev, profilConsult));
 
-            /* =========================================================
+            */
+/* =========================================================
              * 4. RÔLES
-             * ========================================================= */
+             * ========================================================= *//*
+
             RoleEntity roleEditionConsult = RoleEntity.builder()
                     .code("ENV_EDITION_CONSULT")
                     .libelle("Consulter environnements édition")
                     .action(ActionType.CONSULT)
                     .actif(true)
-                    .createdAt(now)
+                    
                     .menu(menuEdition)
                     .build();
 
@@ -166,7 +172,7 @@ public class DataInitializer {
                     .libelle("Modifier environnements édition")
                     .action(ActionType.UPDATE)
                     .actif(true)
-                    .createdAt(now)
+                    
                     .menu(menuEdition)
                     .build();
 
@@ -175,7 +181,7 @@ public class DataInitializer {
                     .libelle("Consulter environnements intégration")
                     .action(ActionType.CONSULT)
                     .actif(true)
-                    .createdAt(now)
+                    
                     .menu(menuIntegration)
                     .build();
 
@@ -184,7 +190,7 @@ public class DataInitializer {
                     .libelle("Consulter environnements client")
                     .action(ActionType.CONSULT)
                     .actif(true)
-                    .createdAt(now)
+                    
                     .menu(menuClient)
                     .build();
 
@@ -195,9 +201,11 @@ public class DataInitializer {
                     roleClientConsult
             ));
 
-            /* =========================================================
+            */
+/* =========================================================
              * 5. PROFIL_ROLE (assignation des rôles aux profils)
-             * ========================================================= */
+             * ========================================================= *//*
+
 
             // ADMIN : a tous les rôles
             for (RoleEntity r : roleRepository.findAll()) {
@@ -243,9 +251,11 @@ public class DataInitializer {
                             .build()
             );
 
-            /* =========================================================
+            */
+/* =========================================================
              * 6. PROJETS
-             * ========================================================= */
+             * ========================================================= *//*
+
 
             // Projet MANAR V8 (Edition + Intégration)
             ProjetEntity manarV8 = ProjetEntity.builder()
@@ -253,7 +263,7 @@ public class DataInitializer {
                     .libelle("Manar V8")
                     .description("Projet Manar V8")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             // Projet Manar Portail Client (Client)
@@ -262,14 +272,16 @@ public class DataInitializer {
                     .libelle("Manar Portail Client")
                     .description("Portail Client Manar")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             projetRepository.saveAll(List.of(manarV8, manarPortail));
 
-            /* =========================================================
+            */
+/* =========================================================
              * 7. ENVIRONNEMENTS
-             * ========================================================= */
+             * ========================================================= *//*
+
 
             // ---- Type EDITION : MANAR_V8 ----
             EnvironnementEntity envDev = EnvironnementEntity.builder()
@@ -277,7 +289,7 @@ public class DataInitializer {
                     .libelle("Développement")
                     .description("Environnement de développement Manar V8")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .projet(manarV8)
                     .type(editionType)
                     .build();
@@ -287,7 +299,7 @@ public class DataInitializer {
                     .libelle("Recette & TNR")
                     .description("Environnement de Recette & TNR Manar V8")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .projet(manarV8)
                     .type(editionType)
                     .build();
@@ -297,7 +309,7 @@ public class DataInitializer {
                     .libelle("Manar PostgreSQL")
                     .description("Environnement PostgreSQL Manar V8")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .projet(manarV8)
                     .type(editionType)
                     .build();
@@ -308,7 +320,7 @@ public class DataInitializer {
                     .libelle("Env Test Client")
                     .description("Environnement de test client (intégration)")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .projet(manarV8)
                     .type(integrationType)
                     .build();
@@ -318,7 +330,7 @@ public class DataInitializer {
                     .libelle("DEMO - PROD")
                     .description("Environnement démo côté PROD")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .projet(manarV8)
                     .type(integrationType)
                     .build();
@@ -328,7 +340,7 @@ public class DataInitializer {
                     .libelle("DEMO - RISK")
                     .description("Environnement démo risque")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .projet(manarV8)
                     .type(integrationType)
                     .build();
@@ -338,7 +350,7 @@ public class DataInitializer {
                     .libelle("Prod HTTPS")
                     .description("Environnement de production sécurisé HTTPS")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .projet(manarV8)
                     .type(integrationType)
                     .build();
@@ -349,7 +361,7 @@ public class DataInitializer {
                     .libelle("Env Dev")
                     .description("Environnement Dev Portail Client")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .projet(manarPortail)
                     .type(clientType)
                     .build();
@@ -359,7 +371,7 @@ public class DataInitializer {
                     .libelle("ENV UAT UCM")
                     .description("Environnement UAT UCM Portail Client")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .projet(manarPortail)
                     .type(clientType)
                     .build();
@@ -369,7 +381,7 @@ public class DataInitializer {
                     .libelle("ENV PROD UCM")
                     .description("Environnement PROD UCM Portail Client")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .projet(manarPortail)
                     .type(clientType)
                     .build();
@@ -380,9 +392,11 @@ public class DataInitializer {
                     envDevClient, envUatUcm, envProdUcm
             ));
 
-            /* =========================================================
+            */
+/* =========================================================
              * 8. APPLICATIONS (catalogue global)
-             * ========================================================= */
+             * ========================================================= *//*
+
 
             // Manar V8 "core"
             ApplicationEntity appFrontManar = ApplicationEntity.builder()
@@ -390,7 +404,7 @@ public class DataInitializer {
                     .libelle("Frontend Manar")
                     .description("UI Manar V8")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             ApplicationEntity appBackManar = ApplicationEntity.builder()
@@ -398,7 +412,7 @@ public class DataInitializer {
                     .libelle("Backend Manar")
                     .description("API Manar V8")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             ApplicationEntity appMiddleware = ApplicationEntity.builder()
@@ -406,7 +420,7 @@ public class DataInitializer {
                     .libelle("Middleware")
                     .description("Middleware Manar")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             ApplicationEntity appOpenApi = ApplicationEntity.builder()
@@ -414,7 +428,7 @@ public class DataInitializer {
                     .libelle("OpenAPI")
                     .description("Documentation OpenAPI / Gateway")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             ApplicationEntity appKeycloakManar = ApplicationEntity.builder()
@@ -422,7 +436,7 @@ public class DataInitializer {
                     .libelle("Keycloak Manar")
                     .description("SSO Manar")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             ApplicationEntity appPortainerManar = ApplicationEntity.builder()
@@ -430,7 +444,7 @@ public class DataInitializer {
                     .libelle("Portainer Manar")
                     .description("Portainer (cluster Manar)")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             ApplicationEntity appJenkins = ApplicationEntity.builder()
@@ -438,7 +452,7 @@ public class DataInitializer {
                     .libelle("Jenkins")
                     .description("CI/CD Jenkins")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             ApplicationEntity appDbManar = ApplicationEntity.builder()
@@ -446,7 +460,7 @@ public class DataInitializer {
                     .libelle("Database Manar")
                     .description("Base de données Manar")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             // Spécifiques Middleware côté prod intégration
@@ -455,7 +469,7 @@ public class DataInitializer {
                     .libelle("Keycloak Middleware")
                     .description("Keycloak Middleware")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             ApplicationEntity appPortainerMw = ApplicationEntity.builder()
@@ -463,7 +477,7 @@ public class DataInitializer {
                     .libelle("Portainer Middleware")
                     .description("Portainer Middleware")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             ApplicationEntity appDbMw = ApplicationEntity.builder()
@@ -471,7 +485,7 @@ public class DataInitializer {
                     .libelle("Database Middleware")
                     .description("Base de données Middleware")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             // Portail Client
@@ -480,7 +494,7 @@ public class DataInitializer {
                     .libelle("Frontend Client")
                     .description("Frontend portail client")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             ApplicationEntity appFrontAdmin = ApplicationEntity.builder()
@@ -488,7 +502,7 @@ public class DataInitializer {
                     .libelle("Frontend Admin")
                     .description("Frontend admin portail client")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             ApplicationEntity appBackPortail = ApplicationEntity.builder()
@@ -496,7 +510,7 @@ public class DataInitializer {
                     .libelle("Backend Portail")
                     .description("Backend portail client")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             ApplicationEntity appKeycloakClient = ApplicationEntity.builder()
@@ -504,7 +518,7 @@ public class DataInitializer {
                     .libelle("Keycloak Client")
                     .description("SSO portail client")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             ApplicationEntity appPortainerFront = ApplicationEntity.builder()
@@ -512,7 +526,7 @@ public class DataInitializer {
                     .libelle("Portainer Frontend")
                     .description("Portainer pour frontend client")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             ApplicationEntity appPortainerBack = ApplicationEntity.builder()
@@ -520,7 +534,7 @@ public class DataInitializer {
                     .libelle("Portainer Backend")
                     .description("Portainer pour backend portail")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             ApplicationEntity appDbClient = ApplicationEntity.builder()
@@ -528,7 +542,7 @@ public class DataInitializer {
                     .libelle("Database Portail Client")
                     .description("Base de données portail client")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             ApplicationEntity appMachineDesktopUcm = ApplicationEntity.builder()
@@ -536,7 +550,7 @@ public class DataInitializer {
                     .libelle("Machine Desktop UCM")
                     .description("Machine Desktop UCM")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             ApplicationEntity appMachineManar = ApplicationEntity.builder()
@@ -544,7 +558,7 @@ public class DataInitializer {
                     .libelle("Machine Manar")
                     .description("Machine Manar externe")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             applicationRepository.saveAll(List.of(
@@ -556,9 +570,11 @@ public class DataInitializer {
                     appDbClient, appMachineDesktopUcm, appMachineManar
             ));
 
-            /* =========================================================
+            */
+/* =========================================================
              * 9. ENV_APPLICATIONS (liens Env <-> App) AVEC DONNÉES
-             * ========================================================= */
+             * ========================================================= *//*
+
 
             // ---- EDITION - DEV (8 applications) ----
             EnvApplicationEntity devFront = EnvApplicationEntity.builder()
@@ -573,7 +589,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 3))
                     .description("Frontend Manar DEV")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity devBack = EnvApplicationEntity.builder()
@@ -588,7 +604,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 4))
                     .description("Backend Manar DEV")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity devMw = EnvApplicationEntity.builder()
@@ -603,7 +619,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 5))
                     .description("Middleware DEV")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity devOpenApi = EnvApplicationEntity.builder()
@@ -618,7 +634,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 2))
                     .description("OpenAPI DEV")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity devKeycloak = EnvApplicationEntity.builder()
@@ -633,7 +649,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 7))
                     .description("Keycloak Manar DEV")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity devPortainer = EnvApplicationEntity.builder()
@@ -648,7 +664,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 10))
                     .description("Portainer Manar DEV")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity devJenkins = EnvApplicationEntity.builder()
@@ -663,7 +679,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 1))
                     .description("Jenkins CI/CD DEV")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity devDb = EnvApplicationEntity.builder()
@@ -678,7 +694,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 15))
                     .description("Base Données DEV Manar (PostgreSQL)")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             // ---- EDITION - RECETTE & TNR (7 applications, sans Jenkins) ----
@@ -694,7 +710,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 6))
                     .description("Frontend Manar RECETTE")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity recBack = EnvApplicationEntity.builder()
@@ -709,7 +725,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 7))
                     .description("Backend Manar RECETTE")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity recMw = EnvApplicationEntity.builder()
@@ -724,7 +740,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 8))
                     .description("Middleware RECETTE")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity recOpenApi = EnvApplicationEntity.builder()
@@ -739,7 +755,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 5))
                     .description("OpenAPI RECETTE")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity recKeycloak = EnvApplicationEntity.builder()
@@ -754,7 +770,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 9))
                     .description("Keycloak Manar RECETTE")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity recPortainer = EnvApplicationEntity.builder()
@@ -769,7 +785,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 12))
                     .description("Portainer Manar RECETTE")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity recDb = EnvApplicationEntity.builder()
@@ -784,7 +800,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 20))
                     .description("Base Données RECETTE Manar (PostgreSQL)")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             // ---- EDITION - MANAR POSTGRESQL (7 applications, sans Jenkins) ----
@@ -800,7 +816,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 11))
                     .description("Frontend Manar PG")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity pgBack = EnvApplicationEntity.builder()
@@ -815,7 +831,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 13))
                     .description("Backend Manar PG")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity pgMw = EnvApplicationEntity.builder()
@@ -830,7 +846,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 14))
                     .description("Middleware Manar PG")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity pgOpenApi = EnvApplicationEntity.builder()
@@ -845,7 +861,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 9))
                     .description("OpenAPI Manar PG")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity pgKeycloak = EnvApplicationEntity.builder()
@@ -860,7 +876,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 18))
                     .description("Keycloak Manar PG")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity pgPortainer = EnvApplicationEntity.builder()
@@ -875,7 +891,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 16))
                     .description("Portainer Manar PG")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity pgDb = EnvApplicationEntity.builder()
@@ -890,7 +906,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 30))
                     .description("Base Données Manar PG (PostgreSQL)")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             // ---- INTEGRATION - Env Test Client / DEMO PROD / DEMO RISK (7 apps) ----
@@ -906,7 +922,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 8))
                     .description("Frontend Manar INT TEST CLIENT")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity intTestBack = EnvApplicationEntity.builder()
@@ -921,7 +937,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 10))
                     .description("Backend Manar INT TEST CLIENT")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity intTestMw = EnvApplicationEntity.builder()
@@ -936,7 +952,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 11))
                     .description("Middleware INT TEST CLIENT")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity intTestOpenApi = EnvApplicationEntity.builder()
@@ -951,7 +967,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 9))
                     .description("OpenAPI INT TEST CLIENT")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity intTestKeycloak = EnvApplicationEntity.builder()
@@ -966,7 +982,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 14))
                     .description("Keycloak Manar INT TEST CLIENT")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity intTestPortainer = EnvApplicationEntity.builder()
@@ -981,7 +997,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 12))
                     .description("Portainer Manar INT TEST CLIENT")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity intTestDb = EnvApplicationEntity.builder()
@@ -996,7 +1012,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 21))
                     .description("DB Manar INT TEST CLIENT")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             // DEMO PROD
@@ -1012,7 +1028,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 4))
                     .description("Frontend DEMO PROD")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity demoProdBack = EnvApplicationEntity.builder()
@@ -1027,7 +1043,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 5))
                     .description("Backend DEMO PROD")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity demoProdMw = EnvApplicationEntity.builder()
@@ -1042,7 +1058,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 6))
                     .description("Middleware DEMO PROD")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity demoProdOpenApi = EnvApplicationEntity.builder()
@@ -1057,7 +1073,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 3))
                     .description("OpenAPI DEMO PROD")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity demoProdKeycloak = EnvApplicationEntity.builder()
@@ -1072,7 +1088,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 10))
                     .description("Keycloak DEMO PROD")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity demoProdPortainer = EnvApplicationEntity.builder()
@@ -1087,7 +1103,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 9))
                     .description("Portainer DEMO PROD")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity demoProdDb = EnvApplicationEntity.builder()
@@ -1102,7 +1118,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 19))
                     .description("DB DEMO PROD")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             // DEMO RISK
@@ -1118,7 +1134,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 8))
                     .description("Frontend DEMO RISK")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity demoRiskBack = EnvApplicationEntity.builder()
@@ -1133,7 +1149,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 9))
                     .description("Backend DEMO RISK")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity demoRiskMw = EnvApplicationEntity.builder()
@@ -1148,7 +1164,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 10))
                     .description("Middleware DEMO RISK")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity demoRiskOpenApi = EnvApplicationEntity.builder()
@@ -1163,7 +1179,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 7))
                     .description("OpenAPI DEMO RISK")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity demoRiskKeycloak = EnvApplicationEntity.builder()
@@ -1178,7 +1194,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 11))
                     .description("Keycloak DEMO RISK")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity demoRiskPortainer = EnvApplicationEntity.builder()
@@ -1193,7 +1209,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 8))
                     .description("Portainer DEMO RISK")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity demoRiskDb = EnvApplicationEntity.builder()
@@ -1208,7 +1224,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 25))
                     .description("DB DEMO RISK")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             // ---- INTEGRATION - PROD HTTPS (10 applications) ----
@@ -1224,7 +1240,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 2))
                     .description("Frontend Manar PROD HTTPS")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity prodHttpsBack = EnvApplicationEntity.builder()
@@ -1239,7 +1255,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 3))
                     .description("Backend Manar PROD HTTPS")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity prodHttpsKeycloakManar = EnvApplicationEntity.builder()
@@ -1254,7 +1270,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 5))
                     .description("Keycloak Manar PROD")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity prodHttpsPortainerManar = EnvApplicationEntity.builder()
@@ -1269,7 +1285,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 8))
                     .description("Portainer Manar PROD")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity prodHttpsMw = EnvApplicationEntity.builder()
@@ -1284,7 +1300,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 6))
                     .description("Middleware PROD HTTPS")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity prodHttpsKeycloakMw = EnvApplicationEntity.builder()
@@ -1299,7 +1315,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 7))
                     .description("Keycloak Middleware PROD")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity prodHttpsPortainerMw = EnvApplicationEntity.builder()
@@ -1314,7 +1330,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 9))
                     .description("Portainer Middleware PROD")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity prodHttpsOpenApi = EnvApplicationEntity.builder()
@@ -1329,7 +1345,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 4))
                     .description("OpenAPI Manar PROD")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity prodHttpsDbMw = EnvApplicationEntity.builder()
@@ -1344,7 +1360,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 20))
                     .description("DB Middleware PROD")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity prodHttpsDbManar = EnvApplicationEntity.builder()
@@ -1359,7 +1375,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 25))
                     .description("DB Manar PROD")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             // ---- CLIENT - Env Dev (6 applications) ----
@@ -1375,7 +1391,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 4))
                     .description("Frontend Portail Client DEV")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity devClientFrontAdmin = EnvApplicationEntity.builder()
@@ -1390,7 +1406,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 5))
                     .description("Frontend Admin Portail Client DEV")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity devClientBack = EnvApplicationEntity.builder()
@@ -1405,7 +1421,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 6))
                     .description("Backend Portail Client DEV")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity devClientKeycloak = EnvApplicationEntity.builder()
@@ -1420,7 +1436,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 10))
                     .description("Keycloak Client DEV")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity devClientPortainer = EnvApplicationEntity.builder()
@@ -1435,7 +1451,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 12))
                     .description("Portainer Client DEV")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity devClientDb = EnvApplicationEntity.builder()
@@ -1450,7 +1466,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 18))
                     .description("DB Portail Client DEV")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             // ---- CLIENT - ENV UAT UCM (9 applications) ----
@@ -1466,7 +1482,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 7))
                     .description("Frontend Portail Client UAT")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity uatFrontAdmin = EnvApplicationEntity.builder()
@@ -1481,7 +1497,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 7))
                     .description("Frontend Admin UAT")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity uatBack = EnvApplicationEntity.builder()
@@ -1496,7 +1512,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 8))
                     .description("Backend Portail UAT")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity uatKeycloak = EnvApplicationEntity.builder()
@@ -1511,7 +1527,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 10))
                     .description("Keycloak Client UAT")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity uatPortFront = EnvApplicationEntity.builder()
@@ -1526,7 +1542,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 9))
                     .description("Portainer Frontend UAT")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity uatPortBack = EnvApplicationEntity.builder()
@@ -1541,7 +1557,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 9))
                     .description("Portainer Backend UAT")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity uatDb = EnvApplicationEntity.builder()
@@ -1556,7 +1572,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 15))
                     .description("DB Portail Client UAT")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity uatMachineUcm = EnvApplicationEntity.builder()
@@ -1571,7 +1587,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 5))
                     .description("Machine Desktop UCM UAT")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity uatMachineManar = EnvApplicationEntity.builder()
@@ -1586,7 +1602,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 6))
                     .description("Machine Manar UAT")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             // ---- CLIENT - ENV PROD UCM (9 applications, même structure que UAT mais en https) ----
@@ -1602,7 +1618,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 2))
                     .description("Frontend Portail Client PROD")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity prodUcmFrontAdmin = EnvApplicationEntity.builder()
@@ -1617,7 +1633,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 3))
                     .description("Frontend Admin PROD")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity prodUcmBack = EnvApplicationEntity.builder()
@@ -1632,7 +1648,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 3))
                     .description("Backend Portail PROD")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity prodUcmKeycloak = EnvApplicationEntity.builder()
@@ -1647,7 +1663,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 4))
                     .description("Keycloak Client PROD")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity prodUcmPortFront = EnvApplicationEntity.builder()
@@ -1662,7 +1678,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 6))
                     .description("Portainer Frontend PROD")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity prodUcmPortBack = EnvApplicationEntity.builder()
@@ -1677,7 +1693,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 6))
                     .description("Portainer Backend PROD")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity prodUcmDb = EnvApplicationEntity.builder()
@@ -1692,7 +1708,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 12))
                     .description("DB Portail Client PROD")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity prodUcmMachineUcm = EnvApplicationEntity.builder()
@@ -1707,7 +1723,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 5))
                     .description("Machine Desktop UCM PROD")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             EnvApplicationEntity prodUcmMachineManar = EnvApplicationEntity.builder()
@@ -1722,7 +1738,7 @@ public class DataInitializer {
                     .dateDerniereLivraison(dMinus(now, 6))
                     .description("Machine Manar PROD")
                     .actif(true)
-                    .createdAt(now)
+                    
                     .build();
 
             // Sauvegarde de TOUTES les EnvApplication
@@ -1743,9 +1759,11 @@ public class DataInitializer {
                     prodUcmPortFront, prodUcmPortBack, prodUcmDb, prodUcmMachineUcm, prodUcmMachineManar
             ));
 
-            /* =========================================================
+            */
+/* =========================================================
              * 10. UTILISATEUR ADMIN
-             * ========================================================= */
+             * ========================================================= *//*
+
 
             UtilisateurEntity adminUser = UtilisateurEntity.builder()
                     .code("admin")  // doit matcher preferred_username du token
@@ -1755,7 +1773,6 @@ public class DataInitializer {
                     .keycloakId("b2fdcd04-7266-4ad7-b48f-95cebbf19197") // sub du JWT
                     .actif(true)
                     .profil(profilAdmin)
-                    .createdAt(now)
                     .build();
 
             utilisateurRepository.save(adminUser);
@@ -1763,4 +1780,4 @@ public class DataInitializer {
             log.info(">>> Base initialisée avec données de test complètes.");
         };
     }
-}
+}*/

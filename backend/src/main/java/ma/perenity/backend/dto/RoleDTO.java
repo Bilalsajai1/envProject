@@ -1,7 +1,6 @@
 package ma.perenity.backend.dto;
 
 import lombok.*;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -11,6 +10,7 @@ import java.time.LocalDateTime;
 public class RoleDTO {
 
     private Long id;
+
     private String code;
     private String libelle;
     private String action;
@@ -21,7 +21,4 @@ public class RoleDTO {
 
     private Long environnementId;
     private String environnementCode;
-
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 }

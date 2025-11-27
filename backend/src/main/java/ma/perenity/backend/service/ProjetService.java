@@ -6,6 +6,7 @@ import ma.perenity.backend.dto.PaginationRequest;
 import ma.perenity.backend.dto.ProjetDTO;
 import ma.perenity.backend.entities.ProjetEntity;
 import ma.perenity.backend.excepion.ResourceNotFoundException;
+import ma.perenity.backend.mapper.ProjetMapper;
 import ma.perenity.backend.repository.ProjetRepository;
 import ma.perenity.backend.specification.EntitySpecification;
 import org.springframework.data.domain.Page;
@@ -14,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -22,79 +22,97 @@ import java.util.List;
 public class ProjetService {
 
     private final ProjetRepository projetRepository;
+    private final ProjetMapper projetMapper;
 
+    // ============================================================
+    // GET par type d'environnement (actifs + inactifs)
+    // ============================================================
 
     public List<ProjetDTO> getProjectsByEnvironmentType(String typeCode) {
         return projetRepository.findByEnvironmentTypeCode(typeCode)
                 .stream()
-                .map(this::toDto)
+                .map(projetMapper::toDto)
                 .toList();
     }
 
+    // ============================================================
+    // GET ALL (uniquement actifs)
+    // ============================================================
 
     public List<ProjetDTO> getAll() {
         return projetRepository.findByActifTrue()
                 .stream()
-                .map(this::toDto)
+                .map(projetMapper::toDto)
                 .toList();
     }
 
+    // ============================================================
+    // GET BY ID (uniquement actif)
+    // ============================================================
+
     public ProjetDTO getById(Long id) {
         ProjetEntity entity = projetRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Projet introuvable avec id = " + id));
-        return toDto(entity);
+                .filter(ProjetEntity::getActif)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Projet introuvable (ou inactif) avec id = " + id
+                ));
+
+        return projetMapper.toDto(entity);
     }
+
+    // ============================================================
+    // CREATE
+    // ============================================================
 
     public ProjetDTO create(ProjetDTO dto) {
-        ProjetEntity entity = new ProjetEntity();
-        entity.setCode(dto.getCode());
-        entity.setLibelle(dto.getLibelle());
-        entity.setDescription(dto.getDescription());
-        entity.setActif(dto.getActif() != null ? dto.getActif() : Boolean.TRUE);
-        entity.setCreatedAt(LocalDateTime.now());
-        entity.setUpdatedAt(LocalDateTime.now());
+
+        ProjetEntity entity = projetMapper.toEntity(dto);
+        entity.setId(null);
+
+        // si non renseigné, on force actif = true
+        if (entity.getActif() == null) {
+            entity.setActif(true);
+        }
 
         entity = projetRepository.save(entity);
-        return toDto(entity);
+        return projetMapper.toDto(entity);
     }
+
+    // ============================================================
+    // UPDATE
+    // ============================================================
 
     public ProjetDTO update(Long id, ProjetDTO dto) {
         ProjetEntity entity = projetRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Projet introuvable avec id = " + id));
+                .filter(ProjetEntity::getActif)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Projet introuvable (ou inactif) avec id = " + id
+                ));
 
-        entity.setCode(dto.getCode());
-        entity.setLibelle(dto.getLibelle());
-        entity.setDescription(dto.getDescription());
-        if (dto.getActif() != null) {
-            entity.setActif(dto.getActif());
-        }
-        entity.setUpdatedAt(LocalDateTime.now());
+        // update partiel via mapper (ignore les nulls)
+        projetMapper.updateEntityFromDto(dto, entity);
 
         entity = projetRepository.save(entity);
-        return toDto(entity);
+        return projetMapper.toDto(entity);
     }
 
+    // ============================================================
+    // DELETE LOGIQUE
+    // ============================================================
 
     public void delete(Long id) {
         ProjetEntity projet = projetRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Projet introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Projet introuvable avec id = " + id));
 
         projet.setActif(false);
-        projet.setUpdatedAt(LocalDateTime.now());
 
         projetRepository.save(projet);
     }
 
+    // ============================================================
+    // SEARCH (pagination + filtres dynamiques)
+    // ============================================================
 
-    private ProjetDTO toDto(ProjetEntity p) {
-        return ProjetDTO.builder()
-                .id(p.getId())
-                .code(p.getCode())
-                .libelle(p.getLibelle())
-                .description(p.getDescription())
-                .actif(p.getActif())
-                .build();
-    }
     public PaginatedResponse<ProjetDTO> search(PaginationRequest req) {
 
         Sort sort = req.getSortDirection().equalsIgnoreCase("desc")
@@ -111,7 +129,7 @@ public class ProjetService {
         );
 
         return PaginatedResponse.fromPage(
-                page.map(this::toDto)
+                page.map(projetMapper::toDto)
         );
     }
 }

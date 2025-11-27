@@ -6,6 +6,8 @@ import ma.perenity.backend.dto.PaginatedResponse;
 import ma.perenity.backend.dto.PaginationRequest;
 import ma.perenity.backend.dto.ProjetDTO;
 import ma.perenity.backend.service.ProjetService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,39 +19,41 @@ public class ProjetController {
 
     private final ProjetService projetService;
 
-
     @GetMapping("/by-environment-type/{typeCode}")
-    public List<ProjetDTO> getProjectsByEnvironmentType(@PathVariable String typeCode) {
-        return projetService.getProjectsByEnvironmentType(typeCode);
+    public ResponseEntity<List<ProjetDTO>> getProjectsByEnvironmentType(@PathVariable String typeCode) {
+        return ResponseEntity.ok(projetService.getProjectsByEnvironmentType(typeCode));
     }
 
-
     @GetMapping
-    public List<ProjetDTO> getAll() {
-        return projetService.getAll();
+    public ResponseEntity<List<ProjetDTO>> getAll() {
+        return ResponseEntity.ok(projetService.getAll());
     }
 
     @GetMapping("/{id}")
-    public ProjetDTO getById(@PathVariable Long id) {
-        return projetService.getById(id);
+    public ResponseEntity<ProjetDTO> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(projetService.getById(id));
     }
 
     @PostMapping
-    public ProjetDTO create(@Valid @RequestBody ProjetDTO dto) {
-        return projetService.create(dto);
+    public ResponseEntity<ProjetDTO> create(@Valid @RequestBody ProjetDTO dto) {
+        ProjetDTO created = projetService.create(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
+
     @PostMapping("/search")
-    public PaginatedResponse<ProjetDTO> search(@RequestBody PaginationRequest req) {
-        return projetService.search(req);
+    public ResponseEntity<PaginatedResponse<ProjetDTO>> search(@RequestBody PaginationRequest req) {
+        return ResponseEntity.ok(projetService.search(req));
     }
 
     @PutMapping("/{id}")
-    public ProjetDTO update(@PathVariable Long id, @Valid @RequestBody ProjetDTO dto) {
-        return projetService.update(id, dto);
+    public ResponseEntity<ProjetDTO> update(@PathVariable Long id,
+                                            @Valid @RequestBody ProjetDTO dto) {
+        return ResponseEntity.ok(projetService.update(id, dto));
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         projetService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

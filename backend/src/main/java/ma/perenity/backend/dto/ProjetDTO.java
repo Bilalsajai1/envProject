@@ -9,10 +9,13 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class ProjetDTO {
+
     private Long id;
-    @NotBlank()
+
+    @NotBlank
     private String code;
-    @NotBlank()
+
+    @NotBlank
     private String libelle;
 
     private String description;

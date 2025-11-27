@@ -6,6 +6,7 @@ import lombok.Data;
 public class MenuDTO {
 
     private Long id;
+
     private String code;
     private String libelle;
     private String route;

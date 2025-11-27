@@ -14,12 +14,18 @@ public interface MenuMapper {
     @Mapping(target = "environmentTypeCode", source = "environmentType.code")
     MenuDTO toDTO(MenuEntity entity);
 
-    @InheritInverseConfiguration
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "parent", ignore = true)
     @Mapping(target = "children", ignore = true)
+    @Mapping(target = "environmentType", ignore = true)
     @Mapping(target = "roles", ignore = true)
     MenuEntity toEntity(MenuCreateUpdateDTO dto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "parent", ignore = true)
+    @Mapping(target = "children", ignore = true)
+    @Mapping(target = "environmentType", ignore = true)
+    @Mapping(target = "roles", ignore = true)
     void updateEntity(MenuCreateUpdateDTO dto, @MappingTarget MenuEntity entity);
 }
