@@ -6,9 +6,11 @@ import ma.perenity.backend.dto.MenuCreateUpdateDTO;
 import ma.perenity.backend.dto.PaginatedResponse;
 import ma.perenity.backend.dto.PaginationRequest;
 import ma.perenity.backend.service.MenuService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -27,22 +29,26 @@ public class MenuController {
     public ResponseEntity<MenuDTO> get(@PathVariable Long id) {
         return ResponseEntity.ok(menuService.findById(id));
     }
+
     @GetMapping("/by-environment-type/{code}")
     public ResponseEntity<List<MenuDTO>> getByEnvironmentType(@PathVariable String code) {
         return ResponseEntity.ok(menuService.findByEnvironmentTypeCode(code));
     }
 
     @PostMapping
-    public ResponseEntity<MenuDTO> create(@RequestBody MenuCreateUpdateDTO dto) {
-        return ResponseEntity.ok(menuService.create(dto));
+    public ResponseEntity<MenuDTO> create(@Valid @RequestBody MenuCreateUpdateDTO dto) {
+        MenuDTO created = menuService.create(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
+
     @PostMapping("/search")
-    public PaginatedResponse<MenuDTO> search(@RequestBody PaginationRequest req) {
-        return menuService.search(req);
+    public ResponseEntity<PaginatedResponse<MenuDTO>> search(@RequestBody PaginationRequest req) {
+        return ResponseEntity.ok(menuService.search(req));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MenuDTO> update(@PathVariable Long id, @RequestBody MenuCreateUpdateDTO dto) {
+    public ResponseEntity<MenuDTO> update(@PathVariable Long id,
+                                          @Valid @RequestBody MenuCreateUpdateDTO dto) {
         return ResponseEntity.ok(menuService.update(id, dto));
     }
 

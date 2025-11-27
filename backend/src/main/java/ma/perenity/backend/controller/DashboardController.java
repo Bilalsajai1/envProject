@@ -3,9 +3,8 @@ package ma.perenity.backend.controller;
 import lombok.RequiredArgsConstructor;
 import ma.perenity.backend.dto.DashboardSummaryDTO;
 import ma.perenity.backend.service.DashboardService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/dashboard")
@@ -15,7 +14,7 @@ public class DashboardController {
     private final DashboardService dashboardService;
 
     @GetMapping("/summary")
-    public DashboardSummaryDTO getSummary() {
-        return dashboardService.getSummary();
+    public ResponseEntity<DashboardSummaryDTO> getSummary() {
+        return ResponseEntity.ok(dashboardService.getSummary());
     }
 }

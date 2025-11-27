@@ -1,4 +1,4 @@
-// app.ts
+// app.component.ts
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from './auth/auth-service';
 
@@ -15,7 +15,7 @@ export class App implements OnInit {
     const token = this.auth.getToken();
     if (token) {
       this.auth.init().subscribe({
-        next: () => console.log('User context loaded'),
+        next: () => console.log('UserService context loaded'),
         error: (err) => console.warn('Error loading user context', err)
       });
     } else {

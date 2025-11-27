@@ -3,10 +3,7 @@ package ma.perenity.backend.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import ma.perenity.backend.entities.enums.ActionType;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -32,16 +29,9 @@ public class RoleEntity {
     @Column(nullable = false, length = 20)
     private ActionType action;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean actif = true;
-
-    @CreatedDate
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    @Column(nullable = true)  // ✅ FIX
-    private LocalDateTime updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MENU_ID")

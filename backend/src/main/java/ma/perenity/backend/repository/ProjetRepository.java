@@ -1,6 +1,5 @@
 package ma.perenity.backend.repository;
 
-import ma.perenity.backend.entities.ApplicationEntity;
 import ma.perenity.backend.entities.ProjetEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -23,4 +22,6 @@ public interface ProjetRepository extends
     List<ProjetEntity> findByEnvironmentTypeCode(@Param("typeCode") String typeCode);
 
     List<ProjetEntity> findByActifTrue();
+
+    boolean existsByCode(String code);
 }

@@ -1,7 +1,6 @@
 package ma.perenity.backend.repository;
 
 import ma.perenity.backend.entities.EnvironmentTypeEntity;
-import ma.perenity.backend.entities.RoleEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
@@ -13,5 +12,8 @@ public interface EnvironmentTypeRepository extends
         JpaSpecificationExecutor<EnvironmentTypeEntity> {
 
     List<EnvironmentTypeEntity> findByActifTrue();
+
     Optional<EnvironmentTypeEntity> findByCode(String code);
+
+    boolean existsByCode(String code);
 }

@@ -19,7 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -29,7 +28,6 @@ public class EnvApplicationService {
     private final EnvApplicationRepository repository;
     private final EnvironnementRepository environnementRepository;
     private final ApplicationRepository applicationRepository;
-
     private final EnvApplicationMapper mapper;
 
     // ============================================================
@@ -38,28 +36,38 @@ public class EnvApplicationService {
     public List<EnvApplicationDTO> getByEnvironnement(Long envId) {
 
         environnementRepository.findById(envId)
-                .orElseThrow(() -> new ResourceNotFoundException("Environnement not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Environnement not found with id = " + envId));
 
         return repository.findByEnvironnementId(envId)
                 .stream()
-                .filter(EnvApplicationEntity::getActif) // logique : n'afficher que les actifs
+                .filter(EnvApplicationEntity::getActif)   // on retourne seulement les actifs
                 .map(mapper::toDto)
                 .toList();
     }
-
 
     // ============================================================
     // CREATE
     // ============================================================
     public EnvApplicationDTO create(EnvApplicationDTO dto) {
 
+        if (dto.getEnvironnementId() == null) {
+            throw new IllegalStateException("EnvironnementId est obligatoire");
+        }
+        if (dto.getApplicationId() == null) {
+            throw new IllegalStateException("ApplicationId est obligatoire");
+        }
+
         EnvironnementEntity env = environnementRepository.findById(dto.getEnvironnementId())
-                .orElseThrow(() -> new ResourceNotFoundException("Environnement not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Environnement not found with id = " + dto.getEnvironnementId()
+                ));
 
         ApplicationEntity app = applicationRepository.findById(dto.getApplicationId())
-                .orElseThrow(() -> new ResourceNotFoundException("Application not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Application not found with id = " + dto.getApplicationId()
+                ));
 
-        // Vérification doublon
+        // Vérification doublon (application déjà active dans cet environnement)
         boolean exists = repository.findByEnvironnementId(dto.getEnvironnementId())
                 .stream()
                 .filter(EnvApplicationEntity::getActif)
@@ -74,7 +82,6 @@ public class EnvApplicationService {
         entity.setEnvironnement(env);
         entity.setApplication(app);
         entity.setActif(true);
-        entity.setCreatedAt(LocalDateTime.now());
 
         entity = repository.save(entity);
 
@@ -83,23 +90,21 @@ public class EnvApplicationService {
 
 
     // ============================================================
-    // UPDATE
+    // UPDATE (uniquement si actif)
     // ============================================================
     public EnvApplicationDTO update(Long id, EnvApplicationDTO dto) {
 
         EnvApplicationEntity entity = repository.findById(id)
                 .filter(EnvApplicationEntity::getActif)
-                .orElseThrow(() -> new ResourceNotFoundException("EnvApplication not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("EnvApplication not found with id = " + id));
 
-        mapper.updateEntity(entity, dto);
-
-        entity.setUpdatedAt(LocalDateTime.now());
+        // Les relations env/application ne sont pas modifiées ici (mapper ignore ces champs)
+        mapper.updateEntityFromDto(dto, entity);
 
         entity = repository.save(entity);
 
         return mapper.toDto(entity);
     }
-
 
     // ============================================================
     // DELETE LOGIQUE
@@ -111,10 +116,12 @@ public class EnvApplicationService {
                         new ResourceNotFoundException("EnvApplication not found with id = " + id));
 
         entity.setActif(false);
-        entity.setUpdatedAt(LocalDateTime.now());
-
         repository.save(entity);
     }
+
+    // ============================================================
+    // SEARCH (ADMIN : ACTIF + INACTIF)
+    // ============================================================
     public PaginatedResponse<EnvApplicationDTO> search(PaginationRequest req) {
 
         Sort sort = req.getSortDirection().equalsIgnoreCase("desc")
@@ -129,11 +136,6 @@ public class EnvApplicationService {
                 specBuilder.getSpecification(req.getFilters()),
                 pageable
         );
-
-        // On peut filtrer actif ici si tu veux:
-        Page<EnvApplicationEntity> filtered = page.map(e -> e)
-                .map(e -> e) // no-op juste pour illustrer, ou filtrer avant
-                ;
 
         return PaginatedResponse.fromPage(
                 page.map(mapper::toDto)

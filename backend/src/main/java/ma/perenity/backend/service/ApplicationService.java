@@ -9,13 +9,9 @@ import ma.perenity.backend.excepion.ResourceNotFoundException;
 import ma.perenity.backend.mapper.ApplicationMapper;
 import ma.perenity.backend.repository.ApplicationRepository;
 import ma.perenity.backend.specification.EntitySpecification;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -26,20 +22,20 @@ public class ApplicationService {
     private final ApplicationMapper mapper;
 
     // ============================================================
-    // GET ALL ACTIVES
+    // GET ALL (actifs + inactifs)
     // ============================================================
     public List<ApplicationDTO> getAll() {
-        return repository.findByActifTrue()
+        return repository.findAll()
                 .stream()
                 .map(mapper::toDto)
                 .toList();
     }
 
     // ============================================================
-    // GET ALL (ACTIF + INACTIF)
+    // GET ALL ACTIVES UNIQUEMENT
     // ============================================================
     public List<ApplicationDTO> getAllActive() {
-        return repository.findAll()
+        return repository.findByActifTrue()
                 .stream()
                 .map(mapper::toDto)
                 .toList();
@@ -61,15 +57,18 @@ public class ApplicationService {
     // ============================================================
     public ApplicationDTO create(ApplicationDTO dto) {
         ApplicationEntity entity = mapper.toEntity(dto);
-        entity.setActif(true);
-        entity.setCreatedAt(LocalDateTime.now());
+
+        // si non renseigné côté front, on force à true
+        if (entity.getActif() == null) {
+            entity.setActif(Boolean.TRUE);
+        }
 
         entity = repository.save(entity);
         return mapper.toDto(entity);
     }
 
     // ============================================================
-    // UPDATE
+    // UPDATE (seulement si actif)
     // ============================================================
     public ApplicationDTO update(Long id, ApplicationDTO dto) {
 
@@ -77,11 +76,10 @@ public class ApplicationService {
                 .filter(ApplicationEntity::getActif)
                 .orElseThrow(() -> new ResourceNotFoundException("Application not found with id = " + id));
 
-        mapper.updateEntity(entity, dto);
+        // mappage partiel : uniquement les champs non nulls du DTO
+        mapper.updateEntityFromDto(dto, entity);
 
-        entity.setUpdatedAt(LocalDateTime.now());
-        repository.save(entity);
-
+        entity = repository.save(entity);
         return mapper.toDto(entity);
     }
 
@@ -94,11 +92,12 @@ public class ApplicationService {
                 .orElseThrow(() -> new ResourceNotFoundException("Application not found with id = " + id));
 
         entity.setActif(false);
-        entity.setUpdatedAt(LocalDateTime.now());
-
         repository.save(entity);
     }
 
+    // ============================================================
+    // SEARCH (avec filtres dynamiques + pagination)
+    // ============================================================
     public PaginatedResponse<ApplicationDTO> search(PaginationRequest req) {
 
         Sort sort = req.getSortDirection().equalsIgnoreCase("desc")

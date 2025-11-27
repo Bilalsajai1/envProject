@@ -1,6 +1,5 @@
 package ma.perenity.backend.dto;
 
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -13,16 +12,20 @@ import lombok.*;
 public class EnvironnementDTO {
 
     private Long id;
-    @NotBlank()
+
+    @NotBlank
     private String code;
-    @NotBlank()
+
+    @NotBlank
     private String libelle;
+
     @Size(max = 255)
     private String description;
 
     private Boolean actif;
 
     private Long projetId;
-    @NotBlank
+
+
     private String typeCode;
 }

@@ -6,6 +6,8 @@ import ma.perenity.backend.dto.ApplicationDTO;
 import ma.perenity.backend.dto.PaginatedResponse;
 import ma.perenity.backend.dto.PaginationRequest;
 import ma.perenity.backend.service.ApplicationService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,36 +20,40 @@ public class ApplicationController {
     private final ApplicationService service;
 
     @GetMapping
-    public List<ApplicationDTO> getAll() {
-        return service.getAll();
+    public ResponseEntity<List<ApplicationDTO>> getAll() {
+        return ResponseEntity.ok(service.getAll());
     }
 
     @GetMapping("/actives")
-    public List<ApplicationDTO> getAllActive() {
-        return service.getAllActive();
+    public ResponseEntity<List<ApplicationDTO>> getAllActive() {
+        return ResponseEntity.ok(service.getAllActive());
     }
 
     @GetMapping("/{id}")
-    public ApplicationDTO getById(@PathVariable Long id) {
-        return service.getById(id);
+    public ResponseEntity<ApplicationDTO> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(service.getById(id));
     }
 
     @PostMapping
-    public ApplicationDTO create(@Valid @RequestBody ApplicationDTO dto) {
-        return service.create(dto);
+    public ResponseEntity<ApplicationDTO> create(@Valid @RequestBody ApplicationDTO dto) {
+        ApplicationDTO created = service.create(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
+
     @PostMapping("/search")
-    public PaginatedResponse<ApplicationDTO> search(@RequestBody PaginationRequest req) {
-        return service.search(req);
+    public ResponseEntity<PaginatedResponse<ApplicationDTO>> search(@RequestBody PaginationRequest req) {
+        return ResponseEntity.ok(service.search(req));
     }
 
     @PutMapping("/{id}")
-    public ApplicationDTO update(@PathVariable Long id, @Valid @RequestBody ApplicationDTO dto) {
-        return service.update(id, dto);
+    public ResponseEntity<ApplicationDTO> update(@PathVariable Long id,
+                                                 @Valid @RequestBody ApplicationDTO dto) {
+        return ResponseEntity.ok(service.update(id, dto));
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

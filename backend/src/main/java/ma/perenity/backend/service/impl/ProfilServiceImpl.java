@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -40,8 +39,9 @@ public class ProfilServiceImpl implements ProfilService {
 
     @Override
     public List<ProfilDTO> getAll() {
-        return mapper.toDtoList(profilRepository.findAll());
+        return mapper.toDtoList(profilRepository.findByActifTrue());
     }
+
 
     @Override
     public ProfilDTO getById(Long id) {
@@ -59,8 +59,6 @@ public class ProfilServiceImpl implements ProfilService {
                 .description(dto.getDescription())
                 .admin(dto.getAdmin() != null ? dto.getAdmin() : false)
                 .actif(dto.getActif() != null ? dto.getActif() : true)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
                 .build();
 
         return mapper.toDto(profilRepository.save(profil));
@@ -76,10 +74,12 @@ public class ProfilServiceImpl implements ProfilService {
         profil.setLibelle(dto.getLibelle());
         profil.setDescription(dto.getDescription());
 
-        if (dto.getAdmin() != null) profil.setAdmin(dto.getAdmin());
-        if (dto.getActif() != null) profil.setActif(dto.getActif());
-
-        profil.setUpdatedAt(LocalDateTime.now());
+        if (dto.getAdmin() != null) {
+            profil.setAdmin(dto.getAdmin());
+        }
+        if (dto.getActif() != null) {
+            profil.setActif(dto.getActif());
+        }
 
         return mapper.toDto(profilRepository.save(profil));
     }
@@ -93,7 +93,6 @@ public class ProfilServiceImpl implements ProfilService {
         profil.setActif(false);
         profilRepository.save(profil);
     }
-
 
     @Override
     public List<Long> getRoleIds(Long profilId) {

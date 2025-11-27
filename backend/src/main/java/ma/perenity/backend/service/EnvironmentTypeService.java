@@ -24,45 +24,91 @@ public class EnvironmentTypeService {
     private final EnvironmentTypeRepository repository;
     private final EnvironmentTypeMapper mapper;
 
+    // ============================================================
+    // GET
+    // ============================================================
+
     public List<EnvironmentTypeDTO> getAll() {
-        return repository.findAll().stream()
+        return repository.findAll()
+                .stream()
                 .map(mapper::toDto)
                 .toList();
     }
 
     public List<EnvironmentTypeDTO> getAllActive() {
-        return repository.findByActifTrue().stream()
+        return repository.findByActifTrue()
+                .stream()
                 .map(mapper::toDto)
                 .toList();
     }
 
     public EnvironmentTypeDTO getById(Long id) {
         EnvironmentTypeEntity entity = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("EnvironmentType not found with id = " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "EnvironmentType not found with id = " + id
+                ));
         return mapper.toDto(entity);
     }
+
+    // ============================================================
+    // CREATE
+    // ============================================================
 
     public EnvironmentTypeDTO create(EnvironmentTypeDTO dto) {
+
+        // Vérifier unicité du code
+        if (repository.existsByCode(dto.getCode())) {
+            throw new IllegalStateException("EnvironmentType code already exists: " + dto.getCode());
+        }
+
         EnvironmentTypeEntity entity = mapper.toEntity(dto);
         entity.setActif(true);
+
         entity = repository.save(entity);
         return mapper.toDto(entity);
     }
+
+    // ============================================================
+    // UPDATE
+    // ============================================================
 
     public EnvironmentTypeDTO update(Long id, EnvironmentTypeDTO dto) {
+
         EnvironmentTypeEntity entity = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("EnvironmentType not found with id = " + id));
-        mapper.updateEntity(entity, dto);
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "EnvironmentType not found with id = " + id
+                ));
+
+        // Si le code change, on vérifie qu'il n'est pas déjà utilisé
+        if (!entity.getCode().equals(dto.getCode())
+                && repository.existsByCode(dto.getCode())) {
+            throw new IllegalStateException("EnvironmentType code already exists: " + dto.getCode());
+        }
+
+        mapper.updateEntityFromDto(dto, entity);
+
         entity = repository.save(entity);
         return mapper.toDto(entity);
     }
 
+    // ============================================================
+    // DELETE LOGIQUE
+    // ============================================================
+
     public void delete(Long id) {
-        if (!repository.existsById(id)) {
-            throw new ResourceNotFoundException("Application not found with id = " + id);
-        }
-        repository.deleteById(id);
+        EnvironmentTypeEntity entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "EnvironmentType not found with id = " + id
+                ));
+
+        entity.setActif(false);
+        repository.save(entity);
     }
+
+    // ============================================================
+    // SEARCH (pagination + filtres dynamiques)
+    // ============================================================
+
     public PaginatedResponse<EnvironmentTypeDTO> search(PaginationRequest req) {
 
         Sort sort = req.getSortDirection().equalsIgnoreCase("desc")

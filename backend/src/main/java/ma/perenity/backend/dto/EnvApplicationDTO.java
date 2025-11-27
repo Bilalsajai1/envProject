@@ -15,12 +15,12 @@ public class EnvApplicationDTO {
 
     private Long id;
 
-    @NotNull()
-    @Positive()
+
+    @Positive
     private Long environnementId;
 
-    @NotNull()
-    @Positive()
+
+    @Positive
     private Long applicationId;
 
     private String applicationCode;
@@ -32,6 +32,7 @@ public class EnvApplicationDTO {
     private String url;
     private String username;
     private String password;
+
     private String passwordMasked;
 
     private String description;
