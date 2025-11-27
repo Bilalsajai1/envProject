@@ -1,54 +1,89 @@
 package ma.perenity.backend.specification;
 
-
-import org.springframework.data.jpa.domain.Specification;
 import jakarta.persistence.criteria.*;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.Map;
 
 public class EntitySpecification<T> {
 
     public Specification<T> getSpecification(Map<String, Object> filters) {
-
         return (Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) -> {
 
             Predicate predicate = cb.conjunction();
 
-            if (filters == null) return predicate;
+            if (filters == null || filters.isEmpty()) {
+                return predicate;
+            }
 
-            for (String key : filters.keySet()) {
-                Object value = filters.get(key);
-                if (value == null) continue;
+            for (Map.Entry<String, Object> entry : filters.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
 
-                // gestion des champs imbriqués : profil.libelle
-                if (key.contains(".")) {
-                    String[] parts = key.split("\\.");
-                    Join<Object, Object> join = root.join(parts[0], JoinType.LEFT);
-                    predicate = cb.and(predicate,
-                            cb.like(cb.lower(join.get(parts[1]).as(String.class)),
-                                    "%" + value.toString().toLowerCase() + "%"));
+                if (value == null) {
+                    continue;
+                }
+                if (value instanceof String str && str.isBlank()) {
                     continue;
                 }
 
-                Path<?> path = root.get(key);
+                // ---- Champs imbriqués : ex "profil.libelle"
+                if (key.contains(".")) {
+                    String[] parts = key.split("\\.");
+                    if (parts.length != 2) {
+                        // clé mal formée → on ignore simplement
+                        continue;
+                    }
 
-                if (path.getJavaType() == String.class) {
-                    predicate = cb.and(predicate,
-                            cb.like(cb.lower(path.as(String.class)),
-                                    "%" + value.toString().toLowerCase() + "%"));
+                    Join<Object, Object> join = root.join(parts[0], JoinType.LEFT);
+                    Path<String> nestedPath = join.get(parts[1]);
 
-                } else if (path.getJavaType() == Boolean.class) {
-                    predicate = cb.and(predicate,
-                            cb.equal(path.as(Boolean.class), Boolean.valueOf(value.toString())));
+                    predicate = cb.and(
+                            predicate,
+                            cb.like(
+                                    cb.lower(nestedPath),
+                                    "%" + value.toString().toLowerCase() + "%"
+                            )
+                    );
+                    continue;
+                }
 
-                } else if (Number.class.isAssignableFrom(path.getJavaType())) {
-                    predicate = cb.and(predicate,
-                            cb.equal(path.as(Number.class), value));
+                // ---- Champ simple
+                Path<?> path;
+                try {
+                    path = root.get(key);
+                } catch (IllegalArgumentException ex) {
+                    // Champ inconnu côté entity → on ignore le filtre pour éviter un crash
+                    continue;
+                }
+
+                Class<?> javaType = path.getJavaType();
+
+                if (String.class.equals(javaType)) {
+
+                    predicate = cb.and(
+                            predicate,
+                            cb.like(
+                                    cb.lower(path.as(String.class)),
+                                    "%" + value.toString().toLowerCase() + "%"
+                            )
+                    );
+
+                } else if (Boolean.class.equals(javaType) || boolean.class.equals(javaType)) {
+
+                    predicate = cb.and(
+                            predicate,
+                            cb.equal(path.as(Boolean.class), Boolean.valueOf(value.toString()))
+                    );
+
+                } else if (Number.class.isAssignableFrom(javaType)) {
+
+                    // En général, Jackson aura déjà casté en Number (Integer/Long/Double)
+                    predicate = cb.and(predicate, cb.equal(path, value));
 
                 } else {
-                    // fallback
-                    predicate = cb.and(predicate,
-                            cb.equal(path, value));
+
+                    predicate = cb.and(predicate, cb.equal(path, value));
                 }
             }
 

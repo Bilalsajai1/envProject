@@ -1,6 +1,5 @@
 package ma.perenity.backend.entities;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -33,26 +32,21 @@ public class MenuEntity {
 
     private Integer ordre;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean visible = true;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PARENT_ID")
-
     private MenuEntity parent;
 
     @OneToMany(mappedBy = "parent")
-
-    @EqualsAndHashCode.Exclude
     private List<MenuEntity> children;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ENV_TYPE_ID")
-
     private EnvironmentTypeEntity environmentType;
 
     @OneToMany(mappedBy = "menu")
-
-    @EqualsAndHashCode.Exclude
     private List<RoleEntity> roles;
 }

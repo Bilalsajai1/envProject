@@ -14,4 +14,7 @@ public interface EnvApplicationRepository extends
 
     long countByActifTrue();
 
+    boolean existsByEnvironnementIdAndApplicationIdAndActifTrue(Long environnementId, Long applicationId);
+
+    List<EnvApplicationEntity> findByEnvironnementIdAndActifTrue(Long environnementId);
 }

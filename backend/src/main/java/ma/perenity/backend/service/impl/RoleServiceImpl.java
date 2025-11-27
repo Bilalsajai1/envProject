@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.*;
@@ -40,7 +39,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public List<RoleDTO> getAll() {
-        return roleMapper.toDtoList(roleRepository.findAll());
+        return roleMapper.toDtoList(roleRepository.findByActifTrue());
     }
 
     @Override
@@ -79,8 +78,6 @@ public class RoleServiceImpl implements RoleService {
                             "Environnement introuvable : " + dto.getEnvironnementId()));
         }
 
-        LocalDateTime now = LocalDateTime.now();
-
         RoleEntity role = RoleEntity.builder()
                 .code(dto.getCode())
                 .libelle(dto.getLibelle())
@@ -88,8 +85,6 @@ public class RoleServiceImpl implements RoleService {
                 .actif(dto.getActif() == null ? true : dto.getActif())
                 .menu(menu)
                 .environnement(env)
-                .createdAt(now)
-                .updatedAt(now)
                 .build();
 
         RoleEntity saved = roleRepository.save(role);
@@ -136,7 +131,6 @@ public class RoleServiceImpl implements RoleService {
         role.setActif(dto.getActif() == null ? role.getActif() : dto.getActif());
         role.setMenu(menu);
         role.setEnvironnement(env);
-        role.setUpdatedAt(LocalDateTime.now());
 
         RoleEntity updated = roleRepository.save(role);
         return roleMapper.toDto(updated);
@@ -148,7 +142,6 @@ public class RoleServiceImpl implements RoleService {
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Rôle introuvable"));
 
         role.setActif(false);
-        role.setUpdatedAt(LocalDateTime.now());
         roleRepository.save(role);
     }
 
@@ -161,6 +154,7 @@ public class RoleServiceImpl implements RoleService {
     public List<RoleDTO> getByEnvironnement(Long envId) {
         return roleMapper.toDtoList(roleRepository.findByEnvironnementId(envId));
     }
+
     @Override
     public PaginatedResponse<RoleDTO> search(PaginationRequest req) {
 

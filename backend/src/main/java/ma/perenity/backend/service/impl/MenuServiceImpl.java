@@ -21,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
@@ -100,8 +101,24 @@ public class MenuServiceImpl implements MenuService {
         MenuEntity entity = menuRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Menu introuvable"));
 
+        if (entity.getRoles() != null && !entity.getRoles().isEmpty()) {
+            throw new ResponseStatusException(
+                    BAD_REQUEST,
+                    "Impossible de supprimer ce menu : des rôles y sont encore associés. " +
+                            "Supprime ou détache d'abord les rôles de ce menu."
+            );
+        }
+
+        if (entity.getChildren() != null && !entity.getChildren().isEmpty()) {
+            throw new ResponseStatusException(
+                    BAD_REQUEST,
+                    "Impossible de supprimer ce menu : il possède encore des sous-menus."
+            );
+        }
+
         menuRepository.delete(entity);
     }
+
 
     @Override
     @Transactional(readOnly = true)

@@ -11,9 +11,12 @@ import lombok.*;
 public class EnvironmentTypeDTO {
 
     private Long id;
-    @NotBlank()
+
+    @NotBlank
     private String code;
-    @NotBlank()
+
+    @NotBlank
     private String libelle;
+
     private Boolean actif;
 }

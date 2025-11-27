@@ -22,6 +22,7 @@ public interface EnvironnementMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "projet", ignore = true)
     @Mapping(target = "type", ignore = true)
-    void updateEntity(@MappingTarget EnvironnementEntity entity, EnvironnementDTO dto);
-
+    @Mapping(target = "envApplications", ignore = true)
+    @Mapping(target = "roles", ignore = true)
+    void updateEntityFromDto(EnvironnementDTO dto, @MappingTarget EnvironnementEntity entity);
 }

@@ -1,5 +1,7 @@
 package ma.perenity.backend.service.impl;
 
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import lombok.RequiredArgsConstructor;
 import ma.perenity.backend.dto.PaginatedResponse;
 import ma.perenity.backend.dto.PaginationRequest;
@@ -16,12 +18,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -33,8 +37,9 @@ public class UtilisateurServiceImpl implements UtilisateurService {
 
     @Override
     public List<UserDTO> getAll() {
-        return userMapper.toDtoList(utilisateurRepository.findAll());
+        return userMapper.toDtoList(utilisateurRepository.findByActifTrue());
     }
+
 
     @Override
     public UserDTO getById(Long id) {
@@ -55,8 +60,6 @@ public class UtilisateurServiceImpl implements UtilisateurService {
                 .lastName(dto.getLastName())
                 .email(dto.getEmail())
                 .actif(dto.getActif() != null ? dto.getActif() : true)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
                 .profil(profil)
                 .build();
 
@@ -84,8 +87,6 @@ public class UtilisateurServiceImpl implements UtilisateurService {
             entity.setProfil(profil);
         }
 
-        entity.setUpdatedAt(LocalDateTime.now());
-
         return userMapper.toDto(utilisateurRepository.save(entity));
     }
 
@@ -94,8 +95,12 @@ public class UtilisateurServiceImpl implements UtilisateurService {
         UtilisateurEntity entity = utilisateurRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
 
-        utilisateurRepository.delete(entity);
+        // Suppression logique, cohérente avec le reste
+        entity.setActif(false);
+        utilisateurRepository.save(entity);
     }
+
+
     @Override
     public PaginatedResponse<UserDTO> search(PaginationRequest req) {
 
@@ -105,16 +110,47 @@ public class UtilisateurServiceImpl implements UtilisateurService {
 
         Pageable pageable = PageRequest.of(req.getPage(), req.getSize(), sort);
 
-        EntitySpecification<UtilisateurEntity> filter = new EntitySpecification<>();
+        Map<String, Object> rawFilters = req.getFilters() != null
+                ? new HashMap<>(req.getFilters())
+                : new HashMap<>();
 
-        Page<UtilisateurEntity> page = utilisateurRepository.findAll(
-                filter.getSpecification(req.getFilters()),
-                pageable
-        );
+        // 🔍 récupérer le filtre global "search"
+        String search = null;
+        Object searchObj = rawFilters.remove("search");
+        if (searchObj != null) {
+            search = searchObj.toString().trim();
+            if (search.isEmpty()) {
+                search = null;
+            }
+        }
+
+        EntitySpecification<UtilisateurEntity> specBuilder = new EntitySpecification<>();
+        Specification<UtilisateurEntity> spec = specBuilder.getSpecification(rawFilters);
+
+        if (search != null) {
+            final String term = "%" + search.toLowerCase() + "%";
+
+            Specification<UtilisateurEntity> globalSearchSpec = (root, query, cb) -> {
+                Join<Object, Object> profilJoin = root.join("profil", JoinType.LEFT);
+
+                return cb.or(
+                        cb.like(cb.lower(root.get("code")), term),
+                        cb.like(cb.lower(root.get("firstName")), term),
+                        cb.like(cb.lower(root.get("lastName")), term),
+                        cb.like(cb.lower(root.get("email")), term),
+                        cb.like(cb.lower(profilJoin.get("libelle")), term)
+                );
+            };
+
+            spec = spec.and(globalSearchSpec);
+        }
+
+        Page<UtilisateurEntity> page = utilisateurRepository.findAll(spec, pageable);
 
         return PaginatedResponse.fromPage(
                 page.map(userMapper::toDto)
         );
     }
+
 
 }

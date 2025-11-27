@@ -17,14 +17,15 @@ public interface ProfilRoleRepository extends JpaRepository<ProfilRoleEntity, Lo
                 WHERE pr.profil.id = :profilId
             """)
     List<RoleEntity> findRolesByProfil(@Param("profilId") Long profilId);
+
     @Query("""
         SELECT pr.role.id
         FROM ProfilRoleEntity pr
         WHERE pr.profil.id = :profilId
     """)
     List<Long> findRoleIdsByProfilId(@Param("profilId") Long profilId);
+
     @Modifying
     @Query("DELETE FROM ProfilRoleEntity pr WHERE pr.profil.id = :profilId")
     void deleteByProfilId(@Param("profilId") Long profilId);
-
 }

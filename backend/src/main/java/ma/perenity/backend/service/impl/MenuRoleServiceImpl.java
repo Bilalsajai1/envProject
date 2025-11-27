@@ -1,8 +1,10 @@
 package ma.perenity.backend.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import ma.perenity.backend.dto.RoleDTO;
 import ma.perenity.backend.entities.MenuEntity;
 import ma.perenity.backend.entities.RoleEntity;
+import ma.perenity.backend.mapper.RoleMapper;
 import ma.perenity.backend.repository.MenuRepository;
 import ma.perenity.backend.repository.RoleRepository;
 import ma.perenity.backend.service.MenuRoleService;
@@ -20,17 +22,17 @@ public class MenuRoleServiceImpl implements MenuRoleService {
 
     private final MenuRepository menuRepository;
     private final RoleRepository roleRepository;
+    private final RoleMapper roleMapper;
 
     @Override
-    public List<RoleEntity> getRolesForMenu(Long menuId) {
+    public List<RoleDTO> getRolesForMenu(Long menuId) {
         menuRepository.findById(menuId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Menu introuvable"));
-        return roleRepository.findRolesByMenu(menuId);
+        return roleMapper.toDtoList(roleRepository.findRolesByMenu(menuId));
     }
 
     @Override
     public void assignRoleToMenu(Long menuId, Long roleId) {
-
         MenuEntity menu = menuRepository.findById(menuId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Menu introuvable"));
 
@@ -43,7 +45,6 @@ public class MenuRoleServiceImpl implements MenuRoleService {
 
     @Override
     public void removeRoleFromMenu(Long menuId, Long roleId) {
-
         MenuEntity menu = menuRepository.findById(menuId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Menu introuvable"));
 
@@ -59,21 +60,17 @@ public class MenuRoleServiceImpl implements MenuRoleService {
     }
 
     @Override
-    public List<RoleEntity> getUnassignedRoles() {
-        return roleRepository.findRolesWithoutMenu();
+    public List<RoleDTO> getUnassignedRoles() {
+        return roleMapper.toDtoList(roleRepository.findRolesWithoutMenu());
     }
 
     @Override
-    @Transactional
     public void updateRoles(Long menuId, List<Long> roleIds) {
-
         MenuEntity menu = menuRepository.findById(menuId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Menu introuvable"));
 
-        // 1. Récupérer tous les rôles actuellement associés à ce menu
         List<RoleEntity> currentRoles = roleRepository.findRolesByMenu(menuId);
 
-        // 2. Désassocier les rôles non présents dans la nouvelle liste
         for (RoleEntity role : currentRoles) {
             if (!roleIds.contains(role.getId())) {
                 role.setMenu(null);
@@ -81,7 +78,6 @@ public class MenuRoleServiceImpl implements MenuRoleService {
             }
         }
 
-        // 3. Associer les nouveaux rôles
         for (Long roleId : roleIds) {
             RoleEntity role = roleRepository.findById(roleId)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,

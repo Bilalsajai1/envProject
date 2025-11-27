@@ -25,5 +25,5 @@ public interface RoleRepository extends JpaRepository<RoleEntity, Long>, JpaSpec
     @Query("SELECT r FROM RoleEntity r WHERE r.menu IS NULL")
     List<RoleEntity> findRolesWithoutMenu();
 
-
+    boolean existsByCode(String code);
 }

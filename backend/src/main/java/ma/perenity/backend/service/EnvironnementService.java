@@ -19,7 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -37,16 +36,18 @@ public class EnvironnementService {
 
     public List<EnvironnementDTO> getEnvironmentsByProjetAndType(Long projetId, String typeCode) {
 
-        return environnementRepository.findByProjetAndType(projetId, typeCode)
+        return environnementRepository
+                .findByProjet_IdAndType_CodeAndActifTrue(projetId, typeCode)
                 .stream()
-                .filter(EnvironnementEntity::getActif) // garder juste les actifs
                 .map(mapper::toDto)
                 .toList();
     }
 
     public EnvironnementEntity getByIdOrThrow(Long id) {
         return environnementRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Environnement not found with id = " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Environnement not found with id = " + id
+                ));
     }
 
     // =====================================================
@@ -56,19 +57,21 @@ public class EnvironnementService {
     public EnvironnementDTO create(EnvironnementDTO dto) {
 
         ProjetEntity projet = projetRepository.findById(dto.getProjetId())
-                .orElseThrow(() -> new ResourceNotFoundException("Projet not found with id = " + dto.getProjetId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Projet not found with id = " + dto.getProjetId()
+                ));
 
-        // recherche via typeCode
         EnvironmentTypeEntity type = typeRepository.findByCode(dto.getTypeCode())
-                .orElseThrow(() -> new ResourceNotFoundException("Type not found: " + dto.getTypeCode()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "EnvironmentType not found with code = " + dto.getTypeCode()
+                ));
 
         EnvironnementEntity env = mapper.toEntity(dto);
 
         env.setId(null);
         env.setProjet(projet);
         env.setType(type);
-        env.setActif(true);
-        env.setCreatedAt(LocalDateTime.now());
+        env.setActif(true); // par défaut actif à la création
 
         env = environnementRepository.save(env);
 
@@ -83,10 +86,10 @@ public class EnvironnementService {
 
         EnvironnementEntity env = getByIdOrThrow(id);
 
-        mapper.updateEntity(env, dto); // partiel
+        // update partiel via mapper (NullValuePropertyMappingStrategy.IGNORE)
+        mapper.updateEntityFromDto(dto, env);
 
-        env.setUpdatedAt(LocalDateTime.now());
-        environnementRepository.save(env);
+        env = environnementRepository.save(env);
 
         return mapper.toDto(env);
     }
@@ -99,11 +102,13 @@ public class EnvironnementService {
         EnvironnementEntity entity = getByIdOrThrow(id);
 
         entity.setActif(false);
-        entity.setUpdatedAt(LocalDateTime.now());
 
         environnementRepository.save(entity);
     }
 
+    // =====================================================
+    // SEARCH (pagination + filtres dynamiques)
+    // =====================================================
 
     public PaginatedResponse<EnvironnementDTO> search(PaginationRequest req) {
 
@@ -125,4 +130,3 @@ public class EnvironnementService {
         );
     }
 }
-
