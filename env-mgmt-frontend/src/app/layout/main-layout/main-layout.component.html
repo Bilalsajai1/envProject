@@ -1,0 +1,36 @@
+<mat-sidenav-container class="app-container">
+  <mat-sidenav mode="side" opened class="app-sidenav">
+    <div class="logo-area">
+      <div class="logo-circle">EM</div>
+      <div class="app-title">Env Management</div>
+    </div>
+
+    <div class="user-info" *ngIf="ctx">
+      <div class="user-name">{{ ctx.username }}</div>
+      <div class="user-profil">{{ ctx.profilLibelle }}</div>
+    </div>
+
+    <mat-nav-list>
+      <!-- Exemple : si ton MenuDTO a un champ 'route' -->
+      <a mat-list-item
+         *ngFor="let m of menus"
+         [routerLink]="m.route"
+         routerLinkActive="active-link">
+        <mat-icon *ngIf="m.icon">{{ m.icon }}</mat-icon>
+        <span>{{ m.libelle }}</span>
+      </a>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <div class="app-toolbar">
+      <span class="page-title">Administration</span>
+      <span class="spacer"></span>
+      <!-- Ici plus tard : bouton logout -->
+    </div>
+
+    <div class="app-content">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

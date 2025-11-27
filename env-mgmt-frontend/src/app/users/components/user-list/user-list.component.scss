@@ -1,0 +1,66 @@
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+
+  h1 {
+    margin: 0;
+  }
+
+  .subtitle {
+    margin: 4px 0 0;
+    color: #6b7280;
+    font-size: 13px;
+  }
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+}
+
+.card-header {
+  margin-bottom: 12px;
+}
+
+.search-field {
+  width: 320px;
+}
+
+.filters-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.table-wrapper {
+  overflow: auto;
+}
+
+.full-width-table {
+  width: 100%;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 4px;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 32px 0;
+}
+.sortable {
+  cursor: pointer;
+  user-select: none;
+  align-items: center;
+  gap: 4px;
+}
+.sort-icon {
+  font-size: 18px;
+}
