@@ -12,12 +12,10 @@ import ma.perenity.backend.entities.UtilisateurEntity;
 import ma.perenity.backend.mapper.UserMapper;
 import ma.perenity.backend.repository.ProfilRepository;
 import ma.perenity.backend.repository.UtilisateurRepository;
+import ma.perenity.backend.service.PermissionService;
 import ma.perenity.backend.service.UtilisateurService;
 import ma.perenity.backend.specification.EntitySpecification;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -34,15 +32,24 @@ public class UtilisateurServiceImpl implements UtilisateurService {
     private final UtilisateurRepository utilisateurRepository;
     private final ProfilRepository profilRepository;
     private final UserMapper userMapper;
+    private final PermissionService permissionService;
+
+    private void checkAdmin() {
+        if (!permissionService.isAdmin()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Administration des utilisateurs réservée à l'administrateur");
+        }
+    }
 
     @Override
     public List<UserDTO> getAll() {
+        checkAdmin();
         return userMapper.toDtoList(utilisateurRepository.findByActifTrue());
     }
 
-
     @Override
     public UserDTO getById(Long id) {
+        checkAdmin();
         UtilisateurEntity entity = utilisateurRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
         return userMapper.toDto(entity);
@@ -50,6 +57,7 @@ public class UtilisateurServiceImpl implements UtilisateurService {
 
     @Override
     public UserDTO create(UserCreateUpdateDTO dto) {
+        checkAdmin();
 
         ProfilEntity profil = profilRepository.findById(dto.getProfilId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Profil introuvable"));
@@ -68,6 +76,7 @@ public class UtilisateurServiceImpl implements UtilisateurService {
 
     @Override
     public UserDTO update(Long id, UserCreateUpdateDTO dto) {
+        checkAdmin();
 
         UtilisateurEntity entity = utilisateurRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
@@ -92,17 +101,18 @@ public class UtilisateurServiceImpl implements UtilisateurService {
 
     @Override
     public void delete(Long id) {
+        checkAdmin();
+
         UtilisateurEntity entity = utilisateurRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
 
-        // Suppression logique, cohérente avec le reste
         entity.setActif(false);
         utilisateurRepository.save(entity);
     }
 
-
     @Override
     public PaginatedResponse<UserDTO> search(PaginationRequest req) {
+        checkAdmin();
 
         Sort sort = req.getSortDirection().equalsIgnoreCase("asc")
                 ? Sort.by(req.getSortField()).ascending()
@@ -114,7 +124,6 @@ public class UtilisateurServiceImpl implements UtilisateurService {
                 ? new HashMap<>(req.getFilters())
                 : new HashMap<>();
 
-        // 🔍 récupérer le filtre global "search"
         String search = null;
         Object searchObj = rawFilters.remove("search");
         if (searchObj != null) {
@@ -151,6 +160,4 @@ public class UtilisateurServiceImpl implements UtilisateurService {
                 page.map(userMapper::toDto)
         );
     }
-
-
 }

@@ -7,17 +7,17 @@ import ma.perenity.backend.dto.PaginationRequest;
 import ma.perenity.backend.entities.EnvironmentTypeEntity;
 import ma.perenity.backend.entities.EnvironnementEntity;
 import ma.perenity.backend.entities.ProjetEntity;
+import ma.perenity.backend.entities.enums.ActionType;
 import ma.perenity.backend.excepion.ResourceNotFoundException;
 import ma.perenity.backend.mapper.EnvironnementMapper;
 import ma.perenity.backend.repository.EnvironmentTypeRepository;
 import ma.perenity.backend.repository.EnvironnementRepository;
 import ma.perenity.backend.repository.ProjetRepository;
 import ma.perenity.backend.specification.EntitySpecification;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -29,12 +29,18 @@ public class EnvironnementService {
     private final ProjetRepository projetRepository;
     private final EnvironmentTypeRepository typeRepository;
     private final EnvironnementMapper mapper;
+    private final PermissionService permissionService;
 
     // =====================================================
-    // GET : environnements actifs par projet + type (via type.code)
+    // GET : environnements actifs par projet + type
     // =====================================================
 
     public List<EnvironnementDTO> getEnvironmentsByProjetAndType(Long projetId, String typeCode) {
+
+        if (!permissionService.canAccessEnvType(typeCode, ActionType.CONSULT)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Vous n'avez pas le droit de consulter les environnements de type " + typeCode);
+        }
 
         return environnementRepository
                 .findByProjet_IdAndType_CodeAndActifTrue(projetId, typeCode)
@@ -66,6 +72,11 @@ public class EnvironnementService {
                         "EnvironmentType not found with code = " + dto.getTypeCode()
                 ));
 
+        if (!permissionService.canAccessEnvType(type.getCode(), ActionType.CREATE)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Vous n'avez pas le droit de créer des environnements pour le type " + type.getCode());
+        }
+
         EnvironnementEntity env = mapper.toEntity(dto);
 
         env.setId(null);
@@ -86,7 +97,11 @@ public class EnvironnementService {
 
         EnvironnementEntity env = getByIdOrThrow(id);
 
-        // update partiel via mapper (NullValuePropertyMappingStrategy.IGNORE)
+        if (!permissionService.canAccessEnv(env, ActionType.UPDATE)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Vous n'avez pas le droit de modifier cet environnement");
+        }
+
         mapper.updateEntityFromDto(dto, env);
 
         env = environnementRepository.save(env);
@@ -101,6 +116,11 @@ public class EnvironnementService {
     public void delete(Long id) {
         EnvironnementEntity entity = getByIdOrThrow(id);
 
+        if (!permissionService.canAccessEnv(entity, ActionType.DELETE)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Vous n'avez pas le droit de supprimer cet environnement");
+        }
+
         entity.setActif(false);
 
         environnementRepository.save(entity);
@@ -111,6 +131,12 @@ public class EnvironnementService {
     // =====================================================
 
     public PaginatedResponse<EnvironnementDTO> search(PaginationRequest req) {
+
+        // Recherche globale réservée à l'admin
+        if (!permissionService.isAdmin()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "La recherche globale des environnements est réservée à l'administrateur");
+        }
 
         Sort sort = req.getSortDirection().equalsIgnoreCase("desc")
                 ? Sort.by(req.getSortField()).descending()

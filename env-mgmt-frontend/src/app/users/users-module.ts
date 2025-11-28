@@ -6,11 +6,13 @@ import { RouterModule } from '@angular/router';
 import { UserListComponent } from './components/user-list/user-list.component';
 import { UserFormComponent } from './components/user-form/user-form.component';
 import { MaterialModule } from '../shared/material/material.module';
+import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component';
 
 @NgModule({
   declarations: [
     UserListComponent,
-    UserFormComponent
+    UserFormComponent,
+    ConfirmDialogComponent
   ],
   imports: [
     CommonModule,

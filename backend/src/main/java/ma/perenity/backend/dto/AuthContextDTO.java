@@ -1,24 +1,15 @@
 package ma.perenity.backend.dto;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
 
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
 public class AuthContextDTO {
 
-    private Long userId;
-    private String username;
-    private String email;
+    private UserPermissionsDTO user;
 
-    private String profilCode;
-    private String profilLibelle;
-    private Boolean admin;
-
-    private List<String> roles;
-    private List<MenuDTO> menus;
+    private List<EnvironmentTypePermissionDTO> environmentTypes;
 }

@@ -1,0 +1,41 @@
+.form-row {
+  margin-bottom: 12px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.roles-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.roles-table th,
+.roles-table td {
+  padding: 8px 6px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.chip {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+}
+
+.chip-active {
+  background: rgba(22, 163, 74, 0.1);
+  color: #15803d;
+}
+
+.chip-inactive {
+  background: rgba(220, 38, 38, 0.1);
+  color: #b91c1c;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin: 8px 0 4px;
+}

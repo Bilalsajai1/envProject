@@ -1,66 +1,218 @@
+// src/app/users/components/user-list/user-list.component.scss
+
+.user-list-page {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
 
   h1 {
-    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 8px 0;
+    font-size: 28px;
+    font-weight: 500;
+    color: #1976d2;
+
+    .header-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+    }
   }
 
   .subtitle {
-    margin: 4px 0 0;
-    color: #6b7280;
-    font-size: 13px;
+    margin: 0;
+    font-size: 14px;
+    color: #666;
+  }
+
+  .add-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 44px;
+    padding: 0 24px;
+    font-weight: 500;
+
+    mat-icon {
+      font-size: 20px;
+    }
   }
 }
 
-.card {
-  background: #ffffff;
+.data-card {
+  background: white;
   border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
-.card-header {
-  margin-bottom: 12px;
-}
-
-.search-field {
-  width: 320px;
-}
-
-.filters-row {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.table-wrapper {
-  overflow: auto;
-}
-
-.full-width-table {
-  width: 100%;
-}
-
-.actions-cell {
+.search-toolbar {
   display: flex;
-  gap: 4px;
-}
-
-.loading {
-  display: flex;
-  justify-content: center;
-  padding: 32px 0;
-}
-.sortable {
-  cursor: pointer;
-  user-select: none;
   align-items: center;
-  gap: 4px;
+  gap: 16px;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e0e0e0;
+  background: #f8f9fa;
+
+  .search-field {
+    flex: 1;
+    max-width: 500px;
+  }
+
+  .results-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #666;
+    font-size: 14px;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
 }
-.sort-icon {
-  font-size: 18px;
+
+.table-container {
+  overflow-x: auto;
+}
+
+.users-table {
+  width: 100%;
+  background: white;
+
+  th {
+    background: #fafafa;
+    font-weight: 600;
+    color: #333;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .table-row {
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+      background: #f5f5f5;
+    }
+  }
+
+  .user-code {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    background: #e3f2fd;
+    padding: 4px 8px;
+    border-radius: 4px;
+    color: #1976d2;
+  }
+
+  .email-link {
+    color: #1976d2;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .profil-chip {
+    background: #e8eaf6;
+    color: #3f51b5;
+    font-size: 12px;
+    font-weight: 500;
+    height: 28px;
+  }
+
+  .status-active {
+    background: #e8f5e9;
+    color: #4caf50;
+  }
+
+  .status-inactive {
+    background: #ffebee;
+    color: #f44336;
+  }
+
+  .status-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+  }
+
+  .actions-cell {
+    display: flex;
+    gap: 4px;
+  }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #999;
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 16px;
+    color: #ccc;
+  }
+
+  p {
+    margin: 8px 0;
+    font-size: 16px;
+  }
+
+  .empty-hint {
+    font-size: 14px;
+    color: #bbb;
+  }
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  color: #666;
+
+  p {
+    margin-top: 16px;
+    font-size: 14px;
+  }
+}
+
+mat-paginator {
+  border-top: 1px solid #e0e0e0;
+  background: #fafafa;
+}
+
+// Snackbar styles
+::ng-deep {
+  .success-snackbar {
+    background: #4caf50 !important;
+    color: white !important;
+  }
+
+  .error-snackbar {
+    background: #f44336 !important;
+    color: white !important;
+  }
 }

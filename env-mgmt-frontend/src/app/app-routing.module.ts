@@ -1,9 +1,26 @@
+// src/app/app-routing.module.ts
+
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
+import { AuthGuard } from './auth/guards/auth-guard';
+
+// Users
 import { UserListComponent } from './users/components/user-list/user-list.component';
 import { UserFormComponent } from './users/components/user-form/user-form.component';
-import { AuthGuard } from './auth/guards/auth-guard';
+
+
+
+// Roles
+import { RoleListComponent } from './roles/role-list/role-list.component';
+import { RoleFormComponent } from './roles/role-form/role-form.component';
+import {PermissionManagementComponent} from './permissions/permission-management/permission-management.component';
+import {EnvironmentTypeLayoutComponent} from './environments/environment-type-layout/environment-type-layout.component';
+import {ProjectListComponent} from './environments/project-list/project-list.component';
+import {EnvironmentListComponent} from './environments/environment-list/environment-list.component';
+import {ApplicationListComponent} from './environments/application-list/application-list.component';
+
+
 
 const routes: Routes = [
   {
@@ -12,21 +29,79 @@ const routes: Routes = [
     pathMatch: 'full'
   },
 
-  // Module d'auth (lazy)
+  // 🔓 Module d'auth (lazy)
   {
     path: 'auth',
-    loadChildren: () => import('./auth/auth-module').then(m => m.AuthModule)
+    loadChildren: () =>
+      import('./auth/auth-module').then(m => m.AuthModule)
   },
 
-  // Zone sécurisée
+  // 🔐 Zone sécurisée : layout + menus
   {
     path: '',
     component: MainLayoutComponent,
     canActivate: [AuthGuard],
     children: [
-      { path: 'admin/users', component: UserListComponent, data: { roles: ['ROLE_USERS_ACCESS'] } },
-      { path: 'admin/users/new', component: UserFormComponent, data: { roles: ['ROLE_USERS_CREATE'] } },
-      { path: 'admin/users/:id/edit', component: UserFormComponent, data: { roles: ['ROLE_USERS_EDIT'] } }
+
+      // ========== ADMINISTRATION ==========
+
+      // Utilisateurs
+      {
+        path: 'admin/users',
+        component: UserListComponent
+      },
+      {
+        path: 'admin/users/new',
+        component: UserFormComponent
+      },
+      {
+        path: 'admin/users/:id/edit',
+        component: UserFormComponent
+      },
+
+      // Permissions
+      {
+        path: 'admin/permissions',
+        component: PermissionManagementComponent
+      },
+
+      // Rôles
+      {
+        path: 'admin/roles',
+        component: RoleListComponent
+      },
+      {
+        path: 'admin/roles/new',
+        component: RoleFormComponent
+      },
+      {
+        path: 'admin/roles/:id/edit',
+        component: RoleFormComponent
+      },
+
+      // ========== ENVIRONNEMENTS ==========
+
+      {
+        path: 'env/:typeCode',
+        component: EnvironmentTypeLayoutComponent,
+        children: [
+          // Liste des projets
+          {
+            path: '',
+            component: ProjectListComponent
+          },
+          // Liste des environnements d'un projet
+          {
+            path: ':projectId/environments',
+            component: EnvironmentListComponent
+          },
+          // Liste des applications d'un environnement
+          {
+            path: ':projectId/environments/:environmentId/applications',
+            component: ApplicationListComponent
+          }
+        ]
+      }
     ]
   },
 

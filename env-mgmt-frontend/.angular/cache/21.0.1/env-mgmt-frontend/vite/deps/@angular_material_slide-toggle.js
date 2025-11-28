@@ -1,33 +1,40 @@
 import {
-  NG_VALIDATORS,
-  NG_VALUE_ACCESSOR
-} from "./chunk-C3H45S2K.js";
+  _MatInternalFormField
+} from "./chunk-JFSDYNOW.js";
 import {
-  MatRipple,
+  MatRipple
+} from "./chunk-U4JEY63E.js";
+import "./chunk-ESHUEDB3.js";
+import "./chunk-VON75VBJ.js";
+import "./chunk-42QFQP6S.js";
+import {
   _StructuralStylesLoader
-} from "./chunk-GCQHIC7A.js";
+} from "./chunk-SXIKQETZ.js";
 import "./chunk-NGX5KMVR.js";
 import {
   FocusMonitor,
   _IdGenerator
-} from "./chunk-LIJJYAN4.js";
-import "./chunk-42QFQP6S.js";
-import "./chunk-CVQS7ONV.js";
-import "./chunk-BEZIKZCY.js";
+} from "./chunk-SOM72IE3.js";
+import "./chunk-XA6252L2.js";
+import "./chunk-M27JUSSJ.js";
 import {
   _animationsDisabled
-} from "./chunk-6H3SZYYL.js";
+} from "./chunk-ZOTMW2LJ.js";
 import "./chunk-N4DOILP3.js";
 import {
   _CdkPrivateStyleLoader
-} from "./chunk-DXBXJWPT.js";
+} from "./chunk-COQUT4JO.js";
 import "./chunk-GUGIMSVJ.js";
-import "./chunk-4QLU5MFL.js";
-import "./chunk-HGIXQTMX.js";
 import {
   BidiModule
-} from "./chunk-LGOJHUOV.js";
-import "./chunk-JDI3SQXM.js";
+} from "./chunk-TL5BBVMM.js";
+import "./chunk-TKYYAID6.js";
+import "./chunk-ZSBDESI5.js";
+import {
+  NG_VALIDATORS,
+  NG_VALUE_ACCESSOR
+} from "./chunk-5XR3YW6H.js";
+import "./chunk-TUQ2NQAY.js";
 import "./chunk-UC72YTJX.js";
 import {
   ChangeDetectionStrategy,
@@ -74,74 +81,15 @@ import {
   ɵɵresetView,
   ɵɵrestoreView,
   ɵɵviewQuery
-} from "./chunk-4ZVEXLGF.js";
-import "./chunk-4YCCEXQQ.js";
-import "./chunk-J46EEYGT.js";
-import "./chunk-U7EDC2PH.js";
-
-// node_modules/@angular/material/fesm2022/_internal-form-field-chunk.mjs
-var _c0 = ["mat-internal-form-field", ""];
-var _c1 = ["*"];
-var _MatInternalFormField = class __MatInternalFormField {
-  labelPosition;
-  static ɵfac = function _MatInternalFormField_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || __MatInternalFormField)();
-  };
-  static ɵcmp = ɵɵdefineComponent({
-    type: __MatInternalFormField,
-    selectors: [["div", "mat-internal-form-field", ""]],
-    hostAttrs: [1, "mdc-form-field", "mat-internal-form-field"],
-    hostVars: 2,
-    hostBindings: function _MatInternalFormField_HostBindings(rf, ctx) {
-      if (rf & 2) {
-        ɵɵclassProp("mdc-form-field--align-end", ctx.labelPosition === "before");
-      }
-    },
-    inputs: {
-      labelPosition: "labelPosition"
-    },
-    attrs: _c0,
-    ngContentSelectors: _c1,
-    decls: 1,
-    vars: 0,
-    template: function _MatInternalFormField_Template(rf, ctx) {
-      if (rf & 1) {
-        ɵɵprojectionDef();
-        ɵɵprojection(0);
-      }
-    },
-    styles: [".mat-internal-form-field{-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased;display:inline-flex;align-items:center;vertical-align:middle}.mat-internal-form-field>label{margin-left:0;margin-right:auto;padding-left:4px;padding-right:0;order:0}[dir=rtl] .mat-internal-form-field>label{margin-left:auto;margin-right:0;padding-left:0;padding-right:4px}.mdc-form-field--align-end>label{margin-left:auto;margin-right:0;padding-left:0;padding-right:4px;order:-1}[dir=rtl] .mdc-form-field--align-end .mdc-form-field--align-end label{margin-left:0;margin-right:auto;padding-left:4px;padding-right:0}\n"],
-    encapsulation: 2,
-    changeDetection: 0
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(_MatInternalFormField, [{
-    type: Component,
-    args: [{
-      selector: "div[mat-internal-form-field]",
-      template: "<ng-content></ng-content>",
-      encapsulation: ViewEncapsulation.None,
-      changeDetection: ChangeDetectionStrategy.OnPush,
-      host: {
-        "class": "mdc-form-field mat-internal-form-field",
-        "[class.mdc-form-field--align-end]": 'labelPosition === "before"'
-      },
-      styles: [".mat-internal-form-field{-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased;display:inline-flex;align-items:center;vertical-align:middle}.mat-internal-form-field>label{margin-left:0;margin-right:auto;padding-left:4px;padding-right:0;order:0}[dir=rtl] .mat-internal-form-field>label{margin-left:auto;margin-right:0;padding-left:0;padding-right:4px}.mdc-form-field--align-end>label{margin-left:auto;margin-right:0;padding-left:0;padding-right:4px;order:-1}[dir=rtl] .mdc-form-field--align-end .mdc-form-field--align-end label{margin-left:0;margin-right:auto;padding-left:4px;padding-right:0}\n"]
-    }]
-  }], null, {
-    labelPosition: [{
-      type: Input,
-      args: [{
-        required: true
-      }]
-    }]
-  });
-})();
+} from "./chunk-TABGSH6Q.js";
+import "./chunk-MXSBR7BG.js";
+import "./chunk-T6GXCI7K.js";
+import "./chunk-KRGGMXET.js";
+import "./chunk-4FRP4S3T.js";
 
 // node_modules/@angular/material/fesm2022/slide-toggle.mjs
-var _c02 = ["switch"];
-var _c12 = ["*"];
+var _c0 = ["switch"];
+var _c1 = ["*"];
 function MatSlideToggle_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
     ɵɵelementStart(0, "span", 11);
@@ -309,7 +257,7 @@ var MatSlideToggle = class _MatSlideToggle {
     selectors: [["mat-slide-toggle"]],
     viewQuery: function MatSlideToggle_Query(rf, ctx) {
       if (rf & 1) {
-        ɵɵviewQuery(_c02, 5);
+        ɵɵviewQuery(_c0, 5);
       }
       if (rf & 2) {
         let _t;
@@ -356,7 +304,7 @@ var MatSlideToggle = class _MatSlideToggle {
       useExisting: _MatSlideToggle,
       multi: true
     }]), ɵɵNgOnChangesFeature],
-    ngContentSelectors: _c12,
+    ngContentSelectors: _c1,
     decls: 14,
     vars: 27,
     consts: [["switch", ""], ["mat-internal-form-field", "", 3, "labelPosition"], ["role", "switch", "type", "button", 1, "mdc-switch", 3, "click", "tabIndex", "disabled"], [1, "mat-mdc-slide-toggle-touch-target"], [1, "mdc-switch__track"], [1, "mdc-switch__handle-track"], [1, "mdc-switch__handle"], [1, "mdc-switch__shadow"], [1, "mdc-elevation-overlay"], [1, "mdc-switch__ripple"], ["mat-ripple", "", 1, "mat-mdc-slide-toggle-ripple", "mat-focus-indicator", 3, "matRippleTrigger", "matRippleDisabled", "matRippleCentered"], [1, "mdc-switch__icons"], [1, "mdc-label", 3, "click", "for"], ["viewBox", "0 0 24 24", "aria-hidden", "true", 1, "mdc-switch__icon", "mdc-switch__icon--on"], ["d", "M19.69,5.23L8.96,15.96l-4.23-4.23L2.96,13.5l6,6L21.46,7L19.69,5.23z"], ["viewBox", "0 0 24 24", "aria-hidden", "true", 1, "mdc-switch__icon", "mdc-switch__icon--off"], ["d", "M20 13H4v-2h16v2z"]],

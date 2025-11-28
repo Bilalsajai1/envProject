@@ -1,21 +1,26 @@
-export interface MenuDTO {
-  id: number;
-  code: string;
-  libelle: string;
-  icon?: string;
-  route?: string;
-  children?: MenuDTO[];
-}
+export type ActionType = 'CONSULT' | 'CREATE' | 'UPDATE' | 'DELETE';
 
-export interface AuthContext {
+export interface UserPermissions {
   userId: number;
-  username: string;
+  code: string;
+  firstName: string;
+  lastName: string;
   email: string;
-
   profilCode: string;
   profilLibelle: string;
   admin: boolean;
+  roles: Set<string>; // ✅ IMPORTANT : Set au lieu de string[]
+}
 
-  roles: string[];
-  menus: MenuDTO[];
+export interface EnvironmentTypePermission {
+  id: number;
+  code: string;
+  libelle: string;
+  actif: boolean;
+  allowedActions: ActionType[];
+}
+
+export interface AuthContext {
+  user: UserPermissions;
+  environmentTypes: EnvironmentTypePermission[];
 }

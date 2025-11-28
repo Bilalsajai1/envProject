@@ -3,7 +3,6 @@ package ma.perenity.backend.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import ma.perenity.backend.dto.RoleDTO;
-import ma.perenity.backend.entities.RoleEntity;
 import ma.perenity.backend.service.MenuRoleService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

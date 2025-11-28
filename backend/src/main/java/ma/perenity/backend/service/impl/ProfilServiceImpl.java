@@ -12,12 +12,10 @@ import ma.perenity.backend.mapper.ProfilMapper;
 import ma.perenity.backend.repository.ProfilRepository;
 import ma.perenity.backend.repository.ProfilRoleRepository;
 import ma.perenity.backend.repository.RoleRepository;
+import ma.perenity.backend.service.PermissionService;
 import ma.perenity.backend.service.ProfilService;
 import ma.perenity.backend.specification.EntitySpecification;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,15 +34,24 @@ public class ProfilServiceImpl implements ProfilService {
     private final RoleRepository roleRepository;
     private final ProfilRoleRepository profilRoleRepository;
     private final ProfilMapper mapper;
+    private final PermissionService permissionService;
+
+    private void checkAdmin() {
+        if (!permissionService.isAdmin()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Administration des profils réservée à l'administrateur");
+        }
+    }
 
     @Override
     public List<ProfilDTO> getAll() {
+        checkAdmin();
         return mapper.toDtoList(profilRepository.findByActifTrue());
     }
 
-
     @Override
     public ProfilDTO getById(Long id) {
+        checkAdmin();
         ProfilEntity profil = profilRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Profil introuvable"));
         return mapper.toDto(profil);
@@ -52,6 +59,7 @@ public class ProfilServiceImpl implements ProfilService {
 
     @Override
     public ProfilDTO create(ProfilCreateUpdateDTO dto) {
+        checkAdmin();
 
         ProfilEntity profil = ProfilEntity.builder()
                 .code(dto.getCode())
@@ -66,6 +74,7 @@ public class ProfilServiceImpl implements ProfilService {
 
     @Override
     public ProfilDTO update(Long id, ProfilCreateUpdateDTO dto) {
+        checkAdmin();
 
         ProfilEntity profil = profilRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Profil introuvable"));
@@ -86,29 +95,30 @@ public class ProfilServiceImpl implements ProfilService {
 
     @Override
     public void delete(Long id) {
+        checkAdmin();
+
         ProfilEntity profil = profilRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Profil introuvable"));
 
-        // Suppression logique
         profil.setActif(false);
         profilRepository.save(profil);
     }
 
     @Override
     public List<Long> getRoleIds(Long profilId) {
+        checkAdmin();
         return profilRoleRepository.findRoleIdsByProfilId(profilId);
     }
 
     @Override
     public void assignRoles(Long profilId, List<Long> roleIds) {
+        checkAdmin();
 
         ProfilEntity profil = profilRepository.findById(profilId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Profil introuvable"));
 
-        // supprimer anciens rôles
         profilRoleRepository.deleteByProfilId(profilId);
 
-        // ajouter nouveaux rôles
         for (Long roleId : roleIds) {
             RoleEntity role = roleRepository.findById(roleId)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role introuvable : " + roleId));
@@ -122,6 +132,7 @@ public class ProfilServiceImpl implements ProfilService {
 
     @Override
     public PaginatedResponse<ProfilDTO> search(PaginationRequest req) {
+        checkAdmin();
 
         Sort sort = req.getSortDirection().equalsIgnoreCase("desc")
                 ? Sort.by(req.getSortField()).descending()

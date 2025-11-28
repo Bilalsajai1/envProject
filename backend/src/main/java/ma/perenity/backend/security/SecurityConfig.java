@@ -33,12 +33,10 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/**").permitAll()
-                        // 🔥 Autoriser le login sans token
-                        .requestMatchers(HttpMethod.POST, "/auth").permitAll()
-                        // éventuellement d'autres endpoints publics
-                        .requestMatchers("/auth/public/**").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers(HttpMethod.POST, "/auth").permitAll()  // login public
+                        .anyRequest().authenticated()                           // donc GET /auth/me est protégé
                 )
+
                 .oauth2ResourceServer(oauth2 ->
                         oauth2.jwt(Customizer.withDefaults())
                 );

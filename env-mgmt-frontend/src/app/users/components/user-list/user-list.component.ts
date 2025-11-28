@@ -1,9 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+// src/app/users/components/user-list/user-list.component.ts
+
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { PageEvent } from '@angular/material/paginator';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatSort, Sort } from '@angular/material/sort';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { UserService } from '../../services/user.service';
 import { PaginatedResponse, UserDTO } from '../../models/user.model';
-import {AuthenticationService} from '../../../auth/services/authentication.service';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import {ConfirmDialogComponent} from '../../confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-user-list',
@@ -12,6 +18,9 @@ import {AuthenticationService} from '../../../auth/services/authentication.servi
   styleUrls: ['./user-list.component.scss']
 })
 export class UserListComponent implements OnInit {
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
 
   users: UserDTO[] = [];
   displayedColumns: string[] = [
@@ -24,22 +33,35 @@ export class UserListComponent implements OnInit {
     'actions'
   ];
 
+  // Pagination
   page = 0;
   size = 10;
   totalElements = 0;
   sortField = 'id';
   sortDirection: 'asc' | 'desc' = 'asc';
 
-  // 🔍 une seule barre de recherche
+  // Recherche
   searchTerm = '';
+  private searchSubject = new Subject<string>();
 
   loading = false;
 
   constructor(
     private userService: UserService,
-    private router: Router ,
-    private auth: AuthenticationService
-  ) {}
+    private router: Router,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
+  ) {
+    // Debounce search pour éviter trop de requêtes
+    this.searchSubject.pipe(
+      debounceTime(400),
+      distinctUntilChanged()
+    ).subscribe(term => {
+      this.searchTerm = term;
+      this.page = 0;
+      this.loadUsers();
+    });
+  }
 
   ngOnInit(): void {
     this.loadUsers();
@@ -49,8 +71,6 @@ export class UserListComponent implements OnInit {
     this.loading = true;
 
     const filters: any = {};
-
-    // filtre global
     if (this.searchTerm && this.searchTerm.trim() !== '') {
       filters.search = this.searchTerm.trim();
     }
@@ -69,23 +89,16 @@ export class UserListComponent implements OnInit {
         this.size = res.size;
         this.loading = false;
       },
-      error: () => {
+      error: (err) => {
+        console.error('Erreur chargement utilisateurs', err);
+        this.snackBar.open('❌ Erreur lors du chargement', 'Fermer', { duration: 3000 });
         this.loading = false;
       }
     });
   }
-  canEdit(): boolean {
-    return this.auth.hasRole('ROLE_USERS_EDIT');
-  }
 
-  canDelete(): boolean {
-    return this.auth.hasRole('ROLE_USERS_DELETE');
-  }
-  // ⚡ instantané : chaque frappe ⇒ requête
   onSearchChange(value: string): void {
-    this.searchTerm = value;
-    this.page = 0;
-    this.loadUsers();
+    this.searchSubject.next(value);
   }
 
   onPageChange(event: PageEvent): void {
@@ -94,21 +107,15 @@ export class UserListComponent implements OnInit {
     this.loadUsers();
   }
 
-  changeSort(field: string): void {
-    if (this.sortField === field) {
-      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+  onSortChange(sort: Sort): void {
+    if (sort.active && sort.direction) {
+      this.sortField = sort.active;
+      this.sortDirection = sort.direction as 'asc' | 'desc';
     } else {
-      this.sortField = field;
+      this.sortField = 'id';
       this.sortDirection = 'asc';
     }
     this.loadUsers();
-  }
-
-  getSortIcon(field: string): string {
-    if (this.sortField !== field) {
-      return 'unfold_more';
-    }
-    return this.sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward';
   }
 
   addUser(): void {
@@ -120,11 +127,39 @@ export class UserListComponent implements OnInit {
   }
 
   deleteUser(user: UserDTO): void {
-    if (!confirm(`Supprimer l'utilisateur ${user.code} ?`)) {
-      return;
-    }
-    this.userService.delete(user.id).subscribe({
-      next: () => this.loadUsers()
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Confirmer la suppression',
+        message: `Voulez-vous vraiment supprimer l'utilisateur "${user.firstName} ${user.lastName}" ?`,
+        confirmText: 'Supprimer',
+        cancelText: 'Annuler'
+      }
     });
+
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (confirmed) {
+        this.userService.delete(user.id).subscribe({
+          next: () => {
+            this.snackBar.open('✅ Utilisateur supprimé avec succès', 'Fermer', {
+              duration: 3000,
+              panelClass: ['success-snackbar']
+            });
+            this.loadUsers();
+          },
+          error: () => {
+            this.snackBar.open('❌ Erreur lors de la suppression', 'Fermer', {
+              duration: 3000,
+              panelClass: ['error-snackbar']
+            });
+          }
+        });
+      }
+    });
+  }
+
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.searchSubject.next('');
   }
 }

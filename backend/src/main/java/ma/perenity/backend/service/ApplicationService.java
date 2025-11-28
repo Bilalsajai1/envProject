@@ -10,7 +10,9 @@ import ma.perenity.backend.mapper.ApplicationMapper;
 import ma.perenity.backend.repository.ApplicationRepository;
 import ma.perenity.backend.specification.EntitySpecification;
 import org.springframework.data.domain.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -20,11 +22,20 @@ public class ApplicationService {
 
     private final ApplicationRepository repository;
     private final ApplicationMapper mapper;
+    private final PermissionService permissionService;
+
+    private void checkAdmin() {
+        if (!permissionService.isAdmin()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Administration des applications réservée à l'administrateur");
+        }
+    }
 
     // ============================================================
-    // GET ALL (actifs + inactifs)
+    // GET ALL (actifs + inactifs) - ADMIN
     // ============================================================
     public List<ApplicationDTO> getAll() {
+        checkAdmin();
         return repository.findAll()
                 .stream()
                 .map(mapper::toDto)
@@ -32,7 +43,8 @@ public class ApplicationService {
     }
 
     // ============================================================
-    // GET ALL ACTIVES UNIQUEMENT
+    // GET ALL ACTIVES UNIQUEMENT - accessible à tout le monde
+    // (utilisé par les écrans qui doivent lister les applications)
     // ============================================================
     public List<ApplicationDTO> getAllActive() {
         return repository.findByActifTrue()
@@ -42,9 +54,11 @@ public class ApplicationService {
     }
 
     // ============================================================
-    // GET BY ID (only active)
+    // GET BY ID (only active) - ADMIN
     // ============================================================
     public ApplicationDTO getById(Long id) {
+        checkAdmin();
+
         ApplicationEntity entity = repository.findById(id)
                 .filter(ApplicationEntity::getActif) // ne renvoyer que les actifs
                 .orElseThrow(() -> new ResourceNotFoundException("Application not found with id = " + id));
@@ -53,12 +67,13 @@ public class ApplicationService {
     }
 
     // ============================================================
-    // CREATE
+    // CREATE - ADMIN
     // ============================================================
     public ApplicationDTO create(ApplicationDTO dto) {
+        checkAdmin();
+
         ApplicationEntity entity = mapper.toEntity(dto);
 
-        // si non renseigné côté front, on force à true
         if (entity.getActif() == null) {
             entity.setActif(Boolean.TRUE);
         }
@@ -68,15 +83,15 @@ public class ApplicationService {
     }
 
     // ============================================================
-    // UPDATE (seulement si actif)
+    // UPDATE (seulement si actif) - ADMIN
     // ============================================================
     public ApplicationDTO update(Long id, ApplicationDTO dto) {
+        checkAdmin();
 
         ApplicationEntity entity = repository.findById(id)
                 .filter(ApplicationEntity::getActif)
                 .orElseThrow(() -> new ResourceNotFoundException("Application not found with id = " + id));
 
-        // mappage partiel : uniquement les champs non nulls du DTO
         mapper.updateEntityFromDto(dto, entity);
 
         entity = repository.save(entity);
@@ -84,9 +99,10 @@ public class ApplicationService {
     }
 
     // ============================================================
-    // DELETE LOGIQUE
+    // DELETE LOGIQUE - ADMIN
     // ============================================================
     public void delete(Long id) {
+        checkAdmin();
 
         ApplicationEntity entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Application not found with id = " + id));
@@ -96,9 +112,10 @@ public class ApplicationService {
     }
 
     // ============================================================
-    // SEARCH (avec filtres dynamiques + pagination)
+    // SEARCH (avec filtres dynamiques + pagination) - ADMIN
     // ============================================================
     public PaginatedResponse<ApplicationDTO> search(PaginationRequest req) {
+        checkAdmin();
 
         Sort sort = req.getSortDirection().equalsIgnoreCase("desc")
                 ? Sort.by(req.getSortField()).descending()

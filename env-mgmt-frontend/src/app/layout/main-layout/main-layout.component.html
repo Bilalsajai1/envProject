@@ -1,35 +1,83 @@
-<mat-sidenav-container class="app-container">
-  <mat-sidenav mode="side" opened class="app-sidenav">
-    <div class="logo-area">
-      <div class="logo-circle">EM</div>
-      <div class="app-title">Env Management</div>
+<!-- src/app/layout/main-layout/main-layout.component.html -->
+<mat-sidenav-container class="layout-container">
+  <mat-sidenav mode="side" opened class="sidenav">
+
+    <!-- Logo / Brand -->
+    <div class="brand-block">
+      <mat-icon class="brand-icon">hub</mat-icon>
+      <div class="brand-text">
+        <div class="brand-title">PERENITY</div>
+        <div class="brand-subtitle">Environment Mgmt</div>
+      </div>
     </div>
 
-    <div class="user-info" *ngIf="ctx">
-      <div class="user-name">{{ ctx.username }}</div>
-      <div class="user-profil">{{ ctx.profilLibelle }}</div>
+    <!-- Bloc utilisateur -->
+    <div class="user-block" *ngIf="context?.user as u">
+      <div class="user-avatar">
+        {{ getUserInitials() }}
+      </div>
+      <div class="user-info">
+        <div class="user-name">{{ u.firstName }} {{ u.lastName }}</div>
+        <div class="user-profil">{{ u.profilLibelle }}</div>
+        <div class="user-email" [title]="u.email">{{ u.email }}</div>
+      </div>
     </div>
 
-    <mat-nav-list>
-      <!-- Exemple : si ton MenuDTO a un champ 'route' -->
+    <!-- 1er menu : Administration -->
+    <h3 class="menu-title">Administration</h3>
+    <mat-nav-list class="menu-list">
+      <ng-container *ngFor="let item of adminMenu">
+        <a mat-list-item
+           *ngIf="shouldShowMenuItem(item)"
+           [routerLink]="item.route"
+           routerLinkActive="active"
+           [routerLinkActiveOptions]="{exact: false}">
+          <mat-icon *ngIf="item.icon" class="nav-icon">{{ item.icon }}</mat-icon>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+      </ng-container>
+    </mat-nav-list>
+
+    <!-- 2ème menu : Environnements -->
+    <h3 class="menu-title" *ngIf="envMenu.length > 0">Environnements</h3>
+    <mat-nav-list class="menu-list" *ngIf="envMenu.length > 0">
       <a mat-list-item
-         *ngFor="let m of menus"
-         [routerLink]="m.route"
-         routerLinkActive="active-link">
-        <mat-icon *ngIf="m.icon">{{ m.icon }}</mat-icon>
-        <span>{{ m.libelle }}</span>
+         *ngFor="let envItem of envMenu"
+         [routerLink]="envItem.route"
+         routerLinkActive="active"
+         [routerLinkActiveOptions]="{exact: false}">
+        <mat-icon class="nav-icon">dns</mat-icon>
+        <span class="nav-label">{{ envItem.label }}</span>
       </a>
     </mat-nav-list>
+
+    <!-- Spacer pour pousser le bouton logout en bas -->
+    <div class="spacer"></div>
+
+    <!-- Bouton Logout en bas -->
+    <div class="logout-section">
+      <button mat-button class="logout-button" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Se déconnecter</span>
+      </button>
+    </div>
+
   </mat-sidenav>
 
   <mat-sidenav-content>
-    <div class="app-toolbar">
-      <span class="page-title">Administration</span>
-      <span class="spacer"></span>
-      <!-- Ici plus tard : bouton logout -->
-    </div>
+    <mat-toolbar color="primary" class="top-toolbar">
+      <span class="app-title">Environment Management</span>
+      <span class="toolbar-spacer"></span>
 
-    <div class="app-content">
+      <!-- Info utilisateur dans toolbar -->
+      <div class="toolbar-user" *ngIf="context?.user as u">
+        <mat-icon class="toolbar-user-icon">account_circle</mat-icon>
+        <span class="toolbar-user-name">{{ u.firstName }} {{ u.lastName }}</span>
+        <mat-chip class="admin-badge" *ngIf="u.admin">ADMIN</mat-chip>
+      </div>
+    </mat-toolbar>
+
+    <div class="content">
       <router-outlet></router-outlet>
     </div>
   </mat-sidenav-content>

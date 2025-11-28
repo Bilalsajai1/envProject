@@ -13,12 +13,10 @@ import ma.perenity.backend.mapper.RoleMapper;
 import ma.perenity.backend.repository.EnvironnementRepository;
 import ma.perenity.backend.repository.MenuRepository;
 import ma.perenity.backend.repository.RoleRepository;
+import ma.perenity.backend.service.PermissionService;
 import ma.perenity.backend.service.RoleService;
 import ma.perenity.backend.specification.EntitySpecification;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -36,14 +34,24 @@ public class RoleServiceImpl implements RoleService {
     private final MenuRepository menuRepository;
     private final EnvironnementRepository environnementRepository;
     private final RoleMapper roleMapper;
+    private final PermissionService permissionService;
+
+    private void checkAdmin() {
+        if (!permissionService.isAdmin()) {
+            throw new ResponseStatusException(FORBIDDEN,
+                    "Administration des rôles réservée à l'administrateur");
+        }
+    }
 
     @Override
     public List<RoleDTO> getAll() {
+        checkAdmin();
         return roleMapper.toDtoList(roleRepository.findByActifTrue());
     }
 
     @Override
     public RoleDTO getById(Long id) {
+        checkAdmin();
         RoleEntity role = roleRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Rôle introuvable"));
         return roleMapper.toDto(role);
@@ -51,7 +59,8 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public RoleDTO create(RoleCreateUpdateDTO dto) {
-        // unicité sur code
+        checkAdmin();
+
         roleRepository.findByCode(dto.getCode()).ifPresent(r -> {
             throw new ResponseStatusException(BAD_REQUEST, "Code de rôle déjà utilisé");
         });
@@ -93,10 +102,11 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public RoleDTO update(Long id, RoleCreateUpdateDTO dto) {
+        checkAdmin();
+
         RoleEntity role = roleRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Rôle introuvable"));
 
-        // si le code change → vérifier unicité
         if (!role.getCode().equals(dto.getCode())) {
             roleRepository.findByCode(dto.getCode()).ifPresent(r -> {
                 throw new ResponseStatusException(BAD_REQUEST, "Code de rôle déjà utilisé");
@@ -138,6 +148,8 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public void delete(Long id) {
+        checkAdmin();
+
         RoleEntity role = roleRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Rôle introuvable"));
 
@@ -147,16 +159,19 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public List<RoleDTO> getByMenu(Long menuId) {
+        checkAdmin();
         return roleMapper.toDtoList(roleRepository.findByMenuId(menuId));
     }
 
     @Override
     public List<RoleDTO> getByEnvironnement(Long envId) {
+        checkAdmin();
         return roleMapper.toDtoList(roleRepository.findByEnvironnementId(envId));
     }
 
     @Override
     public PaginatedResponse<RoleDTO> search(PaginationRequest req) {
+        checkAdmin();
 
         Sort sort = req.getSortDirection().equalsIgnoreCase("desc")
                 ? Sort.by(req.getSortField()).descending()

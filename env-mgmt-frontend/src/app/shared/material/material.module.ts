@@ -14,6 +14,9 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
+import {MatDialogModule} from '@angular/material/dialog';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
+import {MatSortModule} from '@angular/material/sort';
 
 @NgModule({
   exports: [
@@ -31,7 +34,10 @@ import { MatCardModule } from '@angular/material/card';
     MatSlideToggleModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
-    MatCardModule
+    MatCardModule,
+    MatDialogModule,
+    MatSnackBarModule,
+    MatSortModule
   ]
 })
 export class MaterialModule {}

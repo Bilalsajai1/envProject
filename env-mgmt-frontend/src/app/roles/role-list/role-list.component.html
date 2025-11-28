@@ -1,0 +1,44 @@
+<mat-card>
+  <mat-card-title>Rôles</mat-card-title>
+  <mat-card-subtitle>Gestion des rôles applicatifs</mat-card-subtitle>
+
+  <div class="toolbar">
+    <button mat-raised-button color="primary" (click)="add()">
+      <mat-icon>add</mat-icon>
+      Nouveau rôle
+    </button>
+  </div>
+
+  <table class="roles-table" *ngIf="roles.length > 0">
+    <thead>
+    <tr>
+      <th>Code</th>
+      <th>Libellé</th>
+      <th>Description</th>
+      <th>Actif</th>
+      <th style="width: 80px;"></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let r of roles">
+      <td>{{ r.code }}</td>
+      <td>{{ r.libelle }}</td>
+      <td>{{ r.description }}</td>
+      <td>
+          <span class="chip" [class.chip-active]="r.actif" [class.chip-inactive]="!r.actif">
+            {{ r.actif ? 'Oui' : 'Non' }}
+          </span>
+      </td>
+      <td>
+        <button mat-icon-button (click)="edit(r)">
+          <mat-icon>edit</mat-icon>
+        </button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="!roles.length">
+    Aucun rôle pour le moment.
+  </div>
+</mat-card>

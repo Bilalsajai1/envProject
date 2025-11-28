@@ -1,0 +1,28 @@
+// src/app/permissions/permissions.module.ts
+
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+import { MaterialModule } from '../shared/material/material.module';
+import {PermissionManagementComponent} from './permission-management/permission-management.component';
+import {MatCheckbox} from '@angular/material/checkbox';
+
+
+@NgModule({
+  declarations: [
+    PermissionManagementComponent
+  ],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MaterialModule,
+    RouterModule,
+    MatCheckbox
+  ],
+  exports: [
+    PermissionManagementComponent
+  ]
+})
+export class PermissionsModule {}

@@ -1,0 +1,55 @@
+// src/app/environments/components/dialogs/application-dialog/application-dialog.component.scss
+
+h2 {
+  color: #333;
+  font-weight: 500;
+}
+
+mat-dialog-content {
+  min-width: 500px;
+  max-height: 70vh;
+  padding: 20px 0;
+  overflow-y: auto;
+}
+
+.dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .full-width {
+    width: 100%;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e0e0e0;
+    font-weight: 500;
+    color: #1976d2;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+mat-dialog-actions {
+  padding: 16px 0;
+  gap: 12px;
+
+  button {
+    min-width: 100px;
+  }
+}

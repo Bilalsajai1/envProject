@@ -1,0 +1,108 @@
+<!-- src/app/environments/components/dialogs/application-dialog/application-dialog.component.html -->
+
+<h2 mat-dialog-title>
+  {{ isEdit ? 'Modifier l\'application' : 'Ajouter une application' }}
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="dialog-form">
+
+    <!-- Sélection de l'application -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Application</mat-label>
+      <mat-select formControlName="applicationId">
+        <mat-option *ngFor="let app of availableApplications" [value]="app.id">
+          {{ app.libelle }} ({{ app.code }})
+        </mat-option>
+      </mat-select>
+      <mat-hint *ngIf="isEdit">
+        L'application ne peut pas être modifiée en édition
+      </mat-hint>
+      <mat-error *ngIf="form.get('applicationId')?.hasError('required')">
+        Application obligatoire
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Section Connexion -->
+    <div class="section-title">
+      <mat-icon>settings_ethernet</mat-icon>
+      Informations de connexion
+    </div>
+
+    <div class="form-grid">
+      <mat-form-field appearance="outline">
+        <mat-label>Protocole</mat-label>
+        <mat-select formControlName="protocole">
+          <mat-option value="HTTP">HTTP</mat-option>
+          <mat-option value="HTTPS">HTTPS</mat-option>
+          <mat-option value="FTP">FTP</mat-option>
+          <mat-option value="SFTP">SFTP</mat-option>
+          <mat-option value="SSH">SSH</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Host</mat-label>
+        <input matInput formControlName="host" placeholder="localhost" />
+      </mat-form-field>
+    </div>
+
+    <div class="form-grid">
+      <mat-form-field appearance="outline">
+        <mat-label>Port</mat-label>
+        <input matInput type="number" formControlName="port" placeholder="8080" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>URL</mat-label>
+        <input matInput formControlName="url" placeholder="https://example.com/api" />
+      </mat-form-field>
+    </div>
+
+    <!-- Section Authentification -->
+    <div class="section-title">
+      <mat-icon>security</mat-icon>
+      Authentification
+    </div>
+
+    <div class="form-grid">
+      <mat-form-field appearance="outline">
+        <mat-label>Username</mat-label>
+        <input matInput formControlName="username" autocomplete="off" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Password</mat-label>
+        <input matInput type="password" formControlName="password" autocomplete="new-password" />
+        <mat-hint>Le mot de passe est crypté en base</mat-hint>
+      </mat-form-field>
+    </div>
+
+    <!-- Description -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Description / Notes</mat-label>
+      <textarea matInput rows="3" formControlName="description"></textarea>
+    </mat-form-field>
+
+    <!-- Actif -->
+    <mat-slide-toggle formControlName="actif">
+      Actif
+    </mat-slide-toggle>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()" [disabled]="saving">
+    Annuler
+  </button>
+  <button mat-raised-button color="primary" (click)="save()" [disabled]="saving">
+    <mat-progress-spinner
+      *ngIf="saving"
+      mode="indeterminate"
+      diameter="16"
+      strokeWidth="2">
+    </mat-progress-spinner>
+    <span *ngIf="!saving">{{ isEdit ? 'Enregistrer' : 'Ajouter' }}</span>
+  </button>
+</mat-dialog-actions>

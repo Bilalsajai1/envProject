@@ -1,134 +1,183 @@
-<div class="page-header">
-  <div>
-    <h1>Utilisateurs</h1>
-    <p class="subtitle">
-      Gestion des comptes utilisateurs (admin).
-    </p>
+<!-- src/app/users/components/user-list/user-list.component.html -->
+
+<div class="user-list-page">
+
+  <!-- En-tête -->
+  <div class="page-header">
+    <div>
+      <h1>
+        <mat-icon class="header-icon">group</mat-icon>
+        Utilisateurs
+      </h1>
+      <p class="subtitle">
+        Gérez les comptes utilisateurs de la plateforme
+      </p>
+    </div>
+
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="addUser()"
+      class="add-button">
+      <mat-icon>person_add</mat-icon>
+      Nouvel utilisateur
+    </button>
   </div>
 
-  <button mat-raised-button color="primary" (click)="addUser()">
-    <mat-icon>person_add</mat-icon>
-    Ajouter un utilisateur
-  </button>
+  <!-- Carte principale -->
+  <mat-card class="data-card">
 
-</div>
+    <!-- Barre de recherche -->
+    <div class="search-toolbar">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Rechercher un utilisateur</mat-label>
+        <input
+          matInput
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearchChange($event)"
+          placeholder="Code, nom, email, profil..."
+        />
+        <button
+          *ngIf="searchTerm"
+          mat-icon-button
+          matSuffix
+          aria-label="Clear"
+          (click)="clearSearch()">
+          <mat-icon>close</mat-icon>
+        </button>
+        <mat-icon matSuffix *ngIf="!searchTerm">search</mat-icon>
+      </mat-form-field>
 
-<div class="card">
-  <div class="card-header">
-    <mat-form-field appearance="outline" class="search-field">
-      <mat-label>Rechercher</mat-label>
-      <input
-        matInput
-        [(ngModel)]="searchTerm"
-        (ngModelChange)="onSearchChange($event)"
-        placeholder="Code, prénom, nom, email, profil..."
-      />
-      <button
-        *ngIf="searchTerm"
-        mat-icon-button
-        matSuffix
-        aria-label="Clear"
-        (click)="searchTerm = ''; onSearchChange('')"
-      >
-        <mat-icon>close</mat-icon>
-      </button>
-      <mat-icon matSuffix>search</mat-icon>
-    </mat-form-field>
-  </div>
+      <div class="results-info" *ngIf="!loading">
+        <mat-icon>info</mat-icon>
+        <span>{{ totalElements }} utilisateur(s) trouvé(s)</span>
+      </div>
+    </div>
 
-  <div class="table-wrapper" *ngIf="!loading; else loadingTpl">
-    <table mat-table [dataSource]="users" class="mat-elevation-z1 full-width-table">
+    <!-- Table -->
+    <div class="table-container" *ngIf="!loading; else loadingTpl">
+      <table
+        mat-table
+        [dataSource]="users"
+        matSort
+        (matSortChange)="onSortChange($event)"
+        class="users-table">
 
-      <!-- Code -->
-      <ng-container matColumnDef="code">
-        <th mat-header-cell *matHeaderCellDef (click)="changeSort('code')" class="sortable">
-          Code
-          <mat-icon class="sort-icon">{{ getSortIcon('code') }}</mat-icon>
-        </th>
-        <td mat-cell *matCellDef="let row">{{ row.code }}</td>
-      </ng-container>
+        <!-- Code -->
+        <ng-container matColumnDef="code">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Code</th>
+          <td mat-cell *matCellDef="let user">
+            <span class="user-code">{{ user.code }}</span>
+          </td>
+        </ng-container>
 
-      <!-- Prénom -->
-      <ng-container matColumnDef="firstName">
-        <th mat-header-cell *matHeaderCellDef (click)="changeSort('firstName')" class="sortable">
-          Prénom
-          <mat-icon class="sort-icon">{{ getSortIcon('firstName') }}</mat-icon>
-        </th>
-        <td mat-cell *matCellDef="let row">{{ row.firstName }}</td>
-      </ng-container>
+        <!-- Prénom -->
+        <ng-container matColumnDef="firstName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Prénom</th>
+          <td mat-cell *matCellDef="let user">{{ user.firstName }}</td>
+        </ng-container>
 
-      <!-- Nom -->
-      <ng-container matColumnDef="lastName">
-        <th mat-header-cell *matHeaderCellDef (click)="changeSort('lastName')" class="sortable">
-          Nom
-          <mat-icon class="sort-icon">{{ getSortIcon('lastName') }}</mat-icon>
-        </th>
-        <td mat-cell *matCellDef="let row">{{ row.lastName }}</td>
-      </ng-container>
+        <!-- Nom -->
+        <ng-container matColumnDef="lastName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Nom</th>
+          <td mat-cell *matCellDef="let user">
+            <strong>{{ user.lastName }}</strong>
+          </td>
+        </ng-container>
 
-      <!-- Email -->
-      <ng-container matColumnDef="email">
-        <th mat-header-cell *matHeaderCellDef (click)="changeSort('email')" class="sortable">
-          Email
-          <mat-icon class="sort-icon">{{ getSortIcon('email') }}</mat-icon>
-        </th>
-        <td mat-cell *matCellDef="let row">{{ row.email }}</td>
-      </ng-container>
+        <!-- Email -->
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Email</th>
+          <td mat-cell *matCellDef="let user">
+            <a [href]="'mailto:' + user.email" class="email-link">
+              {{ user.email }}
+            </a>
+          </td>
+        </ng-container>
 
-      <!-- Profil -->
-      <ng-container matColumnDef="profilLibelle">
-        <th mat-header-cell *matHeaderCellDef (click)="changeSort('profil.libelle')" class="sortable">
-          Profil
-          <mat-icon class="sort-icon">{{ getSortIcon('profil.libelle') }}</mat-icon>
-        </th>
-        <td mat-cell *matCellDef="let row">{{ row.profilLibelle }}</td>
-      </ng-container>
+        <!-- Profil -->
+        <ng-container matColumnDef="profilLibelle">
+          <th mat-header-cell *matHeaderCellDef>Profil</th>
+          <td mat-cell *matCellDef="let user">
+            <mat-chip class="profil-chip">
+              {{ user.profilLibelle }}
+            </mat-chip>
+          </td>
+        </ng-container>
 
-      <!-- Actif -->
-      <ng-container matColumnDef="actif">
-        <th mat-header-cell *matHeaderCellDef (click)="changeSort('actif')" class="sortable">
-          Actif
-          <mat-icon class="sort-icon">{{ getSortIcon('actif') }}</mat-icon>
-        </th>
-        <td mat-cell *matCellDef="let row">
-          <mat-chip color="primary" *ngIf="row.actif; else inactive" selected>
-            Actif
-          </mat-chip>
-          <ng-template #inactive>
-            <mat-chip color="warn" selected>Inactif</mat-chip>
-          </ng-template>
-        </td>
-      </ng-container>
+        <!-- Actif -->
+        <ng-container matColumnDef="actif">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Statut</th>
+          <td mat-cell *matCellDef="let user">
+            <mat-chip
+              [class.status-active]="user.actif"
+              [class.status-inactive]="!user.actif">
+              <mat-icon class="status-icon">
+                {{ user.actif ? 'check_circle' : 'cancel' }}
+              </mat-icon>
+              {{ user.actif ? 'Actif' : 'Inactif' }}
+            </mat-chip>
+          </td>
+        </ng-container>
 
-      <!-- Actions -->
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef> Actions </th>
-        <td mat-cell *matCellDef="let row" class="actions-cell">
-          <button mat-icon-button (click)="editUser(row)" matTooltip="Modifier">
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button mat-icon-button color="warn" (click)="deleteUser(row)" matTooltip="Supprimer">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </td>
-      </ng-container>
+        <!-- Actions -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let user" class="actions-cell">
+            <button
+              mat-icon-button
+              (click)="editUser(user)"
+              matTooltip="Modifier"
+              color="primary">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              (click)="deleteUser(user)"
+              matTooltip="Supprimer"
+              color="warn">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns;"
+          class="table-row"></tr>
 
+      </table>
+
+      <!-- Message si vide -->
+      <div *ngIf="users.length === 0" class="empty-state">
+        <mat-icon>person_off</mat-icon>
+        <p>Aucun utilisateur trouvé</p>
+        <p class="empty-hint">
+          {{ searchTerm ? 'Essayez une autre recherche' : 'Créez votre premier utilisateur' }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Pagination -->
     <mat-paginator
+      *ngIf="!loading && users.length > 0"
       [length]="totalElements"
       [pageSize]="size"
       [pageIndex]="page"
-      [pageSizeOptions]="[5, 10, 20]"
-      (page)="onPageChange($event)">
+      [pageSizeOptions]="[5, 10, 20, 50]"
+      (page)="onPageChange($event)"
+      showFirstLastButtons>
     </mat-paginator>
-  </div>
 
-  <ng-template #loadingTpl>
-    <div class="loading">
-      <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
-    </div>
-  </ng-template>
+  </mat-card>
+
 </div>
+
+<!-- Template de chargement -->
+<ng-template #loadingTpl>
+  <div class="loading-state">
+    <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+    <p>Chargement des utilisateurs...</p>
+  </div>
+</ng-template>

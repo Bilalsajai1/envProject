@@ -1,0 +1,149 @@
+<!-- src/app/environments/components/application-list/application-list.component.html -->
+
+<div class="application-list-container">
+
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb">
+    <mat-icon>home</mat-icon>
+    <span>{{ typeCode }}</span>
+    <mat-icon>chevron_right</mat-icon>
+    <a (click)="goBack()" class="breadcrumb-link">Environnements</a>
+    <mat-icon>chevron_right</mat-icon>
+    <span class="current">Applications</span>
+  </nav>
+
+  <!-- Header -->
+  <div class="list-header">
+    <div>
+      <h2>
+        <mat-icon>apps</mat-icon>
+        Applications
+      </h2>
+      <p class="subtitle">
+        Gérez les applications déployées dans cet environnement
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <button
+        mat-stroked-button
+        (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+        Retour
+      </button>
+
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="addApplication()">
+        <mat-icon>add</mat-icon>
+        Ajouter une Application
+      </button>
+    </div>
+  </div>
+
+  <!-- Carte -->
+  <mat-card *ngIf="!loading; else loadingTpl">
+    <table
+      mat-table
+      [dataSource]="applications"
+      class="applications-table">
+
+      <!-- Code Application -->
+      <ng-container matColumnDef="applicationCode">
+        <th mat-header-cell *matHeaderCellDef>Code</th>
+        <td mat-cell *matCellDef="let app">
+          <span class="app-code">{{ app.applicationCode }}</span>
+        </td>
+      </ng-container>
+
+      <!-- Libellé Application -->
+      <ng-container matColumnDef="applicationLibelle">
+        <th mat-header-cell *matHeaderCellDef>Application</th>
+        <td mat-cell *matCellDef="let app">
+          <strong>{{ app.applicationLibelle }}</strong>
+        </td>
+      </ng-container>
+
+      <!-- Protocole -->
+      <ng-container matColumnDef="protocole">
+        <th mat-header-cell *matHeaderCellDef>Protocole</th>
+        <td mat-cell *matCellDef="let app">
+          <mat-chip class="protocol-chip" *ngIf="app.protocole">
+            {{ app.protocole }}
+          </mat-chip>
+          <span *ngIf="!app.protocole">-</span>
+        </td>
+      </ng-container>
+
+      <!-- Host -->
+      <ng-container matColumnDef="host">
+        <th mat-header-cell *matHeaderCellDef>Host</th>
+        <td mat-cell *matCellDef="let app">
+          <span class="host-text">{{ app.host || '-' }}</span>
+        </td>
+      </ng-container>
+
+      <!-- Port -->
+      <ng-container matColumnDef="port">
+        <th mat-header-cell *matHeaderCellDef>Port</th>
+        <td mat-cell *matCellDef="let app">
+          {{ app.port || '-' }}
+        </td>
+      </ng-container>
+
+      <!-- Actif -->
+      <ng-container matColumnDef="actif">
+        <th mat-header-cell *matHeaderCellDef>Statut</th>
+        <td mat-cell *matCellDef="let app">
+          <mat-chip
+            [class.status-active]="app.actif"
+            [class.status-inactive]="!app.actif">
+            {{ app.actif ? 'Actif' : 'Inactif' }}
+          </mat-chip>
+        </td>
+      </ng-container>
+
+      <!-- Actions -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let app" class="actions-cell">
+          <button
+            mat-icon-button
+            (click)="editApplication(app)"
+            matTooltip="Modifier"
+            color="primary">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            (click)="deleteApplication(app)"
+            matTooltip="Supprimer"
+            color="warn">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+    </table>
+
+    <!-- Empty state -->
+    <div *ngIf="applications.length === 0" class="empty-state">
+      <mat-icon>apps</mat-icon>
+      <p>Aucune application trouvée</p>
+      <p class="hint">Ajoutez votre première application à cet environnement</p>
+    </div>
+
+  </mat-card>
+
+</div>
+
+<ng-template #loadingTpl>
+  <div class="loading-state">
+    <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+    <p>Chargement des applications...</p>
+  </div>
+</ng-template>

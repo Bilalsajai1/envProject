@@ -1,4 +1,5 @@
 /*
+
 package ma.perenity.backend.config;
 
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,6 @@ public class DataInitializer {
     private final EnvApplicationRepository envApplicationRepository;
 
     private LocalDateTime now() {
-        // On tronque les secondes pour avoir des dates plus propres
         return LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
     }
 
@@ -50,11 +50,6 @@ public class DataInitializer {
             }
 
             LocalDateTime now = now();
-
-            */
-/* =========================================================
-             * 1. TYPES D’ENVIRONNEMENT
-             * ========================================================= *//*
 
             EnvironmentTypeEntity editionType = EnvironmentTypeEntity.builder()
                     .code("EDITION")
@@ -76,10 +71,6 @@ public class DataInitializer {
 
             environmentTypeRepository.saveAll(List.of(editionType, integrationType, clientType));
 
-            */
-/* =========================================================
-             * 2. MENUS (1 menu par type d’environnement)
-             * ========================================================= *//*
 
             MenuEntity menuEdition = MenuEntity.builder()
                     .code("MENU_EDITION")
@@ -113,10 +104,6 @@ public class DataInitializer {
 
             menuRepository.saveAll(List.of(menuEdition, menuIntegration, menuClient));
 
-            */
-/* =========================================================
-             * 3. PROFILS
-             * ========================================================= *//*
 
             ProfilEntity profilAdmin = ProfilEntity.builder()
                     .code("ADMIN")
@@ -153,10 +140,6 @@ public class DataInitializer {
 
             profilRepository.saveAll(List.of(profilAdmin, profilDev, profilConsult));
 
-            */
-/* =========================================================
-             * 4. RÔLES
-             * ========================================================= *//*
 
             RoleEntity roleEditionConsult = RoleEntity.builder()
                     .code("ENV_EDITION_CONSULT")
@@ -200,11 +183,6 @@ public class DataInitializer {
                     roleIntegrationConsult,
                     roleClientConsult
             ));
-
-            */
-/* =========================================================
-             * 5. PROFIL_ROLE (assignation des rôles aux profils)
-             * ========================================================= *//*
 
 
             // ADMIN : a tous les rôles
@@ -251,10 +229,7 @@ public class DataInitializer {
                             .build()
             );
 
-            */
-/* =========================================================
-             * 6. PROJETS
-             * ========================================================= *//*
+
 
 
             // Projet MANAR V8 (Edition + Intégration)
@@ -277,10 +252,6 @@ public class DataInitializer {
 
             projetRepository.saveAll(List.of(manarV8, manarPortail));
 
-            */
-/* =========================================================
-             * 7. ENVIRONNEMENTS
-             * ========================================================= *//*
 
 
             // ---- Type EDITION : MANAR_V8 ----
@@ -392,10 +363,7 @@ public class DataInitializer {
                     envDevClient, envUatUcm, envProdUcm
             ));
 
-            */
-/* =========================================================
-             * 8. APPLICATIONS (catalogue global)
-             * ========================================================= *//*
+
 
 
             // Manar V8 "core"
@@ -570,10 +538,6 @@ public class DataInitializer {
                     appDbClient, appMachineDesktopUcm, appMachineManar
             ));
 
-            */
-/* =========================================================
-             * 9. ENV_APPLICATIONS (liens Env <-> App) AVEC DONNÉES
-             * ========================================================= *//*
 
 
             // ---- EDITION - DEV (8 applications) ----
@@ -1759,10 +1723,6 @@ public class DataInitializer {
                     prodUcmPortFront, prodUcmPortBack, prodUcmDb, prodUcmMachineUcm, prodUcmMachineManar
             ));
 
-            */
-/* =========================================================
-             * 10. UTILISATEUR ADMIN
-             * ========================================================= *//*
 
 
             UtilisateurEntity adminUser = UtilisateurEntity.builder()
@@ -1780,4 +1740,5 @@ public class DataInitializer {
             log.info(">>> Base initialisée avec données de test complètes.");
         };
     }
-}*/
+}
+*/

@@ -7,17 +7,17 @@ import ma.perenity.backend.dto.PaginationRequest;
 import ma.perenity.backend.entities.ApplicationEntity;
 import ma.perenity.backend.entities.EnvApplicationEntity;
 import ma.perenity.backend.entities.EnvironnementEntity;
+import ma.perenity.backend.entities.enums.ActionType;
 import ma.perenity.backend.excepion.ResourceNotFoundException;
 import ma.perenity.backend.mapper.EnvApplicationMapper;
 import ma.perenity.backend.repository.ApplicationRepository;
 import ma.perenity.backend.repository.EnvApplicationRepository;
 import ma.perenity.backend.repository.EnvironnementRepository;
 import ma.perenity.backend.specification.EntitySpecification;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -29,14 +29,20 @@ public class EnvApplicationService {
     private final EnvironnementRepository environnementRepository;
     private final ApplicationRepository applicationRepository;
     private final EnvApplicationMapper mapper;
+    private final PermissionService permissionService;
 
     // ============================================================
     // GET BY ENV (ACTIFS UNIQUEMENT)
     // ============================================================
     public List<EnvApplicationDTO> getByEnvironnement(Long envId) {
 
-        environnementRepository.findById(envId)
+        EnvironnementEntity env = environnementRepository.findById(envId)
                 .orElseThrow(() -> new ResourceNotFoundException("Environnement not found with id = " + envId));
+
+        if (!permissionService.canAccessEnv(env, ActionType.CONSULT)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Vous n'avez pas le droit de consulter les applications de cet environnement");
+        }
 
         return repository.findByEnvironnementId(envId)
                 .stream()
@@ -61,6 +67,11 @@ public class EnvApplicationService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Environnement not found with id = " + dto.getEnvironnementId()
                 ));
+
+        if (!permissionService.canAccessEnv(env, ActionType.CREATE)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Vous n'avez pas le droit d'ajouter des applications à cet environnement");
+        }
 
         ApplicationEntity app = applicationRepository.findById(dto.getApplicationId())
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -98,6 +109,11 @@ public class EnvApplicationService {
                 .filter(EnvApplicationEntity::getActif)
                 .orElseThrow(() -> new ResourceNotFoundException("EnvApplication not found with id = " + id));
 
+        if (!permissionService.canAccessEnv(entity.getEnvironnement(), ActionType.UPDATE)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Vous n'avez pas le droit de modifier cette application d'environnement");
+        }
+
         // Les relations env/application ne sont pas modifiées ici (mapper ignore ces champs)
         mapper.updateEntityFromDto(dto, entity);
 
@@ -115,6 +131,11 @@ public class EnvApplicationService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("EnvApplication not found with id = " + id));
 
+        if (!permissionService.canAccessEnv(entity.getEnvironnement(), ActionType.DELETE)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Vous n'avez pas le droit de supprimer cette application d'environnement");
+        }
+
         entity.setActif(false);
         repository.save(entity);
     }
@@ -123,6 +144,11 @@ public class EnvApplicationService {
     // SEARCH (ADMIN : ACTIF + INACTIF)
     // ============================================================
     public PaginatedResponse<EnvApplicationDTO> search(PaginationRequest req) {
+
+        if (!permissionService.isAdmin()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "La recherche globale des EnvApplications est réservée à l'administrateur");
+        }
 
         Sort sort = req.getSortDirection().equalsIgnoreCase("desc")
                 ? Sort.by(req.getSortField()).descending()

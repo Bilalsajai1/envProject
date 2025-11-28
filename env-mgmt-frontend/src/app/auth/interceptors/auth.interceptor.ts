@@ -1,3 +1,4 @@
+// src/app/auth/interceptors/auth.interceptor.ts
 import { Injectable } from '@angular/core';
 import {
   HttpErrorResponse,
@@ -9,7 +10,7 @@ import {
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
-import { SessionStorageService } from '../services/session-storage.service';
+import {SessionStorageService} from '../services/session-storage.service';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {

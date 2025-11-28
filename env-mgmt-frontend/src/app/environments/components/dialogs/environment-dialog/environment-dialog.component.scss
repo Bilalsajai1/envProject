@@ -1,0 +1,30 @@
+// src/app/environments/components/dialogs/environment-dialog/environment-dialog.component.scss
+
+h2 {
+  color: #333;
+  font-weight: 500;
+}
+
+mat-dialog-content {
+  min-width: 400px;
+  padding: 20px 0;
+}
+
+.dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .full-width {
+    width: 100%;
+  }
+}
+
+mat-dialog-actions {
+  padding: 16px 0;
+  gap: 12px;
+
+  button {
+    min-width: 100px;
+  }
+}

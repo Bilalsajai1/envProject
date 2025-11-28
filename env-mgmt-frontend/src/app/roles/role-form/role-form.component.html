@@ -1,0 +1,38 @@
+<mat-card>
+  <mat-card-title>
+    {{ mode === 'create' ? 'Créer un rôle' : 'Modifier un rôle' }}
+  </mat-card-title>
+
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Code</mat-label>
+        <input matInput formControlName="code" />
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Libellé</mat-label>
+        <input matInput formControlName="libelle" />
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Description</mat-label>
+        <textarea matInput rows="3" formControlName="description"></textarea>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-checkbox formControlName="actif">Actif</mat-checkbox>
+    </div>
+
+    <div class="actions">
+      <button mat-raised-button color="primary" type="submit">
+        Enregistrer
+      </button>
+    </div>
+  </form>
+</mat-card>
