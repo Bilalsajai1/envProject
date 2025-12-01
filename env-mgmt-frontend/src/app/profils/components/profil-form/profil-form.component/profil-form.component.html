@@ -1,0 +1,80 @@
+<!-- src/app/profils/components/profil-form/profil-form.component.html -->
+
+<div class="form-container" *ngIf="!loading; else loadingTpl">
+  <div class="form-header">
+    <div>
+      <h1>{{ isEdit ? 'Modifier un profil' : 'Nouveau profil' }}</h1>
+      <p class="subtitle">
+        {{ isEdit ? 'Mise à jour des informations' : 'Création d\'un nouveau profil' }}
+      </p>
+    </div>
+
+    <button mat-button type="button" (click)="cancel()">
+      <mat-icon>arrow_back</mat-icon>
+      Retour à la liste
+    </button>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="profil-form">
+    <div class="form-grid">
+      <mat-form-field appearance="outline">
+        <mat-label>Code</mat-label>
+        <input matInput formControlName="code" />
+        <mat-error *ngIf="form.get('code')?.hasError('required')">
+          Code obligatoire
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Libellé</mat-label>
+        <input matInput formControlName="libelle" />
+        <mat-error *ngIf="form.get('libelle')?.hasError('required')">
+          Libellé obligatoire
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Description</mat-label>
+        <textarea matInput rows="3" formControlName="description"></textarea>
+      </mat-form-field>
+
+      <div class="checkbox-group">
+        <mat-checkbox formControlName="admin">
+          Profil administrateur
+        </mat-checkbox>
+        <mat-hint class="admin-hint">
+          <mat-icon>info</mat-icon>
+          Les profils administrateurs ont accès complet à toutes les fonctionnalités
+        </mat-hint>
+      </div>
+
+      <mat-slide-toggle formControlName="actif">
+        Actif
+      </mat-slide-toggle>
+    </div>
+
+    <div class="form-actions">
+      <button mat-stroked-button type="button" (click)="cancel()">
+        Annuler
+      </button>
+
+      <button mat-raised-button color="primary" type="submit" [disabled]="saving">
+        <mat-progress-spinner
+          *ngIf="saving"
+          mode="indeterminate"
+          diameter="16"
+          strokeWidth="2">
+        </mat-progress-spinner>
+        <span *ngIf="!saving">
+          {{ isEdit ? 'Enregistrer' : 'Créer' }}
+        </span>
+      </button>
+    </div>
+  </form>
+</div>
+
+<ng-template #loadingTpl>
+  <div class="loading">
+    <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+  </div>
+</ng-template>
