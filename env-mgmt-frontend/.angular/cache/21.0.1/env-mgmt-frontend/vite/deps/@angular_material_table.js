@@ -4,7 +4,7 @@ import {
 import {
   ScrollingModule,
   ViewportRuler
-} from "./chunk-LVJMQUZ5.js";
+} from "./chunk-G2MZHMLF.js";
 import {
   DataSource,
   _RecycleViewRepeaterStrategy,
@@ -16,10 +16,6 @@ import "./chunk-42QFQP6S.js";
 import "./chunk-N4DOILP3.js";
 import "./chunk-GUGIMSVJ.js";
 import {
-  BidiModule,
-  Directionality
-} from "./chunk-LGOJHUOV.js";
-import {
   _isNumberValue
 } from "./chunk-4QLU5MFL.js";
 import {
@@ -27,6 +23,10 @@ import {
 } from "./chunk-HGIXQTMX.js";
 import "./chunk-JDI3SQXM.js";
 import "./chunk-UC72YTJX.js";
+import {
+  BidiModule,
+  Directionality
+} from "./chunk-LGOJHUOV.js";
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,

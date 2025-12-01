@@ -1,10 +1,17 @@
 // src/app/layout/main-layout/main-layout.component.ts
 
-import { Component, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthContextService } from '../../auth/services/auth-context.service';
 import { AuthenticationService } from '../../auth/services/authentication.service';
 import { AuthContext } from '../../auth/models/auth-context.model';
+import { Subject, takeUntil } from 'rxjs';
 
 interface AdminNavItem {
   label: string;
@@ -16,22 +23,21 @@ interface AdminNavItem {
 interface EnvNavItem {
   label: string;
   route: string;
-  env: any; // ou EnvironmentTypePermission si tu veux
+  env: any; // ou EnvironmentTypePermission si tu veux typé
 }
 
 @Component({
   selector: 'app-main-layout',
   standalone: false,
   templateUrl: './main-layout.component.html',
-  styleUrls: ['./main-layout.component.scss']
+  styleUrls: ['./main-layout.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MainLayoutComponent implements OnInit {
+export class MainLayoutComponent implements OnInit, OnDestroy {
 
   context: AuthContext | null = null;
 
-  // src/app/layout/main-layout/main-layout.component.ts
-// ✅ Ajout du menu Profils dans adminMenu
-
+  // Menu Administration
   adminMenu: AdminNavItem[] = [
     {
       label: 'Utilisateurs',
@@ -40,7 +46,7 @@ export class MainLayoutComponent implements OnInit {
       requiredRoles: ['ADMIN', 'ROLE_USERS_ACCESS']
     },
     {
-      label: 'Profils',  // ✅ NOUVEAU
+      label: 'Profils',
       icon: 'badge',
       route: '/admin/profils',
       requiredRoles: ['ADMIN']
@@ -59,25 +65,44 @@ export class MainLayoutComponent implements OnInit {
     }
   ];
 
-  // 2ème menu : Environnements
+  // Menu Environnements
   envMenu: EnvNavItem[] = [];
 
+  private readonly destroy$ = new Subject<void>();
+
   constructor(
-    private authCtx: AuthContextService,
-    private auth: AuthenticationService,
-    private router: Router
+    private readonly authCtx: AuthContextService,
+    private readonly auth: AuthenticationService,
+    private readonly router: Router,
+    private readonly cdr: ChangeDetectorRef
   ) {}
 
+  // -----------------------
+  // Lifecycle
+  // -----------------------
+
   ngOnInit(): void {
-    this.authCtx.getContext$().subscribe(ctx => {
-      this.context = ctx ?? null;
-      this.buildEnvMenu();
-    });
+    this.authCtx.getContext$()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(ctx => {
+        this.context = ctx ?? null;
+        this.buildEnvMenu();
+        this.cdr.markForCheck();
+      });
   }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  // -----------------------
+  // Menu environnements
+  // -----------------------
 
   private buildEnvMenu(): void {
     const ctx = this.context;
-    if (!ctx) {
+    if (!ctx || !ctx.environmentTypes) {
       this.envMenu = [];
       return;
     }
@@ -88,35 +113,48 @@ export class MainLayoutComponent implements OnInit {
         label: t.libelle,
         route: `/env/${t.code.toLowerCase()}`,
         env: t
-      }));
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label));
   }
 
-  // Vérifier si l'utilisateur est admin
+  // -----------------------
+  // Droits & visibilité
+  // -----------------------
+
   isAdmin(): boolean {
     return this.context?.user?.admin ?? false;
   }
 
-  // Vérifier si l'utilisateur a un rôle spécifique
   hasRole(role: string): boolean {
     const roles = this.context?.user?.roles ?? [];
     return roles.includes(role);
   }
 
-  // Vérifier si l'utilisateur a au moins un des rôles requis
   hasAnyRole(required?: string[]): boolean {
+    if (this.isAdmin()) {
+      return true;
+    }
     if (!required || required.length === 0) {
       return true;
     }
     return required.some(r => this.hasRole(r));
   }
 
-  // Vérifier si un item du menu doit être affiché
   shouldShowMenuItem(item: AdminNavItem): boolean {
-    if (this.isAdmin()) {
-      return true;
-    }
     return this.hasAnyRole(item.requiredRoles);
   }
+
+  get visibleAdminMenu(): AdminNavItem[] {
+    return this.adminMenu.filter(item => this.shouldShowMenuItem(item));
+  }
+
+  get hasEnvMenu(): boolean {
+    return this.envMenu.length > 0;
+  }
+
+  // -----------------------
+  // User / actions
+  // -----------------------
 
   logout(): void {
     this.auth.logout();
@@ -124,11 +162,22 @@ export class MainLayoutComponent implements OnInit {
   }
 
   getUserInitials(): string {
-    if (!this.context?.user) {
+    const user = this.context?.user;
+    if (!user) {
       return '??';
     }
-    const first = this.context.user.firstName?.[0] || '';
-    const last = this.context.user.lastName?.[0] || '';
+    const first = user.firstName?.[0] || '';
+    const last = user.lastName?.[0] || '';
     return (first + last).toUpperCase();
+  }
+
+  get userDisplayName(): string {
+    const user = this.context?.user;
+    if (!user) return '';
+    return `${user.firstName} ${user.lastName}`.trim();
+  }
+
+  get userProfilLabel(): string {
+    return this.context?.user?.profilLibelle ?? '';
   }
 }

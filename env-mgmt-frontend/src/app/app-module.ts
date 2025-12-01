@@ -3,22 +3,21 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { MaterialModule } from './shared/material/material.module';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
-import { AuthInterceptor } from './auth/interceptors/auth.interceptor';
 
-// Modules
 import { UsersModule } from './users/users-module';
 import { RolesModule } from './roles/roles-module';
-import {PermissionsModule} from './permissions/permissions-module';
-import {EnvironmentsModule} from './environments/environments-module';
-import {ProfilsModule} from './profils/profils-module';
+import { PermissionsModule } from './permissions/permissions-module';
+import { EnvironmentsModule } from './environments/environments-module';
+import { ProfilsModule } from './profils/profils-module';
 
+import { AuthInterceptor } from './auth/interceptors/auth.interceptor';
 
 @NgModule({
   declarations: [
@@ -26,18 +25,22 @@ import {ProfilsModule} from './profils/profils-module';
     MainLayoutComponent
   ],
   imports: [
-    ProfilsModule,
     BrowserModule,
-    AppRoutingModule,
     BrowserAnimationsModule,
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
     MaterialModule,
+
+    // Feature modules
     UsersModule,
     RolesModule,
     PermissionsModule,
-    EnvironmentsModule  // ✅ NOUVEAU MODULE
+    EnvironmentsModule,
+    ProfilsModule,
+
+    // Routing en dernier
+    AppRoutingModule
   ],
   providers: [
     {

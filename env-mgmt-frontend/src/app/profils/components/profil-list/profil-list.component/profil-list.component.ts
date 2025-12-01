@@ -1,6 +1,6 @@
 // src/app/profils/components/profil-list/profil-list.component.ts
 
-import { Component, OnInit, ViewChild } from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
 import { Router } from '@angular/router';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort, Sort } from '@angular/material/sort';
@@ -48,7 +48,8 @@ export class ProfilListComponent implements OnInit {
     private profilService: ProfilService,
     private router: Router,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef
   ) {
     this.searchSubject.pipe(
       debounceTime(400),
@@ -85,6 +86,7 @@ export class ProfilListComponent implements OnInit {
         this.page = res.page;
         this.size = res.size;
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.snackBar.open('❌ Erreur lors du chargement', 'Fermer', { duration: 3000 });

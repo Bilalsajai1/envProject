@@ -33,7 +33,7 @@ export class EnvironmentListComponent implements OnInit {
     private projectService: ProjectService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
-    private cdr: ChangeDetectorRef  // ✅ Ajout pour gérer NG0100
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {

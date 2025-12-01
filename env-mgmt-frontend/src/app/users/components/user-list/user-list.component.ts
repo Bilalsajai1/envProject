@@ -1,23 +1,48 @@
 // src/app/users/components/user-list/user-list.component.ts
 
-import { Component, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort, Sort } from '@angular/material/sort';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  Subject,
+  takeUntil,
+  finalize
+} from 'rxjs';
+
 import { UserService } from '../../services/user.service';
 import { PaginatedResponse, UserDTO } from '../../models/user.model';
-import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
-import {ConfirmDialogComponent} from '../../confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog.component';
+
+type SortDirection = 'asc' | 'desc';
+
+interface UserSearchRequest {
+  page: number;
+  size: number;
+  sortField: string;
+  sortDirection: SortDirection;
+  filters: Record<string, any>;
+}
 
 @Component({
   selector: 'app-user-list',
   standalone: false,
   templateUrl: './user-list.component.html',
-  styleUrls: ['./user-list.component.scss']
+  styleUrls: ['./user-list.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class UserListComponent implements OnInit {
+export class UserListComponent implements OnInit, OnDestroy {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -33,101 +58,122 @@ export class UserListComponent implements OnInit {
     'actions'
   ];
 
-  // Pagination
   page = 0;
   size = 10;
+  readonly pageSizeOptions: number[] = [5, 10, 20, 50];
+
   totalElements = 0;
   sortField = 'id';
-  sortDirection: 'asc' | 'desc' = 'asc';
+  sortDirection: SortDirection = 'asc';
 
-  // Recherche
   searchTerm = '';
-  private searchSubject = new Subject<string>();
+  private readonly searchSubject = new Subject<string>();
+  private readonly destroy$ = new Subject<void>();
 
   loading = false;
 
   constructor(
-    private userService: UserService,
-    private router: Router,
-    private dialog: MatDialog,
-    private snackBar: MatSnackBar
-  ) {
-    // Debounce search pour éviter trop de requêtes
-    this.searchSubject.pipe(
-      debounceTime(400),
-      distinctUntilChanged()
-    ).subscribe(term => {
-      this.searchTerm = term;
-      this.page = 0;
-      this.loadUsers();
-    });
-  }
+    private readonly userService: UserService,
+    private readonly router: Router,
+    private readonly dialog: MatDialog,
+    private readonly snackBar: MatSnackBar,
+    private readonly cdr: ChangeDetectorRef
+  ) {}
+
+  // -----------------------
+  // Lifecycle
+  // -----------------------
 
   ngOnInit(): void {
+    this.initSearchListener();
     this.loadUsers();
   }
 
-  loadUsers(): void {
-    console.log('🔄 === DÉBUT loadUsers() ===');
-    console.log('📊 Paramètres:', {
-      page: this.page,
-      size: this.size,
-      sortField: this.sortField,
-      sortDirection: this.sortDirection,
-      searchTerm: this.searchTerm
-    });
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
-    this.loading = true;
-    console.log('⏳ Loading = true');
+  // -----------------------
+  // Initialisation
+  // -----------------------
 
-    const filters: any = {};
-    if (this.searchTerm && this.searchTerm.trim() !== '') {
-      filters.search = this.searchTerm.trim();
+  private initSearchListener(): void {
+    this.searchSubject
+      .pipe(
+        debounceTime(400),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(term => {
+        this.searchTerm = term.trim();
+        this.page = 0; // on revient à la première page
+        this.loadUsers();
+      });
+  }
+
+  // -----------------------
+  // Chargement des données
+  // -----------------------
+
+  private buildFilters(): Record<string, any> {
+    const filters: Record<string, any> = {};
+    if (this.searchTerm) {
+      filters['search'] = this.searchTerm.trim();
     }
+    return filters;
+  }
 
-    console.log('🔎 Filters:', filters);
-
-    const requestBody = {
+  loadUsers(): void {
+    const requestBody: UserSearchRequest = {
       page: this.page,
       size: this.size,
       sortField: this.sortField,
       sortDirection: this.sortDirection,
-      filters
+      filters: this.buildFilters()
     };
 
-    console.log('📤 Requête envoyée:', requestBody);
+    this.loading = true;
 
-    this.userService.search(requestBody).subscribe({
-      next: (res: PaginatedResponse<UserDTO>) => {
-        console.log('✅ Réponse reçue:', res);
-        console.log('👥 Nombre d\'utilisateurs:', res.content.length);
-        this.users = res.content;
-        this.totalElements = res.totalElements;
-        this.page = res.page;
-        this.size = res.size;
-        this.loading = false;
-        console.log('✅ Loading = false');
-      },
-      error: (err) => {
-        console.error('❌ ERREUR COMPLÈTE:', err);
-        console.error('❌ Status:', err.status);
-        console.error('❌ Message:', err.message);
-        console.error('❌ Error object:', err.error);
-
-        this.snackBar.open('❌ Erreur lors du chargement', 'Fermer', { duration: 3000 });
-        this.loading = false;
-        console.log('❌ Loading = false (après erreur)');
-      },
-      complete: () => {
-        console.log('🏁 Observable complété');
-      }
-    });
-
-    console.log('🔄 === FIN loadUsers() (requête lancée) ===');
+    this.userService
+      .search(requestBody)
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+          this.cdr.markForCheck();
+        })
+      )
+      .subscribe({
+        next: (res: PaginatedResponse<UserDTO>) => {
+          this.users = res.content ?? [];
+          this.totalElements = res.totalElements ?? 0;
+          this.page = res.page ?? 0;
+          this.size = res.size ?? this.size;
+        },
+        error: () => {
+          this.showSnackBar(
+            '❌ Erreur lors du chargement des utilisateurs',
+            'error-snackbar'
+          );
+        }
+      });
   }
+
+  refresh(): void {
+    this.loadUsers();
+  }
+
+  // -----------------------
+  // Événements UI
+  // -----------------------
 
   onSearchChange(value: string): void {
     this.searchSubject.next(value);
+  }
+
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.searchSubject.next('');
   }
 
   onPageChange(event: PageEvent): void {
@@ -139,7 +185,7 @@ export class UserListComponent implements OnInit {
   onSortChange(sort: Sort): void {
     if (sort.active && sort.direction) {
       this.sortField = sort.active;
-      this.sortDirection = sort.direction as 'asc' | 'desc';
+      this.sortDirection = sort.direction as SortDirection;
     } else {
       this.sortField = 'id';
       this.sortDirection = 'asc';
@@ -147,11 +193,16 @@ export class UserListComponent implements OnInit {
     this.loadUsers();
   }
 
+  // -----------------------
+  // Actions
+  // -----------------------
+
   addUser(): void {
     this.router.navigate(['/admin/users/new']);
   }
 
   editUser(user: UserDTO): void {
+    if (!user.id) return;
     this.router.navigate(['/admin/users', user.id, 'edit']);
   }
 
@@ -167,28 +218,49 @@ export class UserListComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(confirmed => {
-      if (confirmed) {
-        this.userService.delete(user.id).subscribe({
-          next: () => {
-            this.snackBar.open('✅ Utilisateur supprimé avec succès', 'Fermer', {
-              duration: 3000,
-              panelClass: ['success-snackbar']
-            });
-            this.loadUsers();
-          },
-          error: () => {
-            this.snackBar.open('❌ Erreur lors de la suppression', 'Fermer', {
-              duration: 3000,
-              panelClass: ['error-snackbar']
-            });
-          }
-        });
-      }
+      if (!confirmed || !user.id) return;
+
+      this.userService.delete(user.id).subscribe({
+        next: () => {
+          this.showSnackBar(
+            '✅ Utilisateur supprimé avec succès',
+            'success-snackbar'
+          );
+          this.loadUsers();
+        },
+        error: () => {
+          this.showSnackBar(
+            '❌ Erreur lors de la suppression',
+            'error-snackbar'
+          );
+        }
+      });
     });
   }
 
-  clearSearch(): void {
-    this.searchTerm = '';
-    this.searchSubject.next('');
+  // -----------------------
+  // Helpers
+  // -----------------------
+
+  get isEmpty(): boolean {
+    return !this.loading && this.users.length === 0;
+  }
+
+  get resultsLabel(): string {
+    const count = this.totalElements || 0;
+    if (count === 0) {
+      return 'Aucun utilisateur';
+    }
+    if (count === 1) {
+      return '1 utilisateur';
+    }
+    return `${count} utilisateurs`;
+  }
+
+  private showSnackBar(message: string, panelClass: string): void {
+    this.snackBar.open(message, 'Fermer', {
+      duration: 3000,
+      panelClass: [panelClass]
+    });
   }
 }

@@ -1,6 +1,6 @@
 // src/app/environments/components/application-list/application-list.component.ts
 
-import { Component, OnInit } from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -42,7 +42,8 @@ export class ApplicationListComponent implements OnInit {
     private applicationService: ApplicationService,
     private environmentService: EnvironmentService,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -69,6 +70,7 @@ export class ApplicationListComponent implements OnInit {
       next: (applications) => {
         this.applications = applications;
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.snackBar.open('❌ Erreur lors du chargement des applications', 'Fermer', { duration: 3000 });

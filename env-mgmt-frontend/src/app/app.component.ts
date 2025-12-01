@@ -1,12 +1,12 @@
+
 import { Component, signal } from '@angular/core';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  standalone: false,
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
+  standalone: false
 })
 export class AppComponent {
-  protected readonly title = signal('env-mgmt-frontend');
+  readonly title = signal('env-mgmt-frontend');
 }
-

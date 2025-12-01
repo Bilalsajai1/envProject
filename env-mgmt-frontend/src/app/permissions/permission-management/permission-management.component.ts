@@ -1,6 +1,6 @@
 // src/app/permissions/components/permission-management/permission-management.component.ts
 
-import { Component, OnInit } from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import {
   ActionType, EnvTypePermissionUpdate,
@@ -36,7 +36,8 @@ export class PermissionManagementComponent implements OnInit {
   constructor(
     private permissionService: PermissionService,
     private snackBar: MatSnackBar,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -60,6 +61,7 @@ export class PermissionManagementComponent implements OnInit {
       error: () => {
         this.snackBar.open('Erreur lors du chargement des profils', 'Fermer', { duration: 3000 });
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
