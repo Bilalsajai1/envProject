@@ -29,13 +29,21 @@ export class MainLayoutComponent implements OnInit {
 
   context: AuthContext | null = null;
 
-  // 1er menu : Administration
+  // src/app/layout/main-layout/main-layout.component.ts
+// ✅ Ajout du menu Profils dans adminMenu
+
   adminMenu: AdminNavItem[] = [
     {
       label: 'Utilisateurs',
       icon: 'group',
       route: '/admin/users',
       requiredRoles: ['ADMIN', 'ROLE_USERS_ACCESS']
+    },
+    {
+      label: 'Profils',  // ✅ NOUVEAU
+      icon: 'badge',
+      route: '/admin/profils',
+      requiredRoles: ['ADMIN']
     },
     {
       label: 'Permissions',

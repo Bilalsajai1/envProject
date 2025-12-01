@@ -1,3 +1,5 @@
+// ma/perenity/backend/service/PermissionService.java
+
 package ma.perenity.backend.service;
 
 import ma.perenity.backend.dto.UserPermissionsDTO;
@@ -18,6 +20,9 @@ public interface PermissionService {
     boolean canAccessProjectCode(String projectCode, ActionType action);
 
     boolean canAccessProject(ProjetEntity projet, ActionType action);
+
+    // ✅ NOUVELLE MÉTHODE
+    boolean canAccessProjectById(Long projectId, ActionType action);
 
     boolean canAccessEnv(EnvironnementEntity env, ActionType action);
 

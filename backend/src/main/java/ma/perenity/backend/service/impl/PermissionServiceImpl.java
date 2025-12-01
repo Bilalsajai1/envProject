@@ -1,6 +1,7 @@
 package ma.perenity.backend.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import ma.perenity.backend.dto.UserPermissionsDTO;
 import ma.perenity.backend.entities.EnvironnementEntity;
 import ma.perenity.backend.entities.ProfilEntity;
@@ -9,6 +10,7 @@ import ma.perenity.backend.entities.RoleEntity;
 import ma.perenity.backend.entities.UtilisateurEntity;
 import ma.perenity.backend.entities.enums.ActionType;
 import ma.perenity.backend.repository.ProfilRoleRepository;
+import ma.perenity.backend.repository.ProjetRepository;
 import ma.perenity.backend.repository.UtilisateurRepository;
 import ma.perenity.backend.service.PermissionService;
 import org.springframework.http.HttpStatus;
@@ -23,12 +25,14 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j  // ✅ Ajout des logs
 @Service
 @RequiredArgsConstructor
 public class PermissionServiceImpl implements PermissionService {
 
     private final UtilisateurRepository utilisateurRepository;
     private final ProfilRoleRepository profilRoleRepository;
+    private final ProjetRepository projetRepository;
 
     private static class UserContext {
         private UtilisateurEntity user;
@@ -81,11 +85,13 @@ public class PermissionServiceImpl implements PermissionService {
         }
 
         UtilisateurEntity user = utilisateurRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Utilisateur introuvable"));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.UNAUTHORIZED, "Utilisateur introuvable : " + email));
 
         ProfilEntity profil = user.getProfil();
         if (profil == null) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Aucun profil associé à l'utilisateur");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Aucun profil associé à l'utilisateur");
         }
 
         List<RoleEntity> roles = profilRoleRepository.findRolesByProfil(profil.getId());
@@ -98,6 +104,9 @@ public class PermissionServiceImpl implements PermissionService {
                 .map(String::toUpperCase)
                 .collect(Collectors.toSet());
 
+        log.debug("Chargement du contexte utilisateur : email={}, profil={}, roles={}",
+                email, profil.getCode(), roleCodes);
+
         UserContext ctx = new UserContext();
         ctx.setUser(user);
         ctx.setProfil(profil);
@@ -108,7 +117,9 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public boolean isAdmin() {
-        return loadCurrentUser().isAdmin();
+        boolean admin = loadCurrentUser().isAdmin();
+        log.debug("Vérification admin : {}", admin);
+        return admin;
     }
 
     @Override
@@ -117,7 +128,11 @@ public class PermissionServiceImpl implements PermissionService {
             return false;
         }
         UserContext ctx = loadCurrentUser();
-        return ctx.getRoleCodes().contains(roleCode.trim().toUpperCase());
+        boolean hasRole = ctx.getRoleCodes().contains(roleCode.trim().toUpperCase());
+
+        log.debug("Vérification du rôle {} : {}", roleCode, hasRole);
+
+        return hasRole;
     }
 
     @Override
@@ -130,18 +145,26 @@ public class PermissionServiceImpl implements PermissionService {
 
         for (String rc : roleCodes) {
             if (rc != null && userRoles.contains(rc.trim().toUpperCase())) {
+                log.debug("Utilisateur possède le rôle {}", rc);
                 return true;
             }
         }
+
+        log.debug("Utilisateur ne possède aucun des rôles : {}",
+                String.join(", ", roleCodes));
+
         return false;
     }
 
     @Override
     public boolean canAccessEnvType(String envTypeCode, ActionType action) {
         UserContext ctx = loadCurrentUser();
+
         if (ctx.isAdmin()) {
+            log.debug("Admin bypass pour l'accès au type {}", envTypeCode);
             return true;
         }
+
         if (envTypeCode == null || action == null) {
             return false;
         }
@@ -149,21 +172,34 @@ public class PermissionServiceImpl implements PermissionService {
         String type = envTypeCode.trim().toUpperCase();
         String roleToCheck = "ENV_" + type + "_" + action.name();
 
-        return ctx.getRoleCodes().contains(roleToCheck);
+        boolean hasAccess = ctx.getRoleCodes().contains(roleToCheck);
+
+        log.debug("Vérification accès type {} avec action {} : {} (rôle requis: {})",
+                envTypeCode, action, hasAccess, roleToCheck);
+
+        return hasAccess;
     }
 
     @Override
     public boolean canAccessProjectCode(String projectCode, ActionType action) {
         UserContext ctx = loadCurrentUser();
+
         if (ctx.isAdmin()) {
+            log.debug("Admin bypass pour l'accès au projet {}", projectCode);
             return true;
         }
+
         if (projectCode == null || action == null) {
             return false;
         }
 
         String code = "PROJ_" + projectCode.trim().toUpperCase() + "_" + action.name();
-        return ctx.getRoleCodes().contains(code);
+        boolean hasAccess = ctx.getRoleCodes().contains(code);
+
+        log.debug("Vérification accès projet {} avec action {} : {} (rôle requis: {})",
+                projectCode, action, hasAccess, code);
+
+        return hasAccess;
     }
 
     @Override
@@ -175,12 +211,48 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
-    public boolean canAccessEnv(EnvironnementEntity env, ActionType action) {
+    public boolean canAccessProjectById(Long projectId, ActionType action) {
         UserContext ctx = loadCurrentUser();
+
         if (ctx.isAdmin()) {
+            log.debug("Admin bypass pour l'accès au projet ID {}", projectId);
             return true;
         }
+
+        if (projectId == null || action == null) {
+            return false;
+        }
+
+        // Récupérer le projet depuis la BDD
+        ProjetEntity projet = projetRepository.findById(projectId).orElse(null);
+        if (projet == null) {
+            log.warn("Projet introuvable avec ID {}", projectId);
+            return false;
+        }
+
+        // Vérifier les permissions via le code du projet
+        String code = "PROJ_" + projet.getCode().trim().toUpperCase() + "_" + action.name();
+        boolean hasAccess = ctx.getRoleCodes().contains(code);
+
+        log.debug("Vérification accès projet ID {} (code={}) avec action {} : {} (rôle requis: {})",
+                projectId, projet.getCode(), action, hasAccess, code);
+
+        return hasAccess;
+    }
+
+    @Override
+    public boolean canAccessEnv(EnvironnementEntity env, ActionType action) {
+        UserContext ctx = loadCurrentUser();
+
+        if (ctx.isAdmin()) {
+            log.debug("Admin bypass pour l'accès à l'environnement {}",
+                    env != null ? env.getCode() : "null");
+            return true;
+        }
+
         if (env == null || env.getType() == null || env.getProjet() == null || action == null) {
+            log.warn("Paramètres invalides pour canAccessEnv : env={}, action={}",
+                    env != null ? env.getCode() : "null", action);
             return false;
         }
 
@@ -188,6 +260,7 @@ public class PermissionServiceImpl implements PermissionService {
         String projectCode = env.getProjet().getCode();
 
         if (envTypeCode == null || projectCode == null) {
+            log.warn("Type ou projet manquant pour l'environnement {}", env.getCode());
             return false;
         }
 
@@ -195,7 +268,16 @@ public class PermissionServiceImpl implements PermissionService {
         String projRole = "PROJ_" + projectCode.trim().toUpperCase() + "_" + action.name();
 
         Set<String> roles = ctx.getRoleCodes();
-        return roles.contains(envRole) && roles.contains(projRole);
+        boolean hasEnvRole = roles.contains(envRole);
+        boolean hasProjRole = roles.contains(projRole);
+        boolean hasAccess = hasEnvRole && hasProjRole;
+
+        log.debug("Vérification accès environnement {} (type={}, projet={}) avec action {} : {} " +
+                        "(envRole={} [{}], projRole={} [{}])",
+                env.getCode(), envTypeCode, projectCode, action, hasAccess,
+                envRole, hasEnvRole, projRole, hasProjRole);
+
+        return hasAccess;
     }
 
     @Override
@@ -203,6 +285,8 @@ public class PermissionServiceImpl implements PermissionService {
         UserContext ctx = loadCurrentUser();
         UtilisateurEntity u = ctx.getUser();
         ProfilEntity p = ctx.getProfil();
+
+        log.debug("Récupération des permissions pour l'utilisateur {}", u.getEmail());
 
         return UserPermissionsDTO.builder()
                 .userId(u.getId())

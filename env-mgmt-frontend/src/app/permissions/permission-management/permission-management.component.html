@@ -1,4 +1,4 @@
-<!-- src/app/permissions/components/permission-management/permission-management.component.html -->
+<!-- src/app/permissions/permission-management/permission-management.component.html -->
 
 <div class="permission-page">
 
@@ -73,8 +73,9 @@
     </mat-card>
 
     <!-- MODULE 2 : Projets (par projet) -->
+    <!-- ✅ CORRECTION LIGNE 77 : retiré les ?. -->
     <mat-card class="permission-module"
-              *ngIf="permissions?.projectPermissions?.length">
+              *ngIf="permissions && permissions.projectPermissions.length > 0">
       <mat-card-header>
         <mat-card-title>
           <mat-icon>folder</mat-icon>
@@ -108,8 +109,6 @@
         </div>
       </mat-card-content>
     </mat-card>
-
-
 
     <!-- Actions -->
     <div class="form-actions">

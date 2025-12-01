@@ -51,14 +51,14 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline">
-        <mat-label>Profil</mat-label>
+        <mat-label>ProfilService</mat-label>
         <mat-select formControlName="profilId">
           <mat-option *ngFor="let p of profils" [value]="p.id">
             {{ p.libelle }} ({{ p.code }})
           </mat-option>
         </mat-select>
         <mat-error *ngIf="form.get('profilId')?.hasError('required')">
-          Profil obligatoire
+          ProfilService obligatoire
         </mat-error>
       </mat-form-field>
 

@@ -1,6 +1,8 @@
+// src/app/permissions/services/permission.service.ts
+
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map, forkJoin } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import {
   ProfilPermissions,
   ProfilSimple,
@@ -21,32 +23,39 @@ export class PermissionService {
 
   constructor(private http: HttpClient) {}
 
+  /**
+   * Récupère la liste des profils
+   */
   getProfils(): Observable<ProfilSimple[]> {
     return this.http.get<ProfilSimple[]>(this.baseUrl);
   }
 
+  /**
+   * Récupère les permissions d'un profil
+   * ✅ Compatible avec le nouveau backend
+   */
   getPermissions(profilId: number): Observable<ProfilPermissions> {
     return this.http
       .get<any>(`${this.baseUrl}/${profilId}/permissions`)
       .pipe(
         map((res: any) => {
-          console.log('🔍 Réponse brute /profils/{id}/permissions :', res);
+          console.log('🔍 Réponse backend /profils/{id}/permissions :', res);
 
-          // 1️⃣ Types d'environnement : envTypePermissions OU environmentTypes
-          const rawEnvTypes = res.envTypePermissions ?? res.environmentTypes ?? [];
-          const envTypePermissions: EnvTypePermission[] = (rawEnvTypes as any[]).map(et => ({
-            typeCode: et.typeCode ?? et.code,
-            typeLibelle: et.typeLibelle ?? et.libelle,
-            actions: (et.actions ?? et.allowedActions ?? []) as ActionType[]
+          // ✅ Types d'environnement
+          const rawEnvTypes = res.environmentTypes ?? [];
+          const envTypePermissions: EnvTypePermission[] = rawEnvTypes.map((et: any) => ({
+            typeCode: et.code,
+            typeLibelle: et.libelle,
+            actions: (et.allowedActions ?? []) as ActionType[]
           }));
 
-          // 2️⃣ Projets : backend renvoie "projects"
+          // ✅ Projets
           const rawProjects = res.projects ?? [];
-          const projectPermissions: ProjectPermission[] = (rawProjects as any[]).map((p: any) => ({
+          const projectPermissions: ProjectPermission[] = rawProjects.map((p: any) => ({
             projectId: p.id,
             projectCode: p.code,
             projectLibelle: p.libelle,
-            actions: (p.actions ?? p.allowedActions ?? []) as ActionType[]
+            actions: (p.allowedActions ?? []) as ActionType[]
           }));
 
           const profilPermissions: ProfilPermissions = {
@@ -54,10 +63,7 @@ export class PermissionService {
             profilCode: res.profilCode,
             profilLibelle: res.profilLibelle,
             envTypePermissions,
-            projectPermissions,
-            // on laisse ces champs vides pour que les *ngIf éventuels restent safe
-            projectActions: [],
-            environmentActions: []
+            projectPermissions
           };
 
           console.log('✅ ProfilPermissions normalisé côté front :', profilPermissions);
@@ -66,24 +72,25 @@ export class PermissionService {
       );
   }
 
-  /** 🔥 Nouvelle version : on pousse envTypes + projets sur 2 endpoints backend */
+  /**
+   * ✅ NOUVELLE VERSION : Utilise l'endpoint consolidé PUT /profils/{id}/permissions
+   */
   savePermissions(
     profilId: number,
     envUpdates: EnvTypePermissionUpdate[],
     projUpdates: ProjectPermissionUpdate[]
   ): Observable<void> {
-    const env$ = this.http.put<void>(
-      `${this.baseUrl}/${profilId}/permissions/env-types`,
-      envUpdates
-    );
+    const payload = {
+      profilId,
+      envTypePermissions: envUpdates,
+      projectPermissions: projUpdates
+    };
 
-    const proj$ = this.http.put<void>(
-      `${this.baseUrl}/${profilId}/permissions/projects`,
-      projUpdates
-    );
+    console.log('📤 Envoi des permissions au backend :', payload);
 
-    return forkJoin([env$, proj$]).pipe(
-      map(() => void 0)
+    return this.http.put<void>(
+      `${this.baseUrl}/${profilId}/permissions`,
+      payload
     );
   }
 }

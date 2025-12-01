@@ -10,6 +10,7 @@ import {
   SavePermissionsRequest
 } from '../models/permission.model';
 import {PermissionService} from '../services/permission.service';
+import {ActivatedRoute} from '@angular/router';
 
 
 @Component({
@@ -34,11 +35,19 @@ export class PermissionManagementComponent implements OnInit {
 
   constructor(
     private permissionService: PermissionService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
     this.loadProfils();
+    this.route.queryParams.subscribe(params => {
+      if (params['profilId']) {
+        const profilId = Number(params['profilId']);
+        this.selectedProfilId = profilId;
+        this.onProfilChange(profilId);
+      }
+    });
   }
 
   loadProfils(): void {

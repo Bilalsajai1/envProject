@@ -19,6 +19,8 @@ import {EnvironmentTypeLayoutComponent} from './environments/environment-type-la
 import {ProjectListComponent} from './environments/project-list/project-list.component';
 import {EnvironmentListComponent} from './environments/environment-list/environment-list.component';
 import {ApplicationListComponent} from './environments/application-list/application-list.component';
+import {ProfilListComponent} from './profils/components/profil-list/profil-list.component/profil-list.component';
+import {ProfilFormComponent} from './profils/components/profil-form/profil-form.component/profil-form.component';
 
 
 
@@ -42,7 +44,25 @@ const routes: Routes = [
     children: [
 
       // ========== ADMINISTRATION ==========
-
+      // ========== PROFILS (NOUVEAU) ==========
+      {
+        path: 'admin/profils',
+        component: ProfilListComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ADMIN'] }
+      },
+      {
+        path: 'admin/profils/new',
+        component: ProfilFormComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ADMIN'] }
+      },
+      {
+        path: 'admin/profils/:id/edit',
+        component: ProfilFormComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ADMIN'] }
+      },
       // Utilisateurs
       {
         path: 'admin/users',

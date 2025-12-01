@@ -95,7 +95,7 @@ export class ProfileAdminComponent implements OnInit {
     if (this.editMode && this.currentId) {
       this.profilService.update(this.currentId, payload).subscribe({
         next: () => {
-          this.toastr.success('Profil mis à jour');
+          this.toastr.success('ProfilService mis à jour');
           this.showForm = false;
           this.loadProfils();
         },
@@ -108,7 +108,7 @@ export class ProfileAdminComponent implements OnInit {
     } else {
       this.profilService.create(payload).subscribe({
         next: () => {
-          this.toastr.success('Profil créé');
+          this.toastr.success('ProfilService créé');
           this.showForm = false;
           this.loadProfils();
         },
@@ -131,7 +131,7 @@ export class ProfileAdminComponent implements OnInit {
 
     this.profilService.delete(p.id).subscribe({
       next: () => {
-        this.toastr.success('Profil supprimé');
+        this.toastr.success('ProfilService supprimé');
         this.loadProfils();
       },
       error: (err: any) => {

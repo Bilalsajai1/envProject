@@ -6,6 +6,7 @@ import ma.perenity.backend.dto.MenuCreateUpdateDTO;
 import ma.perenity.backend.dto.PaginatedResponse;
 import ma.perenity.backend.dto.PaginationRequest;
 import ma.perenity.backend.service.MenuService;
+import ma.perenity.backend.service.MenuDynamicService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,20 +20,44 @@ import java.util.List;
 public class MenuController {
 
     private final MenuService menuService;
+    private final MenuDynamicService menuDynamicService;  // ✅ Ajouté
+
+    // ============================================================
+    // ROUTES DYNAMIQUES (doivent être AVANT les routes avec {id})
+    // ============================================================
+
+    /**
+     * ✅ IMPORTANT : Cette route DOIT être déclarée AVANT /{id}
+     * GET /menus/accessible
+     */
+    @GetMapping("/accessible")
+    public ResponseEntity<List<MenuDTO>> getAccessibleMenus() {
+        return ResponseEntity.ok(menuDynamicService.getAccessibleMenusForCurrentUser());
+    }
+
+    /**
+     * GET /menus/by-environment-type/{code}
+     */
+    @GetMapping("/by-environment-type/{code}")
+    public ResponseEntity<List<MenuDTO>> getByEnvironmentType(@PathVariable String code) {
+        return ResponseEntity.ok(menuDynamicService.getMenusForEnvironmentType(code));
+    }
+
+    // ============================================================
+    // ROUTES ADMIN (avec {id} - doivent être APRÈS les routes spécifiques)
+    // ============================================================
 
     @GetMapping
     public ResponseEntity<List<MenuDTO>> all() {
         return ResponseEntity.ok(menuService.findAll());
     }
 
+    /**
+     * ⚠️ Cette route doit être déclarée APRÈS les routes spécifiques
+     */
     @GetMapping("/{id}")
     public ResponseEntity<MenuDTO> get(@PathVariable Long id) {
         return ResponseEntity.ok(menuService.findById(id));
-    }
-
-    @GetMapping("/by-environment-type/{code}")
-    public ResponseEntity<List<MenuDTO>> getByEnvironmentType(@PathVariable String code) {
-        return ResponseEntity.ok(menuService.findByEnvironmentTypeCode(code));
     }
 
     @PostMapping

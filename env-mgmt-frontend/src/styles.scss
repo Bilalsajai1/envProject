@@ -28,7 +28,94 @@
 .mb-16 {
   margin-bottom: 16px;
 }
+// src/styles.scss (ou créer shared-forms.scss)
 
+/* Styles communs pour tous les formulaires */
+.form-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 500;
+  }
+
+  .subtitle {
+    color: rgba(0, 0, 0, 0.6);
+    margin-top: 4px;
+    font-size: 14px;
+  }
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+
+  .full-width {
+    grid-column: 1 / -1;
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .admin-hint {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.6);
+    margin-top: 4px;
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+/* Statuts */
+.status-active {
+  background-color: #4caf50 !important;
+  color: white !important;
+}
+
+.status-inactive {
+  background-color: #9e9e9e !important;
+  color: white !important;
+}
+
+.admin-chip {
+  background-color: #ff9800 !important;
+  color: white !important;
+}
+
+.user-count-chip {
+  background-color: #2196f3 !important;
+  color: white !important;
+}
 /* Snackbar personnalisé */
 .mat-mdc-snack-bar-container {
   &.success-snackbar {

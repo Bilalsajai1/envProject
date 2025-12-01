@@ -17,6 +17,7 @@ import { UsersModule } from './users/users-module';
 import { RolesModule } from './roles/roles-module';
 import {PermissionsModule} from './permissions/permissions-module';
 import {EnvironmentsModule} from './environments/environments-module';
+import {ProfilsModule} from './profils/profils-module';
 
 
 @NgModule({
@@ -25,6 +26,7 @@ import {EnvironmentsModule} from './environments/environments-module';
     MainLayoutComponent
   ],
   imports: [
+    ProfilsModule,
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,

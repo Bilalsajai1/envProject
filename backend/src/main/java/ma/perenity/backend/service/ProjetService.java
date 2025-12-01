@@ -73,10 +73,11 @@ public class ProjetService {
     // ============================================================
 
     public ProjetDTO getById(Long id) {
-
-        if (!permissionService.isAdmin()) {
+        // ✅ Vérifier si l'utilisateur a accès (admin OU permission CONSULT)
+        if (!permissionService.isAdmin() &&
+                !permissionService.canAccessProjectById(id, ActionType.CONSULT)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "La consultation d'un projet par id est réservée à l'administrateur");
+                    "Vous n'avez pas le droit de consulter ce projet");
         }
 
         ProjetEntity entity = projetRepository.findById(id)
@@ -87,7 +88,6 @@ public class ProjetService {
 
         return projetMapper.toDto(entity);
     }
-
     // ============================================================
     // CREATE - ADMIN ONLY
     // ============================================================

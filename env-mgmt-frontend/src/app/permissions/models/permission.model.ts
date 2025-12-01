@@ -14,18 +14,20 @@ export interface ProjectPermission {
   actions: ActionType[];
 }
 
+// src/app/permissions/models/permission.model.ts
+
 export interface ProfilPermissions {
   profilId: number;
   profilCode: string;
   profilLibelle: string;
 
-  // Toujours présent
+  // ✅ Toujours un tableau (jamais undefined)
   envTypePermissions: EnvTypePermission[];
 
-  // 🔥 Nouveau : liste des projets avec leurs actions
-  projectPermissions?: ProjectPermission[];
+  // ✅ CHANGÉ : retiré le ? pour le rendre obligatoire
+  projectPermissions: ProjectPermission[];  // plus de ?:
 
-  // On laisse ces champs pour compatibilité template éventuelle (mais on ne les utilise plus)
+  // Champs obsolètes (pour compatibilité)
   projectActions?: ActionType[];
   environmentActions?: ActionType[];
 }

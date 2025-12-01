@@ -3,9 +3,9 @@ package ma.perenity.backend.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import ma.perenity.backend.entities.enums.ActionType;
+import ma.perenity.backend.entities.enums.RoleScope;
 
 import java.util.List;
-
 @Entity
 @Table(name = "ROLE")
 @Getter
@@ -29,6 +29,10 @@ public class RoleEntity {
     @Column(nullable = false, length = 20)
     private ActionType action;
 
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private RoleScope scope;  // ✅ NOUVEAU
+
     @Builder.Default
     @Column(nullable = false)
     private Boolean actif = true;
@@ -41,10 +45,6 @@ public class RoleEntity {
     @JoinColumn(name = "ENV_ID")
     private EnvironnementEntity environnement;
 
-    /**
-     * Nouveau : rôle lié à un projet spécifique (ex: PROJ_MANAR_V8_CONSULT).
-     * Peut être null pour les rôles qui ne sont pas portés par projet.
-     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PROJET_ID")
     private ProjetEntity projet;

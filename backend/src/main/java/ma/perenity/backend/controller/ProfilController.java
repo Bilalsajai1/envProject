@@ -62,25 +62,51 @@ public class ProfilController {
         return ResponseEntity.noContent().build();
     }
 
-    // 🔥 Permissions — TOUT passe par ProfilService (ProfilServiceImpl)
+    // ============================================================
+    // ENDPOINTS DE PERMISSIONS
+    // ============================================================
 
+    /**
+     * Récupère toutes les permissions d'un profil
+     */
     @GetMapping("/{id}/permissions")
     public ResponseEntity<ProfilPermissionsDTO> getPermissions(@PathVariable Long id) {
         return ResponseEntity.ok(service.getPermissions(id));
     }
 
+    /**
+     * ✅ NOUVEAU : Met à jour TOUTES les permissions en une seule requête
+     * C'est l'endpoint principal que vous devez utiliser
+     */
+    @PutMapping("/{id}/permissions")
+    public ResponseEntity<Void> updateAllPermissions(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateProfilPermissionsRequest request) {
+        // S'assurer que l'ID correspond
+        request.setProfilId(id);
+        service.updateAllPermissions(id, request);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Met à jour uniquement les permissions par type d'environnement
+     */
     @PutMapping("/{id}/permissions/env-types")
-    public ResponseEntity<Void> updateEnvTypePermissions(@PathVariable Long id,
-                                                         @Valid @RequestBody List<EnvTypePermissionUpdateDTO> envPermissions) {
+    public ResponseEntity<Void> updateEnvTypePermissions(
+            @PathVariable Long id,
+            @Valid @RequestBody List<EnvTypePermissionUpdateDTO> envPermissions) {
         service.updateEnvTypePermissions(id, envPermissions);
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Met à jour uniquement les permissions par projet
+     */
     @PutMapping("/{id}/permissions/projects")
-    public ResponseEntity<Void> updateProjectPermissions(@PathVariable Long id,
-                                                         @Valid @RequestBody List<ProjectPermissionUpdateDTO> projPermissions) {
+    public ResponseEntity<Void> updateProjectPermissions(
+            @PathVariable Long id,
+            @Valid @RequestBody List<ProjectPermissionUpdateDTO> projPermissions) {
         service.updateProjectPermissions(id, projPermissions);
         return ResponseEntity.noContent().build();
     }
-
 }

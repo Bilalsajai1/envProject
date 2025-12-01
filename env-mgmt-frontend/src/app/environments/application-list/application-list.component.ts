@@ -4,12 +4,12 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import {ApplicationService} from '../services/application.service';
-import {EnvironmentService} from '../services/environment.service';
-import {EnvApplicationDTO, EnvironmentDTO} from '../models/environment.model';
-import {ConfirmDialogComponent} from '../../users/confirm-dialog/confirm-dialog.component';
-import {ApplicationDialogComponent} from '../components/dialogs/application-dialog/application-dialog.component';
-
+import { combineLatest } from 'rxjs';
+import { ApplicationService } from '../services/application.service';
+import { EnvironmentService } from '../services/environment.service';
+import { EnvApplicationDTO, EnvironmentDTO } from '../models/environment.model';
+import { ConfirmDialogComponent } from '../../users/confirm-dialog/confirm-dialog.component';
+import { ApplicationDialogComponent } from '../components/dialogs/application-dialog/application-dialog.component';
 
 @Component({
   selector: 'app-application-list',
@@ -46,14 +46,20 @@ export class ApplicationListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
+    // ✅ CORRECTION : Utiliser combineLatest
+    combineLatest([
+      this.route.paramMap,
+      this.route.parent?.parent?.parent?.paramMap ?? this.route.parent?.parent?.paramMap ?? this.route.paramMap
+    ]).subscribe(([params, parentParams]) => {
       this.projectId = Number(params.get('projectId'));
       this.environmentId = Number(params.get('environmentId'));
-      this.loadApplications();
-    });
+      this.typeCode = (parentParams.get('typeCode') || '').toUpperCase();
 
-    this.route.parent?.parent?.parent?.paramMap.subscribe(params => {
-      this.typeCode = params.get('typeCode')?.toUpperCase() || '';
+      console.log('🔍 ApplicationList - projectId:', this.projectId, 'environmentId:', this.environmentId, 'typeCode:', this.typeCode);
+
+      if (this.environmentId) {
+        this.loadApplications();
+      }
     });
   }
 

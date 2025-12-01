@@ -9,6 +9,7 @@
     <mat-icon>chevron_right</mat-icon>
     <a (click)="goBack()" class="breadcrumb-link">Projets</a>
     <mat-icon>chevron_right</mat-icon>
+    <!-- ✅ Affichage sécurisé du projet -->
     <span class="current">{{ project?.libelle || 'Environnements' }}</span>
   </nav>
 
@@ -19,8 +20,10 @@
         <mat-icon>layers</mat-icon>
         Environnements
       </h2>
+      <!-- ✅ N'afficher les détails du projet que s'il existe -->
       <p class="subtitle" *ngIf="project">
-        Projet : <strong>{{ project.libelle }}</strong> ({{ project.code }})
+        Projet : <strong>{{ project.libelle }}</strong>
+        <span *ngIf="project.code !== 'PROJET_' + projectId">({{ project.code }})</span>
       </p>
     </div>
 
