@@ -1,10 +1,11 @@
 // src/app/auth/login/login.component.ts
 
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthenticationService } from '../services/authentication.service';
 import { AuthContextService } from '../services/auth-context.service';
+import { SessionStorageService } from '../services/session-storage.service';
 import { AuthContext } from '../models/auth-context.model';
 
 @Component({
@@ -13,22 +14,36 @@ import { AuthContext } from '../models/auth-context.model';
   styleUrls: ['./login.component.scss'],
   standalone: false
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
 
   form: FormGroup;
   loading = false;
   error?: string;
+  hidePassword = true;
 
   constructor(
     private fb: FormBuilder,
     private auth: AuthenticationService,
     private authCtx: AuthContextService,
+    private sessionStorage: SessionStorageService,
     private router: Router
   ) {
     this.form = this.fb.group({
-      username: ['', Validators.required],
-      password: ['', Validators.required]
+      username: ['', [Validators.required]],
+      password: ['', [Validators.required]],
+      rememberMe: [false]
     });
+  }
+
+  ngOnInit(): void {
+    // ✅ Charger le username sauvegardé si "Remember Me" était coché
+    const savedUsername = localStorage.getItem('remembered_username');
+    if (savedUsername) {
+      this.form.patchValue({
+        username: savedUsername,
+        rememberMe: true
+      });
+    }
   }
 
   submit(): void {
@@ -40,9 +55,18 @@ export class LoginComponent {
     this.loading = true;
     this.error = undefined;
 
-    this.auth.login(this.form.value).subscribe({
+    const { username, password, rememberMe } = this.form.value;
+
+    // ✅ Gérer Remember Me
+    if (rememberMe) {
+      localStorage.setItem('remembered_username', username);
+    } else {
+      localStorage.removeItem('remembered_username');
+    }
+
+    this.auth.login({ username, password }).subscribe({
       next: () => {
-        // une fois loggé → charger /auth/me
+        // Une fois loggé → charger /auth/me
         this.authCtx.loadAuthContext().subscribe({
           next: (ctx) => {
             this.loading = false;
@@ -57,10 +81,18 @@ export class LoginComponent {
       },
       error: err => {
         this.loading = false;
-        this.error = 'Identifiants invalides';
+        if (err.status === 401) {
+          this.error = 'Identifiants invalides. Veuillez réessayer.';
+        } else {
+          this.error = 'Une erreur est survenue. Veuillez réessayer plus tard.';
+        }
         console.error(err);
       }
     });
+  }
+
+  goToForgotPassword(): void {
+    this.router.navigate(['/auth/forgot-password']);
   }
 
   // 🔁 Choix de la route par défaut selon le contexte
@@ -71,7 +103,7 @@ export class LoginComponent {
 
     const roles = ctx.user.roles ?? [];
 
-    // 1️⃣ Admin ou rôle d’accès aux utilisateurs → vue admin des users
+    // 1️⃣ Admin ou rôle d'accès aux utilisateurs → vue admin des users
     if (ctx.user.admin || roles.includes('ROLE_USERS_ACCESS')) {
       return '/admin/users';
     }
@@ -85,7 +117,7 @@ export class LoginComponent {
       return `/env/${env.code.toLowerCase()}`;
     }
 
-    // 3️⃣ Fallback : rien d’autorisé → on revient sur login (plus tard page 403)
+    // 3️⃣ Fallback
     return '/auth/login';
   }
 }

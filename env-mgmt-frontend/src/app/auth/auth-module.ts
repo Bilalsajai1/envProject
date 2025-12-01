@@ -1,28 +1,28 @@
-// src/app/auth/auth.module.ts
+// src/app/auth/auth-module.ts
+
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MaterialModule } from '../shared/material/material.module';
 
 import { LoginComponent } from './login/login.component';
+import {ForgotPasswordComponent} from './forgot-password/forgot-password.component/forgot-password.component';
+import {ResetPasswordComponent} from './reset-password/reset-password.component/reset-password.component';
 import {AuthRoutingModule} from './auth-routing-module';
+
 
 @NgModule({
   declarations: [
-    LoginComponent
+    LoginComponent,
+    ForgotPasswordComponent,
+    ResetPasswordComponent
   ],
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    MatCardModule,
-    MatInputModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-    AuthRoutingModule
+    AuthRoutingModule,
+    MaterialModule
   ]
 })
 export class AuthModule {}
