@@ -6,8 +6,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MaterialModule } from '../shared/material/material.module';
 import {PermissionManagementComponent} from './permission-management/permission-management.component';
-import {MatCheckbox} from '@angular/material/checkbox';
-
 
 @NgModule({
   declarations: [
@@ -18,8 +16,7 @@ import {MatCheckbox} from '@angular/material/checkbox';
     FormsModule,
     ReactiveFormsModule,
     MaterialModule,
-    RouterModule,
-    MatCheckbox
+    RouterModule
   ],
   exports: [
     PermissionManagementComponent

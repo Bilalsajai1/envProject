@@ -1,8 +1,11 @@
+// src/app/auth/login/login.component.ts
+
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthenticationService } from '../services/authentication.service';
 import { AuthContextService } from '../services/auth-context.service';
+import { AuthContext } from '../models/auth-context.model';
 
 @Component({
   selector: 'app-login',
@@ -41,9 +44,10 @@ export class LoginComponent {
       next: () => {
         // une fois loggé → charger /auth/me
         this.authCtx.loadAuthContext().subscribe({
-          next: () => {
+          next: (ctx) => {
             this.loading = false;
-            this.router.navigate(['/admin/users']);
+            const target = this.getDefaultRoute(ctx);
+            this.router.navigate([target]);
           },
           error: () => {
             this.loading = false;
@@ -57,5 +61,31 @@ export class LoginComponent {
         console.error(err);
       }
     });
+  }
+
+  // 🔁 Choix de la route par défaut selon le contexte
+  private getDefaultRoute(ctx: AuthContext | null): string {
+    if (!ctx || !ctx.user) {
+      return '/auth/login';
+    }
+
+    const roles = ctx.user.roles ?? [];
+
+    // 1️⃣ Admin ou rôle d’accès aux utilisateurs → vue admin des users
+    if (ctx.user.admin || roles.includes('ROLE_USERS_ACCESS')) {
+      return '/admin/users';
+    }
+
+    // 2️⃣ Sinon, on cherche le 1er type d'environnement avec CONSULT
+    const env = ctx.environmentTypes?.find(t =>
+      t.allowedActions?.includes('CONSULT')
+    );
+
+    if (env) {
+      return `/env/${env.code.toLowerCase()}`;
+    }
+
+    // 3️⃣ Fallback : rien d’autorisé → on revient sur login (plus tard page 403)
+    return '/auth/login';
   }
 }

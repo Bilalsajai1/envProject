@@ -1,3 +1,4 @@
+// src/app/auth/models/auth-context.model.ts
 export type ActionType = 'CONSULT' | 'CREATE' | 'UPDATE' | 'DELETE';
 
 export interface UserPermissions {
@@ -9,7 +10,7 @@ export interface UserPermissions {
   profilCode: string;
   profilLibelle: string;
   admin: boolean;
-  roles: Set<string>; // ✅ IMPORTANT : Set au lieu de string[]
+  roles: string[];   // ✅ tableau de rôles
 }
 
 export interface EnvironmentTypePermission {

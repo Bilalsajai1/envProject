@@ -25,18 +25,16 @@ import {ApplicationListComponent} from './environments/application-list/applicat
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'admin/users',
+    redirectTo: 'auth/login',
     pathMatch: 'full'
   },
 
-  // 🔓 Module d'auth (lazy)
   {
     path: 'auth',
     loadChildren: () =>
       import('./auth/auth-module').then(m => m.AuthModule)
   },
 
-  // 🔐 Zone sécurisée : layout + menus
   {
     path: '',
     component: MainLayoutComponent,
@@ -48,37 +46,50 @@ const routes: Routes = [
       // Utilisateurs
       {
         path: 'admin/users',
-        component: UserListComponent
+        component: UserListComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ADMIN', 'ROLE_USERS_ACCESS'] }
       },
       {
         path: 'admin/users/new',
-        component: UserFormComponent
+        component: UserFormComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ADMIN', 'ROLE_USERS_CREATE'] }
       },
       {
         path: 'admin/users/:id/edit',
-        component: UserFormComponent
+        component: UserFormComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ADMIN', 'ROLE_USERS_EDIT'] }
       },
 
       // Permissions
       {
         path: 'admin/permissions',
-        component: PermissionManagementComponent
+        component: PermissionManagementComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ADMIN', 'ROLE_ROLES_EDIT'] }
       },
 
       // Rôles
       {
         path: 'admin/roles',
-        component: RoleListComponent
+        component: RoleListComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ADMIN', 'ROLE_ROLES_ACCESS'] }
       },
       {
         path: 'admin/roles/new',
-        component: RoleFormComponent
+        component: RoleFormComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ADMIN', 'ROLE_ROLES_CREATE'] }
       },
       {
         path: 'admin/roles/:id/edit',
-        component: RoleFormComponent
+        component: RoleFormComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ADMIN', 'ROLE_ROLES_EDIT'] }
       },
-
       // ========== ENVIRONNEMENTS ==========
 
       {

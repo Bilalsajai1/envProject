@@ -1,7 +1,11 @@
 package ma.perenity.backend.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -21,7 +25,9 @@ public class RoleCreateUpdateDTO {
 
     private Boolean actif;
 
-
     private Long menuId;
     private Long environnementId;
+
+    // Nouveau : projet porteur de ce rôle (peut être null)
+    private Long projetId;
 }

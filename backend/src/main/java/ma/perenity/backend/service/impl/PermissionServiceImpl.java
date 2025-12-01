@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import ma.perenity.backend.dto.UserPermissionsDTO;
 import ma.perenity.backend.entities.EnvironnementEntity;
 import ma.perenity.backend.entities.ProfilEntity;
+import ma.perenity.backend.entities.ProjetEntity;
 import ma.perenity.backend.entities.RoleEntity;
 import ma.perenity.backend.entities.UtilisateurEntity;
 import ma.perenity.backend.entities.enums.ActionType;
@@ -29,9 +30,6 @@ public class PermissionServiceImpl implements PermissionService {
     private final UtilisateurRepository utilisateurRepository;
     private final ProfilRoleRepository profilRoleRepository;
 
-    /**
-     * Contexte interne : infos utilisateur + profil + rôles.
-     */
     private static class UserContext {
         private UtilisateurEntity user;
         private ProfilEntity profil;
@@ -71,10 +69,6 @@ public class PermissionServiceImpl implements PermissionService {
         }
     }
 
-    /**
-     * Charge l'utilisateur connecté à partir du token JWT,
-     * son profil et ses rôles BD.
-     */
     private UserContext loadCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !(auth.getPrincipal() instanceof Jwt jwt)) {
@@ -153,17 +147,55 @@ public class PermissionServiceImpl implements PermissionService {
         }
 
         String type = envTypeCode.trim().toUpperCase();
-        String roleToCheck = "ENV_" + type + "_" + action.name(); // ex: ENV_EDITION_CONSULT
+        String roleToCheck = "ENV_" + type + "_" + action.name();
 
         return ctx.getRoleCodes().contains(roleToCheck);
     }
 
     @Override
-    public boolean canAccessEnv(EnvironnementEntity env, ActionType action) {
-        if (env == null || env.getType() == null) {
+    public boolean canAccessProjectCode(String projectCode, ActionType action) {
+        UserContext ctx = loadCurrentUser();
+        if (ctx.isAdmin()) {
+            return true;
+        }
+        if (projectCode == null || action == null) {
             return false;
         }
-        return canAccessEnvType(env.getType().getCode(), action);
+
+        String code = "PROJ_" + projectCode.trim().toUpperCase() + "_" + action.name();
+        return ctx.getRoleCodes().contains(code);
+    }
+
+    @Override
+    public boolean canAccessProject(ProjetEntity projet, ActionType action) {
+        if (projet == null || projet.getCode() == null) {
+            return false;
+        }
+        return canAccessProjectCode(projet.getCode(), action);
+    }
+
+    @Override
+    public boolean canAccessEnv(EnvironnementEntity env, ActionType action) {
+        UserContext ctx = loadCurrentUser();
+        if (ctx.isAdmin()) {
+            return true;
+        }
+        if (env == null || env.getType() == null || env.getProjet() == null || action == null) {
+            return false;
+        }
+
+        String envTypeCode = env.getType().getCode();
+        String projectCode = env.getProjet().getCode();
+
+        if (envTypeCode == null || projectCode == null) {
+            return false;
+        }
+
+        String envRole = "ENV_" + envTypeCode.trim().toUpperCase() + "_" + action.name();
+        String projRole = "PROJ_" + projectCode.trim().toUpperCase() + "_" + action.name();
+
+        Set<String> roles = ctx.getRoleCodes();
+        return roles.contains(envRole) && roles.contains(projRole);
     }
 
     @Override
@@ -183,33 +215,5 @@ public class PermissionServiceImpl implements PermissionService {
                 .admin(ctx.isAdmin())
                 .roles(ctx.getRoleCodes())
                 .build();
-    }
-
-    @Override
-    public boolean canAccessProject(ActionType action) {
-        UserContext ctx = loadCurrentUser();
-        if (ctx.isAdmin()) {
-            return true;
-        }
-        if (action == null) {
-            return false;
-        }
-
-        String roleToCheck = "PROJECT_" + action.name(); // ex: PROJECT_CONSULT
-        return ctx.getRoleCodes().contains(roleToCheck);
-    }
-
-    @Override
-    public boolean canAccessEnvironment(ActionType action) {
-        UserContext ctx = loadCurrentUser();
-        if (ctx.isAdmin()) {
-            return true;
-        }
-        if (action == null) {
-            return false;
-        }
-
-        String roleToCheck = "ENVIRONMENT_" + action.name(); // ex: ENVIRONMENT_CREATE
-        return ctx.getRoleCodes().contains(roleToCheck);
     }
 }

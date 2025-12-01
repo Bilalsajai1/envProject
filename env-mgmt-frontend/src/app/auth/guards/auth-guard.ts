@@ -29,32 +29,42 @@ export class AuthGuard implements CanActivate {
     state: RouterStateSnapshot
   ): Observable<boolean | UrlTree> {
 
-    // 1️⃣ Pas de token → on redirige vers login
     if (!this.session.isAuthenticated()) {
       return of(this.router.parseUrl('/auth/login'));
     }
 
     const requiredRoles = route.data['roles'] as string[] | undefined;
 
-    // 2️⃣ On s'assure que /auth/me est chargé
     return this.authContextService.ensureLoaded().pipe(
       map(ctx => {
         if (!ctx) {
           return this.router.parseUrl('/auth/login');
         }
 
-        // 3️⃣ Check rôles si la route en demande
-        if (requiredRoles && requiredRoles.length > 0) {
-          const userRoles = ctx.user?.roles ?? new Set<string>();
+        // aucune contrainte → accès OK
+        if (!requiredRoles || requiredRoles.length === 0) {
+          return true;
+        }
 
-          // ✅ CORRECTION : Utiliser .has() au lieu de .includes()
-          const ok = requiredRoles.some(r => userRoles.has(r));
+        // rôles utilisateur → tableau → Set
+        const rolesArray: string[] = ctx.user?.roles ?? [];
+        const userRoles = new Set<string>(rolesArray);
 
-          if (!ok) {
-            console.warn('Accès refusé - Rôles requis:', requiredRoles);
-            // TODO: créer une vraie page 403
-            return this.router.parseUrl('/auth/login');
-          }
+        // si admin backend → on injecte "ADMIN" pour les gardes
+        if (ctx.user?.admin) {
+          userRoles.add('ADMIN');
+        }
+
+        const ok = requiredRoles.some(r => userRoles.has(r));
+
+        if (!ok) {
+          console.warn(
+            'Accès refusé - Rôles requis:',
+            requiredRoles,
+            ' - Rôles utilisateur:',
+            Array.from(userRoles)
+          );
+          return this.router.parseUrl('/auth/login'); // plus tard → vraie page 403
         }
 
         return true;

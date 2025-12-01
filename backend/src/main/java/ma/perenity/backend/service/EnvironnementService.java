@@ -42,12 +42,24 @@ public class EnvironnementService {
                     "Vous n'avez pas le droit de consulter les environnements de type " + typeCode);
         }
 
+        ProjetEntity projet = projetRepository.findById(projetId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Projet not found with id = " + projetId
+                ));
+
+        if (!permissionService.canAccessProject(projet, ActionType.CONSULT)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Vous n'avez pas le droit de consulter les environnements du projet " + projet.getCode());
+        }
+
         return environnementRepository
                 .findByProjet_IdAndType_CodeAndActifTrue(projetId, typeCode)
                 .stream()
                 .map(mapper::toDto)
                 .toList();
     }
+
+
 
     public EnvironnementEntity getByIdOrThrow(Long id) {
         return environnementRepository.findById(id)
@@ -72,9 +84,11 @@ public class EnvironnementService {
                         "EnvironmentType not found with code = " + dto.getTypeCode()
                 ));
 
-        if (!permissionService.canAccessEnvType(type.getCode(), ActionType.CREATE)) {
+        if (!permissionService.canAccessEnvType(type.getCode(), ActionType.CREATE)
+                || !permissionService.canAccessProject(projet, ActionType.CREATE)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Vous n'avez pas le droit de créer des environnements pour le type " + type.getCode());
+                    "Vous n'avez pas le droit de créer des environnements pour le projet " +
+                            projet.getCode() + " et le type " + type.getCode());
         }
 
         EnvironnementEntity env = mapper.toEntity(dto);
@@ -88,6 +102,7 @@ public class EnvironnementService {
 
         return mapper.toDto(env);
     }
+
 
     // =====================================================
     // UPDATE

@@ -2,6 +2,7 @@ package ma.perenity.backend.service;
 
 import ma.perenity.backend.dto.UserPermissionsDTO;
 import ma.perenity.backend.entities.EnvironnementEntity;
+import ma.perenity.backend.entities.ProjetEntity;
 import ma.perenity.backend.entities.enums.ActionType;
 
 public interface PermissionService {
@@ -14,12 +15,11 @@ public interface PermissionService {
 
     boolean canAccessEnvType(String envTypeCode, ActionType action);
 
+    boolean canAccessProjectCode(String projectCode, ActionType action);
+
+    boolean canAccessProject(ProjetEntity projet, ActionType action);
+
     boolean canAccessEnv(EnvironnementEntity env, ActionType action);
 
     UserPermissionsDTO getCurrentUserPermissions();
-
-    // ✅ NOUVELLES MÉTHODES
-    boolean canAccessProject(ActionType action);
-
-    boolean canAccessEnvironment(ActionType action);
 }

@@ -2,10 +2,7 @@ package ma.perenity.backend.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import ma.perenity.backend.dto.PaginatedResponse;
-import ma.perenity.backend.dto.PaginationRequest;
-import ma.perenity.backend.dto.ProfilCreateUpdateDTO;
-import ma.perenity.backend.dto.ProfilDTO;
+import ma.perenity.backend.dto.*;
 import ma.perenity.backend.service.ProfilService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -64,4 +61,26 @@ public class ProfilController {
         service.assignRoles(id, roleIds);
         return ResponseEntity.noContent().build();
     }
+
+    // 🔥 Permissions — TOUT passe par ProfilService (ProfilServiceImpl)
+
+    @GetMapping("/{id}/permissions")
+    public ResponseEntity<ProfilPermissionsDTO> getPermissions(@PathVariable Long id) {
+        return ResponseEntity.ok(service.getPermissions(id));
+    }
+
+    @PutMapping("/{id}/permissions/env-types")
+    public ResponseEntity<Void> updateEnvTypePermissions(@PathVariable Long id,
+                                                         @Valid @RequestBody List<EnvTypePermissionUpdateDTO> envPermissions) {
+        service.updateEnvTypePermissions(id, envPermissions);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}/permissions/projects")
+    public ResponseEntity<Void> updateProjectPermissions(@PathVariable Long id,
+                                                         @Valid @RequestBody List<ProjectPermissionUpdateDTO> projPermissions) {
+        service.updateProjectPermissions(id, projPermissions);
+        return ResponseEntity.noContent().build();
+    }
+
 }

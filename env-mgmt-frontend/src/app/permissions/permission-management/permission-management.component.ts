@@ -3,12 +3,14 @@
 import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import {
-  ActionType,
+  ActionType, EnvTypePermissionUpdate,
   ProfilPermissions,
   ProfilSimple,
+  ProjectPermissionUpdate,
   SavePermissionsRequest
 } from '../models/permission.model';
 import {PermissionService} from '../services/permission.service';
+
 
 @Component({
   selector: 'app-permission-management',
@@ -25,13 +27,10 @@ export class PermissionManagementComponent implements OnInit {
   loading = false;
   saving = false;
 
-  // Toutes les actions disponibles
   allActions: ActionType[] = ['CONSULT', 'CREATE', 'UPDATE', 'DELETE'];
 
-  // État des checkboxes (Map pour performance)
   envTypeActionsMap = new Map<string, Set<ActionType>>();
-  projectActionsSet = new Set<ActionType>();
-  environmentActionsSet = new Set<ActionType>();
+  projectActionsMap = new Map<number, Set<ActionType>>();
 
   constructor(
     private permissionService: PermissionService,
@@ -81,28 +80,31 @@ export class PermissionManagementComponent implements OnInit {
   private initializeCheckboxStates(): void {
     if (!this.permissions) return;
 
-    // Réinitialiser
+    // Reset
     this.envTypeActionsMap.clear();
-    this.projectActionsSet.clear();
-    this.environmentActionsSet.clear();
+    this.projectActionsMap.clear();
 
-    // Types d'environnement
-    this.permissions.envTypePermissions.forEach(envType => {
-      this.envTypeActionsMap.set(envType.typeCode, new Set(envType.actions));
-    });
+    // ✅ Types d'environnement
+    if (!this.permissions.envTypePermissions || !Array.isArray(this.permissions.envTypePermissions)) {
+      console.warn('⛔ Pas de envTypePermissions dans la réponse backend :', this.permissions);
+    } else {
+      this.permissions.envTypePermissions.forEach(envType => {
+        this.envTypeActionsMap.set(envType.typeCode, new Set(envType.actions));
+      });
+    }
 
-    // Projets
-    this.permissions.projectActions.forEach(action => {
-      this.projectActionsSet.add(action);
-    });
+    // ✅ Projets (nouveau)
+    if (this.permissions.projectPermissions && Array.isArray(this.permissions.projectPermissions)) {
+      this.permissions.projectPermissions.forEach(proj => {
+        this.projectActionsMap.set(
+          proj.projectId,
+          new Set(proj.actions ?? [])
+        );
+      });
+    }
 
-    // Environnements
-    this.permissions.environmentActions.forEach(action => {
-      this.environmentActionsSet.add(action);
-    });
   }
 
-  // ========== Gestion des checkboxes ENV_TYPE ==========
 
   isEnvTypeActionChecked(typeCode: string, action: ActionType): boolean {
     return this.envTypeActionsMap.get(typeCode)?.has(action) ?? false;
@@ -112,8 +114,19 @@ export class PermissionManagementComponent implements OnInit {
     if (!this.envTypeActionsMap.has(typeCode)) {
       this.envTypeActionsMap.set(typeCode, new Set());
     }
-
     const actions = this.envTypeActionsMap.get(typeCode)!;
+    actions.has(action) ? actions.delete(action) : actions.add(action);
+  }
+
+  isProjectActionChecked(projectId: number, action: ActionType): boolean {
+    return this.projectActionsMap.get(projectId)?.has(action) ?? false;
+  }
+  toggleProjectAction(projectId: number, action: ActionType): void {
+    if (!this.projectActionsMap.has(projectId)) {
+      this.projectActionsMap.set(projectId, new Set<ActionType>());
+    }
+
+    const actions = this.projectActionsMap.get(projectId)!;
 
     if (actions.has(action)) {
       actions.delete(action);
@@ -122,35 +135,9 @@ export class PermissionManagementComponent implements OnInit {
     }
   }
 
-  // ========== Gestion des checkboxes PROJECT ==========
 
-  isProjectActionChecked(action: ActionType): boolean {
-    return this.projectActionsSet.has(action);
-  }
 
-  toggleProjectAction(action: ActionType): void {
-    if (this.projectActionsSet.has(action)) {
-      this.projectActionsSet.delete(action);
-    } else {
-      this.projectActionsSet.add(action);
-    }
-  }
 
-  // ========== Gestion des checkboxes ENVIRONMENT ==========
-
-  isEnvironmentActionChecked(action: ActionType): boolean {
-    return this.environmentActionsSet.has(action);
-  }
-
-  toggleEnvironmentAction(action: ActionType): void {
-    if (this.environmentActionsSet.has(action)) {
-      this.environmentActionsSet.delete(action);
-    } else {
-      this.environmentActionsSet.add(action);
-    }
-  }
-
-  // ========== Sauvegarde ==========
 
   save(): void {
     if (!this.selectedProfilId || !this.permissions) {
@@ -159,22 +146,30 @@ export class PermissionManagementComponent implements OnInit {
 
     this.saving = true;
 
-    // Construire le payload
-    const envTypePermissions: { [key: string]: ActionType[] } = {};
-
+    // 1️⃣ Env types → EnvTypePermissionUpdate[]
+    const envUpdates: EnvTypePermissionUpdate[] = [];
     this.permissions.envTypePermissions.forEach(envType => {
-      const actions = this.envTypeActionsMap.get(envType.typeCode);
-      envTypePermissions[envType.typeCode] = actions ? Array.from(actions) : [];
+      const actionsSet = this.envTypeActionsMap.get(envType.typeCode) ?? new Set<ActionType>();
+      envUpdates.push({
+        envTypeCode: envType.typeCode,
+        actions: Array.from(actionsSet)
+      });
     });
 
-    const request: SavePermissionsRequest = {
-      profilId: this.selectedProfilId,
-      envTypePermissions,
-      projectActions: Array.from(this.projectActionsSet),
-      environmentActions: Array.from(this.environmentActionsSet)
-    };
+    // 2️⃣ Projets → ProjectPermissionUpdate[]
+    const projUpdates: ProjectPermissionUpdate[] = [];
+    if (this.permissions.projectPermissions) {
+      this.permissions.projectPermissions.forEach(proj => {
+        const actionsSet = this.projectActionsMap.get(proj.projectId) ?? new Set<ActionType>();
+        projUpdates.push({
+          projectId: proj.projectId,
+          actions: Array.from(actionsSet)
+        });
+      });
+    }
 
-    this.permissionService.savePermissions(this.selectedProfilId, request).subscribe({
+    // 3️⃣ Envoi vers backend (2 endpoints en parallèle)
+    this.permissionService.savePermissions(this.selectedProfilId, envUpdates, projUpdates).subscribe({
       next: () => {
         this.snackBar.open('✅ Permissions enregistrées avec succès', 'Fermer', {
           duration: 3000,
@@ -192,6 +187,7 @@ export class PermissionManagementComponent implements OnInit {
       }
     });
   }
+
 
   cancel(): void {
     if (this.selectedProfilId) {

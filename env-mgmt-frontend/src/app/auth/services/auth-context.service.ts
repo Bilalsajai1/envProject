@@ -1,5 +1,4 @@
 // src/app/auth/services/auth-context.service.ts
-
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of } from 'rxjs';
@@ -11,21 +10,23 @@ import { environment } from '../../config/environment';
 export class AuthContextService {
 
   private readonly apiUrl = `${environment.apiUrl}/auth/me`;
-
   private context$ = new BehaviorSubject<AuthContext | null>(null);
 
   constructor(private http: HttpClient) {}
 
-  /** Chargement explicite du contexte */
   loadContext(): Observable<AuthContext> {
     return this.http.get<any>(this.apiUrl).pipe(
       map(response => {
-        // ✅ Convertir roles array en Set
+        const rawRoles = response?.user?.roles ?? [];
+        const rolesArray: string[] = Array.isArray(rawRoles)
+          ? rawRoles
+          : Object.values(rawRoles ?? {}) as string[];
+
         return {
           ...response,
           user: {
             ...response.user,
-            roles: new Set<string>(response.user.roles || [])
+            roles: rolesArray
           }
         } as AuthContext;
       }),
@@ -33,12 +34,10 @@ export class AuthContextService {
     );
   }
 
-  /** Alias pour compatibilité */
   loadAuthContext(): Observable<AuthContext> {
     return this.loadContext();
   }
 
-  /** Utilisé par le Guard */
   ensureLoaded(): Observable<AuthContext | null> {
     const current = this.context$.value;
     if (current) {
@@ -55,12 +54,10 @@ export class AuthContextService {
     );
   }
 
-  /** Observable pour les composants */
   getContext$(): Observable<AuthContext | null> {
     return this.context$.asObservable();
   }
 
-  /** Accès synchrone */
   getCurrentContext(): AuthContext | null {
     return this.context$.value;
   }

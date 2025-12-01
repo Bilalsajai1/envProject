@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthContextService } from '../../auth/services/auth-context.service';
 import { AuthenticationService } from '../../auth/services/authentication.service';
-import { AuthContext, EnvironmentTypePermission } from '../../auth/models/auth-context.model';
+import { AuthContext } from '../../auth/models/auth-context.model';
 
 interface AdminNavItem {
   label: string;
@@ -16,7 +16,7 @@ interface AdminNavItem {
 interface EnvNavItem {
   label: string;
   route: string;
-  env: EnvironmentTypePermission;
+  env: any; // ou EnvironmentTypePermission si tu veux
 }
 
 @Component({
@@ -34,17 +34,20 @@ export class MainLayoutComponent implements OnInit {
     {
       label: 'Utilisateurs',
       icon: 'group',
-      route: '/admin/users'
+      route: '/admin/users',
+      requiredRoles: ['ADMIN', 'ROLE_USERS_ACCESS']
     },
     {
       label: 'Permissions',
       icon: 'admin_panel_settings',
-      route: '/admin/permissions'
+      route: '/admin/permissions',
+      requiredRoles: ['ADMIN', 'ROLE_ROLES_EDIT']
     },
     {
       label: 'Rôles',
       icon: 'shield',
-      route: '/admin/roles'
+      route: '/admin/roles',
+      requiredRoles: ['ADMIN', 'ROLE_ROLES_ACCESS']
     }
   ];
 
@@ -87,8 +90,8 @@ export class MainLayoutComponent implements OnInit {
 
   // Vérifier si l'utilisateur a un rôle spécifique
   hasRole(role: string): boolean {
-    const roles = this.context?.user?.roles ?? new Set<string>();
-    return roles.has(role);
+    const roles = this.context?.user?.roles ?? [];
+    return roles.includes(role);
   }
 
   // Vérifier si l'utilisateur a au moins un des rôles requis
@@ -101,12 +104,9 @@ export class MainLayoutComponent implements OnInit {
 
   // Vérifier si un item du menu doit être affiché
   shouldShowMenuItem(item: AdminNavItem): boolean {
-    // Si admin, tout afficher
     if (this.isAdmin()) {
       return true;
     }
-
-    // Sinon, vérifier les rôles requis
     return this.hasAnyRole(item.requiredRoles);
   }
 
@@ -115,7 +115,6 @@ export class MainLayoutComponent implements OnInit {
     this.router.navigate(['/auth/login']);
   }
 
-  // Helper pour obtenir les initiales
   getUserInitials(): string {
     if (!this.context?.user) {
       return '??';

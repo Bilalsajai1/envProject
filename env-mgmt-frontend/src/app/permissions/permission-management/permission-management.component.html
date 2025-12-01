@@ -72,55 +72,44 @@
       </mat-card-content>
     </mat-card>
 
-    <!-- MODULE 2 : Projets -->
-    <mat-card class="permission-module">
+    <!-- MODULE 2 : Projets (par projet) -->
+    <mat-card class="permission-module"
+              *ngIf="permissions?.projectPermissions?.length">
       <mat-card-header>
         <mat-card-title>
           <mat-icon>folder</mat-icon>
           Projets
         </mat-card-title>
         <mat-card-subtitle>
-          Permissions globales pour la gestion des projets
+          Permissions par projet (consultation / création / mise à jour / suppression)
         </mat-card-subtitle>
       </mat-card-header>
 
       <mat-card-content>
-        <div class="actions-checkboxes single-row">
-          <mat-checkbox
-            *ngFor="let action of allActions"
-            [checked]="isProjectActionChecked(action)"
-            (change)="toggleProjectAction(action)"
-            [color]="'primary'">
-            {{ action }}
-          </mat-checkbox>
+        <div class="env-type-grid">
+          <div *ngFor="let proj of permissions.projectPermissions" class="env-type-row">
+
+            <div class="env-type-label">
+              <strong>{{ proj.projectLibelle }}</strong>
+              <span class="env-type-code">{{ proj.projectCode }}</span>
+            </div>
+
+            <div class="actions-checkboxes">
+              <mat-checkbox
+                *ngFor="let action of allActions"
+                [checked]="isProjectActionChecked(proj.projectId, action)"
+                (change)="toggleProjectAction(proj.projectId, action)"
+                [color]="'primary'">
+                {{ action }}
+              </mat-checkbox>
+            </div>
+
+          </div>
         </div>
       </mat-card-content>
     </mat-card>
 
-    <!-- MODULE 3 : Environnements -->
-    <mat-card class="permission-module">
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>layers</mat-icon>
-          Environnements
-        </mat-card-title>
-        <mat-card-subtitle>
-          Permissions globales pour la gestion des environnements
-        </mat-card-subtitle>
-      </mat-card-header>
 
-      <mat-card-content>
-        <div class="actions-checkboxes single-row">
-          <mat-checkbox
-            *ngFor="let action of allActions"
-            [checked]="isEnvironmentActionChecked(action)"
-            (change)="toggleEnvironmentAction(action)"
-            [color]="'primary'">
-            {{ action }}
-          </mat-checkbox>
-        </div>
-      </mat-card-content>
-    </mat-card>
 
     <!-- Actions -->
     <div class="form-actions">

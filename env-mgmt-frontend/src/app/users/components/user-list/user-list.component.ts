@@ -68,33 +68,62 @@ export class UserListComponent implements OnInit {
   }
 
   loadUsers(): void {
+    console.log('🔄 === DÉBUT loadUsers() ===');
+    console.log('📊 Paramètres:', {
+      page: this.page,
+      size: this.size,
+      sortField: this.sortField,
+      sortDirection: this.sortDirection,
+      searchTerm: this.searchTerm
+    });
+
     this.loading = true;
+    console.log('⏳ Loading = true');
 
     const filters: any = {};
     if (this.searchTerm && this.searchTerm.trim() !== '') {
       filters.search = this.searchTerm.trim();
     }
 
-    this.userService.search({
+    console.log('🔎 Filters:', filters);
+
+    const requestBody = {
       page: this.page,
       size: this.size,
       sortField: this.sortField,
       sortDirection: this.sortDirection,
       filters
-    }).subscribe({
+    };
+
+    console.log('📤 Requête envoyée:', requestBody);
+
+    this.userService.search(requestBody).subscribe({
       next: (res: PaginatedResponse<UserDTO>) => {
+        console.log('✅ Réponse reçue:', res);
+        console.log('👥 Nombre d\'utilisateurs:', res.content.length);
         this.users = res.content;
         this.totalElements = res.totalElements;
         this.page = res.page;
         this.size = res.size;
         this.loading = false;
+        console.log('✅ Loading = false');
       },
       error: (err) => {
-        console.error('Erreur chargement utilisateurs', err);
+        console.error('❌ ERREUR COMPLÈTE:', err);
+        console.error('❌ Status:', err.status);
+        console.error('❌ Message:', err.message);
+        console.error('❌ Error object:', err.error);
+
         this.snackBar.open('❌ Erreur lors du chargement', 'Fermer', { duration: 3000 });
         this.loading = false;
+        console.log('❌ Loading = false (après erreur)');
+      },
+      complete: () => {
+        console.log('🏁 Observable complété');
       }
     });
+
+    console.log('🔄 === FIN loadUsers() (requête lancée) ===');
   }
 
   onSearchChange(value: string): void {

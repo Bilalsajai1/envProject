@@ -7,11 +7,13 @@ import ma.perenity.backend.dto.RoleCreateUpdateDTO;
 import ma.perenity.backend.dto.RoleDTO;
 import ma.perenity.backend.entities.EnvironnementEntity;
 import ma.perenity.backend.entities.MenuEntity;
+import ma.perenity.backend.entities.ProjetEntity;
 import ma.perenity.backend.entities.RoleEntity;
 import ma.perenity.backend.entities.enums.ActionType;
 import ma.perenity.backend.mapper.RoleMapper;
 import ma.perenity.backend.repository.EnvironnementRepository;
 import ma.perenity.backend.repository.MenuRepository;
+import ma.perenity.backend.repository.ProjetRepository;
 import ma.perenity.backend.repository.RoleRepository;
 import ma.perenity.backend.service.PermissionService;
 import ma.perenity.backend.service.RoleService;
@@ -33,6 +35,7 @@ public class RoleServiceImpl implements RoleService {
     private final RoleRepository roleRepository;
     private final MenuRepository menuRepository;
     private final EnvironnementRepository environnementRepository;
+    private final ProjetRepository projetRepository;
     private final RoleMapper roleMapper;
     private final PermissionService permissionService;
 
@@ -87,6 +90,13 @@ public class RoleServiceImpl implements RoleService {
                             "Environnement introuvable : " + dto.getEnvironnementId()));
         }
 
+        ProjetEntity projet = null;
+        if (dto.getProjetId() != null) {
+            projet = projetRepository.findById(dto.getProjetId())
+                    .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST,
+                            "Projet introuvable : " + dto.getProjetId()));
+        }
+
         RoleEntity role = RoleEntity.builder()
                 .code(dto.getCode())
                 .libelle(dto.getLibelle())
@@ -94,6 +104,7 @@ public class RoleServiceImpl implements RoleService {
                 .actif(dto.getActif() == null ? true : dto.getActif())
                 .menu(menu)
                 .environnement(env)
+                .projet(projet)
                 .build();
 
         RoleEntity saved = roleRepository.save(role);
@@ -135,12 +146,20 @@ public class RoleServiceImpl implements RoleService {
                             "Environnement introuvable : " + dto.getEnvironnementId()));
         }
 
+        ProjetEntity projet = null;
+        if (dto.getProjetId() != null) {
+            projet = projetRepository.findById(dto.getProjetId())
+                    .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST,
+                            "Projet introuvable : " + dto.getProjetId()));
+        }
+
         role.setCode(dto.getCode());
         role.setLibelle(dto.getLibelle());
         role.setAction(actionType);
         role.setActif(dto.getActif() == null ? role.getActif() : dto.getActif());
         role.setMenu(menu);
         role.setEnvironnement(env);
+        role.setProjet(projet);
 
         RoleEntity updated = roleRepository.save(role);
         return roleMapper.toDto(updated);

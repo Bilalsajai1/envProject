@@ -36,11 +36,20 @@ public class ProjetService {
                     "Vous n'avez pas le droit de consulter les projets pour le type " + typeCode);
         }
 
-        return projetRepository.findByEnvironmentTypeCode(typeCode)
-                .stream()
+        List<ProjetEntity> projets = projetRepository.findByEnvironmentTypeCode(typeCode);
+
+        if (permissionService.isAdmin()) {
+            return projets.stream()
+                    .map(projetMapper::toDto)
+                    .toList();
+        }
+
+        return projets.stream()
+                .filter(p -> permissionService.canAccessProject(p, ActionType.CONSULT))
                 .map(projetMapper::toDto)
                 .toList();
     }
+
 
     // ============================================================
     // GET ALL (uniquement actifs) - ADMIN ONLY

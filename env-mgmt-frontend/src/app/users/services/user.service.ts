@@ -10,6 +10,7 @@ import {
   PaginatedResponse
 } from '../models/user.model';
 import { environment } from '../../config/environment';
+import {tap} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -21,12 +22,18 @@ export class UserService {
   constructor(private http: HttpClient) {}
 
   search(req: PaginationRequest): Observable<PaginatedResponse<UserDTO>> {
-    return this.http.post<PaginatedResponse<UserDTO>>(
-      `${this.baseUrl}/users/search`,
-      req
+    const url = `${this.baseUrl}/users/search`;
+    console.log('🌐 UserService.search()');
+    console.log('  URL:', url);
+    console.log('  Body:', req);
+
+    return this.http.post<PaginatedResponse<UserDTO>>(url, req).pipe(
+      tap(response => console.log('✅ Service: réponse reçue', response)),
+      tap({
+        error: err => console.error('❌ Service: erreur', err)
+      })
     );
   }
-
   getById(id: number): Observable<UserDTO> {
     return this.http.get<UserDTO>(`${this.baseUrl}/users/${id}`);
   }

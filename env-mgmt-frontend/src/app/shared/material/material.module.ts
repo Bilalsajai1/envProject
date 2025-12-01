@@ -9,6 +9,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -37,7 +38,8 @@ import {MatSortModule} from '@angular/material/sort';
     MatCardModule,
     MatDialogModule,
     MatSnackBarModule,
-    MatSortModule
+    MatSortModule,
+    MatCheckboxModule
   ]
 })
 export class MaterialModule {}
