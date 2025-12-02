@@ -5,13 +5,15 @@ import {
   ChangeDetectorRef,
   Component,
   OnDestroy,
-  OnInit
+  OnInit ,
+  ViewChild
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthContextService } from '../../auth/services/auth-context.service';
 import { AuthenticationService } from '../../auth/services/authentication.service';
 import { AuthContext } from '../../auth/models/auth-context.model';
 import { Subject, takeUntil } from 'rxjs';
+import { MatSidenavContainer } from '@angular/material/sidenav'
 
 interface AdminNavItem {
   label: string;
@@ -23,7 +25,7 @@ interface AdminNavItem {
 interface EnvNavItem {
   label: string;
   route: string;
-  env: any; // ou EnvironmentTypePermission si tu veux typé
+  env: any;
 }
 
 @Component({
@@ -34,8 +36,18 @@ interface EnvNavItem {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MainLayoutComponent implements OnInit, OnDestroy {
+  @ViewChild(MatSidenavContainer)
+  sidenavContainer?: MatSidenavContainer;
 
   context: AuthContext | null = null;
+
+  // État du sidebar et du thème
+  isSidebarCollapsed = false;
+  isDarkMode = false;
+
+  // Storage keys
+  private readonly SIDEBAR_STATE_KEY = 'perenity-sidebar-collapsed';
+  private readonly THEME_KEY = 'perenity-theme';
 
   // Menu Administration
   adminMenu: AdminNavItem[] = [
@@ -56,12 +68,6 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
       icon: 'admin_panel_settings',
       route: '/admin/permissions',
       requiredRoles: ['ADMIN', 'ROLE_ROLES_EDIT']
-    },
-    {
-      label: 'Rôles',
-      icon: 'shield',
-      route: '/admin/roles',
-      requiredRoles: ['ADMIN', 'ROLE_ROLES_ACCESS']
     }
   ];
 
@@ -77,11 +83,10 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     private readonly cdr: ChangeDetectorRef
   ) {}
 
-  // -----------------------
-  // Lifecycle
-  // -----------------------
-
   ngOnInit(): void {
+    this.loadSavedStates();
+    this.applyTheme();
+
     this.authCtx.getContext$()
       .pipe(takeUntil(this.destroy$))
       .subscribe(ctx => {
@@ -91,14 +96,59 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
       });
   }
 
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  // -----------------------
-  // Menu environnements
-  // -----------------------
+  private loadSavedStates(): void {
+    const savedSidebarState = localStorage.getItem(this.SIDEBAR_STATE_KEY);
+    if (savedSidebarState !== null) {
+      this.isSidebarCollapsed = savedSidebarState === 'true';
+    }
+
+    const savedTheme = localStorage.getItem(this.THEME_KEY);
+    if (savedTheme !== null) {
+      this.isDarkMode = savedTheme === 'dark';
+    }
+  }
+  private saveSidebarState(): void {
+    localStorage.setItem(this.SIDEBAR_STATE_KEY, this.isSidebarCollapsed.toString());
+  }
+
+  private saveTheme(): void {
+    localStorage.setItem(this.THEME_KEY, this.isDarkMode ? 'dark' : 'light');
+  }
+
+  toggleSidebar(): void {
+    this.isSidebarCollapsed = !this.isSidebarCollapsed;
+    this.saveSidebarState();
+
+    // force Angular Material à recalculer les marges du contenu
+    setTimeout(() => {
+      this.sidenavContainer?.updateContentMargins();
+    }, 0);
+
+    this.cdr.markForCheck();
+  }
+
+  toggleDarkMode(): void {
+    this.isDarkMode = !this.isDarkMode;
+    this.saveTheme();
+    this.applyTheme();
+    this.cdr.markForCheck();
+  }
+
+  private applyTheme(): void {
+    if (this.isDarkMode) {
+      document.body.classList.add('dark-theme');
+      document.body.classList.remove('light-theme');
+    } else {
+      document.body.classList.add('light-theme');
+      document.body.classList.remove('dark-theme');
+    }
+  }
 
   private buildEnvMenu(): void {
     const ctx = this.context;
@@ -117,10 +167,6 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
       .sort((a, b) => a.label.localeCompare(b.label));
   }
 
-  // -----------------------
-  // Droits & visibilité
-  // -----------------------
-
   isAdmin(): boolean {
     return this.context?.user?.admin ?? false;
   }
@@ -131,12 +177,8 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   }
 
   hasAnyRole(required?: string[]): boolean {
-    if (this.isAdmin()) {
-      return true;
-    }
-    if (!required || required.length === 0) {
-      return true;
-    }
+    if (this.isAdmin()) return true;
+    if (!required || required.length === 0) return true;
     return required.some(r => this.hasRole(r));
   }
 
@@ -152,10 +194,6 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     return this.envMenu.length > 0;
   }
 
-  // -----------------------
-  // User / actions
-  // -----------------------
-
   logout(): void {
     this.auth.logout();
     this.router.navigate(['/auth/login']);
@@ -163,9 +201,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
 
   getUserInitials(): string {
     const user = this.context?.user;
-    if (!user) {
-      return '??';
-    }
+    if (!user) return '??';
     const first = user.firstName?.[0] || '';
     const last = user.lastName?.[0] || '';
     return (first + last).toUpperCase();
@@ -179,5 +215,9 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
 
   get userProfilLabel(): string {
     return this.context?.user?.profilLibelle ?? '';
+  }
+
+  get userEmail(): string {
+    return this.context?.user?.email ?? '';
   }
 }

@@ -8,7 +8,6 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef
 } from '@angular/core';
-import { Router } from '@angular/router';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort, Sort } from '@angular/material/sort';
 import { MatDialog } from '@angular/material/dialog';
@@ -24,6 +23,7 @@ import {
 import { UserService } from '../../services/user.service';
 import { PaginatedResponse, UserDTO } from '../../models/user.model';
 import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog.component';
+import {UserFormComponent} from '../user-form/user-form.component';
 
 type SortDirection = 'asc' | 'desc';
 
@@ -74,7 +74,6 @@ export class UserListComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly userService: UserService,
-    private readonly router: Router,
     private readonly dialog: MatDialog,
     private readonly snackBar: MatSnackBar,
     private readonly cdr: ChangeDetectorRef
@@ -198,13 +197,44 @@ export class UserListComponent implements OnInit, OnDestroy {
   // -----------------------
 
   addUser(): void {
-    this.router.navigate(['/admin/users/new']);
+    this.openUserForm('create');
   }
 
   editUser(user: UserDTO): void {
     if (!user.id) return;
-    this.router.navigate(['/admin/users', user.id, 'edit']);
+    this.openUserForm('edit', user.id);
   }
+
+
+  private openUserForm(mode: 'create' | 'edit', userId?: number): void {
+    this.cdr.markForCheck();
+    const dialogRef = this.dialog.open(UserFormComponent, {
+      width: '650px',
+      maxWidth: '95vw',
+      disableClose: true,
+      panelClass: 'user-form-dialog',
+      data: {
+        mode,
+        userId
+      }
+
+    });
+
+    this.cdr.markForCheck();
+
+    dialogRef.afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(shouldReload => {
+        if (shouldReload) {
+          // recharge les données → loadUsers() fera déjà markForCheck()
+          this.loadUsers();
+        } else {
+          // même si rien n’est rechargé, on force un check
+          this.cdr.markForCheck();
+        }
+      });
+  }
+
 
   deleteUser(user: UserDTO): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {

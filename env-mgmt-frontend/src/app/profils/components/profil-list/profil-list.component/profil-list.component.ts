@@ -1,23 +1,48 @@
 // src/app/profils/components/profil-list/profil-list.component.ts
 
-import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
-import { Router } from '@angular/router';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+  ViewChild
+} from '@angular/core';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort, Sort } from '@angular/material/sort';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
-import {ProfilDTO, ProfilService} from '../../../services/profil.service';
-import {PaginatedResponse} from '../../../../users/models/user.model';
-import {ConfirmDialogComponent} from '../../../../users/confirm-dialog/confirm-dialog.component';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  Subject,
+  takeUntil,
+  finalize
+} from 'rxjs';
+
+import { ProfilDTO, ProfilService } from '../../../services/profil.service';
+import { PaginatedResponse } from '../../../../users/models/user.model';
+import { ConfirmDialogComponent } from '../../../../users/confirm-dialog/confirm-dialog.component';
+import {ProfilFormComponent} from '../../profil-form/profil-form.component/profil-form.component';
+
+type SortDirection = 'asc' | 'desc';
+
+interface ProfilSearchRequest {
+  page: number;
+  size: number;
+  sortField: string;
+  sortDirection: SortDirection;
+  filters: Record<string, any>;
+}
 
 @Component({
   selector: 'app-profil-list',
   standalone: false,
   templateUrl: './profil-list.component.html',
-  styleUrls: ['./profil-list.component.scss']
+  styleUrls: ['./profil-list.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ProfilListComponent implements OnInit {
+export class ProfilListComponent implements OnInit, OnDestroy {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -37,66 +62,104 @@ export class ProfilListComponent implements OnInit {
   size = 10;
   totalElements = 0;
   sortField = 'id';
-  sortDirection: 'asc' | 'desc' = 'asc';
+  sortDirection: SortDirection = 'asc';
 
   searchTerm = '';
-  private searchSubject = new Subject<string>();
+  private readonly searchSubject = new Subject<string>();
+  private readonly destroy$ = new Subject<void>();
 
   loading = false;
 
   constructor(
-    private profilService: ProfilService,
-    private router: Router,
-    private dialog: MatDialog,
-    private snackBar: MatSnackBar,
-    private cdr: ChangeDetectorRef
-  ) {
-    this.searchSubject.pipe(
-      debounceTime(400),
-      distinctUntilChanged()
-    ).subscribe(term => {
-      this.searchTerm = term;
-      this.page = 0;
-      this.loadProfils();
-    });
-  }
+    private readonly profilService: ProfilService,
+    private readonly dialog: MatDialog,
+    private readonly snackBar: MatSnackBar,
+    private readonly cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
+    this.initSearchListener();
     this.loadProfils();
   }
 
-  loadProfils(): void {
-    this.loading = true;
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
-    const filters: any = {};
+  // -----------------------
+  // Initialisation
+  // -----------------------
+
+  private initSearchListener(): void {
+    this.searchSubject
+      .pipe(
+        debounceTime(400),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(term => {
+        this.searchTerm = term.trim();
+        this.page = 0;
+        this.loadProfils();
+      });
+  }
+
+  private buildFilters(): Record<string, any> {
+    const filters: Record<string, any> = {};
     if (this.searchTerm && this.searchTerm.trim() !== '') {
-      filters.search = this.searchTerm.trim();
+      filters['search'] = this.searchTerm.trim();
     }
+    return filters;
+  }
 
-    this.profilService.search({
+  // -----------------------
+  // Chargement des données
+  // -----------------------
+
+  loadProfils(): void {
+    const request: ProfilSearchRequest = {
       page: this.page,
       size: this.size,
       sortField: this.sortField,
       sortDirection: this.sortDirection,
-      filters
-    }).subscribe({
-      next: (res: PaginatedResponse<ProfilDTO>) => {
-        this.profils = res.content;
-        this.totalElements = res.totalElements;
-        this.page = res.page;
-        this.size = res.size;
-        this.loading = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.snackBar.open('❌ Erreur lors du chargement', 'Fermer', { duration: 3000 });
-        this.loading = false;
-      }
-    });
+      filters: this.buildFilters()
+    };
+
+    this.loading = true;
+
+    this.profilService
+      .search(request)
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+          this.cdr.markForCheck();
+        })
+      )
+      .subscribe({
+        next: (res: PaginatedResponse<ProfilDTO>) => {
+          this.profils = res.content ?? [];
+          this.totalElements = res.totalElements ?? 0;
+          this.page = res.page ?? 0;
+          this.size = res.size ?? this.size;
+        },
+        error: () => {
+          this.showSnackBar('❌ Erreur lors du chargement des profils', 'error-snackbar');
+        }
+      });
   }
+
+  // -----------------------
+  // Événements UI
+  // -----------------------
 
   onSearchChange(value: string): void {
     this.searchSubject.next(value);
+  }
+
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.searchSubject.next('');
   }
 
   onPageChange(event: PageEvent): void {
@@ -108,7 +171,7 @@ export class ProfilListComponent implements OnInit {
   onSortChange(sort: Sort): void {
     if (sort.active && sort.direction) {
       this.sortField = sort.active;
-      this.sortDirection = sort.direction as 'asc' | 'desc';
+      this.sortDirection = sort.direction as SortDirection;
     } else {
       this.sortField = 'id';
       this.sortDirection = 'asc';
@@ -116,18 +179,48 @@ export class ProfilListComponent implements OnInit {
     this.loadProfils();
   }
 
+  // -----------------------
+  // Actions
+  // -----------------------
+
   addProfil(): void {
-    this.router.navigate(['/admin/profils/new']);
+    this.openProfilForm('create');
   }
 
   editProfil(profil: ProfilDTO): void {
-    this.router.navigate(['/admin/profils', profil.id, 'edit']);
+    if (!profil.id) return;
+    this.openProfilForm('edit', profil.id);
+  }
+
+  private openProfilForm(mode: 'create' | 'edit', profilId?: number): void {
+    const dialogRef = this.dialog.open(ProfilFormComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      disableClose: true,
+      panelClass: 'profil-form-dialog',
+      data: {
+        mode,
+        profilId
+      }
+    });
+
+    this.cdr.markForCheck();
+
+    dialogRef.afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(shouldReload => {
+        if (shouldReload) {
+          this.loadProfils();
+        } else {
+          this.cdr.markForCheck();
+        }
+      });
   }
 
   configurePermissions(profil: ProfilDTO): void {
-    this.router.navigate(['/admin/permissions'], {
-      queryParams: { profilId: profil.id }
-    });
+    // On garde la navigation, car c'est une page “complexe”
+    // mais tu pourras plus tard aussi la passer en dialog si tu veux
+    window.location.href = `/admin/permissions?profilId=${profil.id}`;
   }
 
   deleteProfil(profil: ProfilDTO): void {
@@ -141,23 +234,42 @@ export class ProfilListComponent implements OnInit {
       }
     });
 
-    dialogRef.afterClosed().subscribe(confirmed => {
-      if (confirmed) {
+    dialogRef.afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(confirmed => {
+        if (!confirmed || !profil.id) return;
+
         this.profilService.delete(profil.id).subscribe({
           next: () => {
-            this.snackBar.open('✅ Profil supprimé avec succès', 'Fermer', { duration: 3000 });
+            this.showSnackBar('✅ Profil supprimé avec succès', 'success-snackbar');
             this.loadProfils();
           },
           error: () => {
-            this.snackBar.open('❌ Erreur lors de la suppression', 'Fermer', { duration: 3000 });
+            this.showSnackBar('❌ Erreur lors de la suppression', 'error-snackbar');
           }
         });
-      }
-    });
+      });
   }
 
-  clearSearch(): void {
-    this.searchTerm = '';
-    this.searchSubject.next('');
+  // -----------------------
+  // Helpers
+  // -----------------------
+
+  get isEmpty(): boolean {
+    return !this.loading && this.profils.length === 0;
+  }
+
+  get resultsLabel(): string {
+    const count = this.totalElements || 0;
+    if (count === 0) return 'Aucun profil';
+    if (count === 1) return '1 profil';
+    return `${count} profils`;
+  }
+
+  private showSnackBar(message: string, panelClass: string): void {
+    this.snackBar.open(message, 'Fermer', {
+      duration: 3000,
+      panelClass: [panelClass]
+    });
   }
 }

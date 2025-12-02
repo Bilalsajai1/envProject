@@ -1,6 +1,6 @@
 // src/app/environments/components/project-list/project-list.component.ts
 
-import { Component, OnInit } from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -29,7 +29,8 @@ export class ProjectListComponent implements OnInit {
     private router: Router,
     private projectService: ProjectService,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private readonly cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -45,6 +46,7 @@ export class ProjectListComponent implements OnInit {
       next: (projects) => {
         this.projects = projects;
         this.loading = false;
+        this.cdr.markForCheck();
       },
       error: () => {
         this.snackBar.open('❌ Erreur lors du chargement des projets', 'Fermer', { duration: 3000 });

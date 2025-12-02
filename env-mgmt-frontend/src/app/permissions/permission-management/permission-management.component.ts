@@ -57,6 +57,7 @@ export class PermissionManagementComponent implements OnInit {
       next: (profils) => {
         this.profils = profils.filter(p => p.id !== null);
         this.loading = false;
+        this.cdr.markForCheck();
       },
       error: () => {
         this.snackBar.open('Erreur lors du chargement des profils', 'Fermer', { duration: 3000 });

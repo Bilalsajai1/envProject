@@ -46,8 +46,9 @@
 
       <div class="results-info" *ngIf="!loading">
         <mat-icon>info</mat-icon>
-        <span>{{ totalElements }} profil(s) trouvé(s)</span>
+        <span>{{ resultsLabel }}</span>
       </div>
+
     </div>
 
     <div class="table-container" *ngIf="!loading; else loadingTpl">

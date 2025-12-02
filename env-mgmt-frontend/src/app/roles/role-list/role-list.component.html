@@ -1,44 +1,243 @@
-<mat-card>
-  <mat-card-title>Rôles</mat-card-title>
-  <mat-card-subtitle>Gestion des rôles applicatifs</mat-card-subtitle>
+<!-- src/app/roles/components/role-list/role-list.component.html -->
 
-  <div class="toolbar">
-    <button mat-raised-button color="primary" (click)="add()">
-      <mat-icon>add</mat-icon>
-      Nouveau rôle
-    </button>
-  </div>
+<div class="roles-page">
 
-  <table class="roles-table" *ngIf="roles.length > 0">
-    <thead>
-    <tr>
-      <th>Code</th>
-      <th>Libellé</th>
-      <th>Description</th>
-      <th>Actif</th>
-      <th style="width: 80px;"></th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr *ngFor="let r of roles">
-      <td>{{ r.code }}</td>
-      <td>{{ r.libelle }}</td>
-      <td>{{ r.description }}</td>
-      <td>
-          <span class="chip" [class.chip-active]="r.actif" [class.chip-inactive]="!r.actif">
-            {{ r.actif ? 'Oui' : 'Non' }}
-          </span>
-      </td>
-      <td>
-        <button mat-icon-button (click)="edit(r)">
-          <mat-icon>edit</mat-icon>
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-info">
+        <h1 class="page-title">
+          <mat-icon class="title-icon">shield</mat-icon>
+          Gestion des rôles
+        </h1>
+        <p class="page-subtitle">
+          Gérez les rôles et permissions de l'application
+        </p>
+      </div>
+
+      <div class="header-actions">
+        <button mat-stroked-button
+                class="refresh-button"
+                (click)="refresh()"
+                [disabled]="loading">
+          <mat-icon>refresh</mat-icon>
+          <span>Actualiser</span>
         </button>
-      </td>
-    </tr>
-    </tbody>
-  </table>
 
-  <div *ngIf="!roles.length">
-    Aucun rôle pour le moment.
+        <button mat-stroked-button
+                class="export-button"
+                (click)="exportExcel()"
+                [disabled]="exporting || loading">
+          <mat-spinner *ngIf="exporting" diameter="20" strokeWidth="3"></mat-spinner>
+          <mat-icon *ngIf="!exporting">download</mat-icon>
+          <span>{{ exporting ? 'Export...' : 'Exporter' }}</span>
+        </button>
+
+        <button mat-raised-button
+                color="primary"
+                class="add-button"
+                (click)="add()">
+          <mat-icon>add</mat-icon>
+          <span>Nouveau rôle</span>
+        </button>
+      </div>
+    </div>
   </div>
-</mat-card>
+
+  <!-- Filters & Search -->
+  <div class="filters-card">
+    <div class="search-section">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Rechercher</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput
+               [formControl]="searchControl"
+               placeholder="Code, libellé, action..." />
+        <button mat-icon-button
+                matSuffix
+                *ngIf="searchControl.value"
+                (click)="searchControl.setValue('')"
+                aria-label="Effacer">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+
+      <div class="status-filters">
+        <button mat-stroked-button
+                [class.active]="statusFilter === 'all'"
+                (click)="onStatusFilterChange('all')">
+          <mat-icon>list</mat-icon>
+          <span>Tous</span>
+        </button>
+        <button mat-stroked-button
+                [class.active]="statusFilter === 'active'"
+                (click)="onStatusFilterChange('active')">
+          <mat-icon>check_circle</mat-icon>
+          <span>Actifs</span>
+        </button>
+        <button mat-stroked-button
+                [class.active]="statusFilter === 'inactive'"
+                (click)="onStatusFilterChange('inactive')">
+          <mat-icon>cancel</mat-icon>
+          <span>Inactifs</span>
+        </button>
+      </div>
+
+      <button mat-button
+              class="clear-filters"
+              *ngIf="hasFilters"
+              (click)="clearSearch()">
+        <mat-icon>filter_alt_off</mat-icon>
+        <span>Réinitialiser</span>
+      </button>
+    </div>
+
+    <div class="results-info">
+      <mat-icon>info</mat-icon>
+      <span>{{ totalElements }} rôle(s) trouvé(s)</span>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-container">
+    <div class="loading-overlay" *ngIf="loading">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Chargement des rôles...</p>
+    </div>
+
+    <table mat-table [dataSource]="roles" class="roles-table" *ngIf="!loading">
+
+      <!-- Code Column -->
+      <ng-container matColumnDef="code">
+        <th mat-header-cell *matHeaderCellDef>Code</th>
+        <td mat-cell *matCellDef="let role">
+          <span class="code-badge">{{ role.code }}</span>
+        </td>
+      </ng-container>
+
+      <!-- Libellé Column -->
+      <ng-container matColumnDef="libelle">
+        <th mat-header-cell *matHeaderCellDef>Libellé</th>
+        <td mat-cell *matCellDef="let role">
+          <div class="libelle-cell">
+            <span class="libelle-text">{{ role.libelle }}</span>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Action Column -->
+      <ng-container matColumnDef="action">
+        <th mat-header-cell *matHeaderCellDef>Action</th>
+        <td mat-cell *matCellDef="let role">
+          <span class="action-chip">{{ role.action }}</span>
+        </td>
+      </ng-container>
+
+      <!-- Menu Column -->
+      <ng-container matColumnDef="menu">
+        <th mat-header-cell *matHeaderCellDef>Menu</th>
+        <td mat-cell *matCellDef="let role">
+          <span class="info-chip" *ngIf="role.menuLibelle">
+            <mat-icon>menu_book</mat-icon>
+            {{ role.menuLibelle }}
+          </span>
+          <span class="no-data" *ngIf="!role.menuLibelle">-</span>
+        </td>
+      </ng-container>
+
+      <!-- Environnement Column -->
+      <ng-container matColumnDef="environnement">
+        <th mat-header-cell *matHeaderCellDef>Environnement</th>
+        <td mat-cell *matCellDef="let role">
+          <span class="info-chip" *ngIf="role.environnementLibelle">
+            <mat-icon>cloud</mat-icon>
+            {{ role.environnementLibelle }}
+          </span>
+          <span class="no-data" *ngIf="!role.environnementLibelle">-</span>
+        </td>
+      </ng-container>
+
+      <!-- Projet Column -->
+      <ng-container matColumnDef="projet">
+        <th mat-header-cell *matHeaderCellDef>Projet</th>
+        <td mat-cell *matCellDef="let role">
+          <span class="info-chip" *ngIf="role.projetLibelle">
+            <mat-icon>folder</mat-icon>
+            {{ role.projetLibelle }}
+          </span>
+          <span class="no-data" *ngIf="!role.projetLibelle">-</span>
+        </td>
+      </ng-container>
+
+      <!-- Status Column -->
+      <ng-container matColumnDef="actif">
+        <th mat-header-cell *matHeaderCellDef>Statut</th>
+        <td mat-cell *matCellDef="let role">
+          <button mat-button
+                  class="status-toggle"
+                  [class.status-active]="role.actif"
+                  [class.status-inactive]="!role.actif"
+                  (click)="toggleStatus(role, $event)">
+            <mat-icon>{{ role.actif ? 'check_circle' : 'cancel' }}</mat-icon>
+            <span>{{ role.actif ? 'Actif' : 'Inactif' }}</span>
+          </button>
+        </td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let role">
+          <div class="action-buttons">
+            <button mat-icon-button
+                    class="action-button view-button"
+                    (click)="view(role)"
+                    matTooltip="Voir les détails">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button mat-icon-button
+                    class="action-button edit-button"
+                    (click)="edit(role)"
+                    matTooltip="Modifier">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button
+                    class="action-button delete-button"
+                    (click)="delete(role)"
+                    matTooltip="Supprimer">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"></tr>
+
+    </table>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!loading && roles.length === 0">
+      <mat-icon>shield_off</mat-icon>
+      <h3>Aucun rôle trouvé</h3>
+      <p *ngIf="hasFilters">Essayez de modifier vos critères de recherche</p>
+      <p *ngIf="!hasFilters">Commencez par créer un nouveau rôle</p>
+      <button mat-raised-button color="primary" (click)="add()" *ngIf="!hasFilters">
+        <mat-icon>add</mat-icon>
+        Créer un rôle
+      </button>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <mat-paginator
+    *ngIf="!loading && roles.length > 0"
+    [length]="totalElements"
+    [pageSize]="pageSize"
+    [pageIndex]="pageIndex"
+    [pageSizeOptions]="pageSizeOptions"
+    (page)="onPageChange($event)"
+    showFirstLastButtons>
+  </mat-paginator>
+
+</div>

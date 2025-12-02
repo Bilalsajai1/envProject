@@ -1,94 +1,178 @@
-<div class="form-container" *ngIf="!loading; else loadingTpl">
-  <div class="form-header">
-    <div>
-      <h1>{{ isEdit ? 'Modifier un utilisateur' : 'Nouvel utilisateur' }}</h1>
-      <p class="subtitle">
-        {{ isEdit ? 'Mise à jour des informations' : 'Création d\'un nouveau compte' }}
-      </p>
-    </div>
+<!-- src/app/admin/users/user-form/user-form.component.html -->
 
-    <button mat-button type="button" (click)="cancel()">
-      <mat-icon>arrow_back</mat-icon>
-      Retour à la liste
-    </button>
+<div class="form-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <button mat-icon-button class="back-button" (click)="cancel()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+
+      <div class="header-info">
+        <h1 class="page-title">
+          <mat-icon class="title-icon">{{ isEdit ? 'edit' : 'person_add' }}</mat-icon>
+          {{ isEdit ? 'Modifier un utilisateur' : 'Nouvel utilisateur' }}
+        </h1>
+        <p class="page-subtitle">
+          {{ isEdit ? 'Mise à jour des informations de l\'utilisateur' : 'Création d\'un nouveau compte utilisateur' }}
+        </p>
+      </div>
+    </div>
   </div>
 
-  <form [formGroup]="form" (ngSubmit)="submit()" class="user-form">
-    <div class="form-grid">
-      <mat-form-field appearance="outline">
-        <mat-label>Code</mat-label>
-        <input matInput formControlName="code" />
-        <mat-error *ngIf="form.get('code')?.hasError('required')">
-          Code obligatoire
-        </mat-error>
-      </mat-form-field>
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p class="loading-text">Chargement des données...</p>
+  </div>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Prénom</mat-label>
-        <input matInput formControlName="firstName" />
-        <mat-error *ngIf="form.get('firstName')?.hasError('required')">
-          Prénom obligatoire
-        </mat-error>
-      </mat-form-field>
+  <!-- Form -->
+  <div class="form-container" *ngIf="!loading">
+    <form [formGroup]="form" (ngSubmit)="submit()">
 
-      <mat-form-field appearance="outline">
-        <mat-label>Nom</mat-label>
-        <input matInput formControlName="lastName" />
-        <mat-error *ngIf="form.get('lastName')?.hasError('required')">
-          Nom obligatoire
-        </mat-error>
-      </mat-form-field>
+      <!-- Informations de base -->
+      <div class="form-section">
+        <div class="section-header">
+          <mat-icon class="section-icon">badge</mat-icon>
+          <h2 class="section-title">Informations de base</h2>
+        </div>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Email</mat-label>
-        <input matInput formControlName="email" />
-        <mat-error *ngIf="form.get('email')?.hasError('required')">
-          Email obligatoire
-        </mat-error>
-        <mat-error *ngIf="form.get('email')?.hasError('email')">
-          Email invalide
-        </mat-error>
-      </mat-form-field>
+        <div class="form-grid">
+          <!-- Code -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Code utilisateur</mat-label>
+            <mat-icon matPrefix>fingerprint</mat-icon>
+            <input matInput formControlName="code" placeholder="Ex: USR001" />
+            <mat-hint align="start">Code unique de l'utilisateur</mat-hint>
+            <mat-error *ngIf="codeControl?.hasError('required')">
+              Le code est obligatoire
+            </mat-error>
+            <mat-error *ngIf="codeControl?.hasError('minlength')">
+              Minimum 3 caractères requis
+            </mat-error>
+            <mat-error *ngIf="codeControl?.hasError('maxlength')">
+              Maximum 50 caractères autorisés
+            </mat-error>
+          </mat-form-field>
 
-      <mat-form-field appearance="outline">
-        <mat-label>ProfilService</mat-label>
-        <mat-select formControlName="profilId">
-          <mat-option *ngFor="let p of profils" [value]="p.id">
-            {{ p.libelle }} ({{ p.code }})
-          </mat-option>
-        </mat-select>
-        <mat-error *ngIf="form.get('profilId')?.hasError('required')">
-          ProfilService obligatoire
-        </mat-error>
-      </mat-form-field>
+          <!-- Prénom -->
+          <mat-form-field appearance="outline">
+            <mat-label>Prénom</mat-label>
+            <mat-icon matPrefix>person</mat-icon>
+            <input matInput formControlName="firstName" placeholder="Prénom" />
+            <mat-error>{{ getErrorMessage('firstName') }}</mat-error>
+          </mat-form-field>
 
-      <mat-slide-toggle formControlName="actif">
-        Actif
-      </mat-slide-toggle>
-    </div>
+          <!-- Nom -->
+          <mat-form-field appearance="outline">
+            <mat-label>Nom</mat-label>
+            <mat-icon matPrefix>person_outline</mat-icon>
+            <input matInput formControlName="lastName" placeholder="Nom de famille" />
+            <mat-error>{{ getErrorMessage('lastName') }}</mat-error>
+          </mat-form-field>
 
-    <div class="form-actions">
-      <button mat-stroked-button type="button" (click)="cancel()">
-        Annuler
-      </button>
+          <!-- Email -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Adresse email</mat-label>
+            <mat-icon matPrefix>email</mat-icon>
+            <input matInput
+                   type="email"
+                   formControlName="email"
+                   placeholder="utilisateur@example.com" />
+            <mat-hint align="start">Email professionnel de l'utilisateur</mat-hint>
+            <mat-error>{{ getErrorMessage('email') }}</mat-error>
+          </mat-form-field>
+        </div>
+      </div>
 
-      <button mat-raised-button color="primary" type="submit" [disabled]="saving">
-        <mat-progress-spinner
-          *ngIf="saving"
-          mode="indeterminate"
-          diameter="16"
-          strokeWidth="2">
-        </mat-progress-spinner>
-        <span *ngIf="!saving">
-          {{ isEdit ? 'Enregistrer' : 'Créer' }}
-        </span>
-      </button>
-    </div>
-  </form>
+      <!-- Profil et statut -->
+      <div class="form-section">
+        <div class="section-header">
+          <mat-icon class="section-icon">settings</mat-icon>
+          <h2 class="section-title">Profil et statut</h2>
+        </div>
+
+        <div class="form-grid">
+          <!-- Profil -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Profil</mat-label>
+            <mat-icon matPrefix>shield</mat-icon>
+            <mat-select formControlName="profilId" placeholder="Sélectionner un profil">
+              <mat-option *ngIf="profilsLoading" disabled>
+                <mat-spinner diameter="20"></mat-spinner>
+                Chargement...
+              </mat-option>
+              <mat-option *ngFor="let p of profils" [value]="p.id">
+                <div class="profil-option">
+                  <span class="profil-libelle">{{ p.libelle }}</span>
+                  <span class="profil-code">{{ p.code }}</span>
+                </div>
+              </mat-option>
+            </mat-select>
+            <mat-hint align="start">Détermine les permissions de l'utilisateur</mat-hint>
+            <mat-error *ngIf="profilIdControl?.hasError('required')">
+              Le profil est obligatoire
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Statut actif -->
+          <div class="status-toggle">
+            <div class="toggle-header">
+              <mat-icon class="toggle-icon">{{ actifControl?.value ? 'check_circle' : 'cancel' }}</mat-icon>
+              <div class="toggle-info">
+                <span class="toggle-label">Statut du compte</span>
+                <span class="toggle-description">
+                  {{ actifControl?.value ? 'Compte actif et accessible' : 'Compte désactivé' }}
+                </span>
+              </div>
+            </div>
+            <mat-slide-toggle
+              formControlName="actif"
+              color="primary"
+              class="status-slide-toggle">
+              {{ actifControl?.value ? 'Actif' : 'Inactif' }}
+            </mat-slide-toggle>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <div class="actions-info">
+          <mat-icon class="info-icon">info</mat-icon>
+          <span class="info-text">
+            {{ isEdit ? 'Les modifications seront appliquées immédiatement' : 'L\'utilisateur recevra un email de bienvenue' }}
+          </span>
+        </div>
+
+        <div class="actions-buttons">
+          <button mat-stroked-button
+                  type="button"
+                  (click)="cancel()"
+                  [disabled]="saving"
+                  class="cancel-button">
+            <mat-icon>close</mat-icon>
+            <span>Annuler</span>
+          </button>
+
+          <button mat-raised-button
+                  color="primary"
+                  type="submit"
+                  [disabled]="saving || form.invalid"
+                  class="submit-button">
+            <mat-spinner *ngIf="saving"
+                         diameter="20"
+                         strokeWidth="3"
+                         class="button-spinner">
+            </mat-spinner>
+            <mat-icon *ngIf="!saving">{{ isEdit ? 'save' : 'add' }}</mat-icon>
+            <span>{{ saving ? 'Enregistrement...' : (isEdit ? 'Enregistrer' : 'Créer') }}</span>
+          </button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+
 </div>
-
-<ng-template #loadingTpl>
-  <div class="loading">
-    <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
-  </div>
-</ng-template>

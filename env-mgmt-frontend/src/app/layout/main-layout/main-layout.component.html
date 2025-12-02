@@ -1,110 +1,201 @@
 <!-- src/app/layout/main-layout/main-layout.component.html -->
 
-<mat-sidenav-container class="layout-container">
-  <mat-sidenav mode="side" opened class="sidenav">
+<mat-sidenav-container class="layout-container" autosize>
 
-    <!-- Logo / Brand -->
-    <div class="brand-block">
-      <div class="brand-icon-wrapper">
-        <mat-icon class="brand-icon">hub</mat-icon>
-      </div>
-      <div class="brand-text">
-        <div class="brand-title">PERENITY</div>
-        <div class="brand-subtitle">Environment Mgmt</div>
-      </div>
-    </div>
+  <!-- SIDEBAR -->
+  <mat-sidenav
+    mode="side"
+    opened
+    class="sidenav"
+    [class.collapsed]="isSidebarCollapsed"
+    role="navigation"
+    aria-label="Navigation principale">
 
-    <!-- Bloc utilisateur -->
-    <div class="user-block" *ngIf="context?.user as u">
-      <div class="user-avatar">
-        {{ getUserInitials() }}
-      </div>
-      <div class="user-info">
-        <div class="user-name">{{ userDisplayName }}</div>
-        <div class="user-profil" *ngIf="userProfilLabel; else noProfilTpl">
-          {{ userProfilLabel }}
+    <!-- Header avec Logo -->
+    <div class="sidebar-header">
+      <div class="logo-container" [class.collapsed]="isSidebarCollapsed">
+        <div class="logo-icon">
+          <img
+            *ngIf="!isSidebarCollapsed"
+            src="/assets/images/icones/logo-perenity-software.svg"
+            alt="Logo Perenity Software"
+            class="logo-full"
+          />
+          <img
+            *ngIf="isSidebarCollapsed"
+            src="/assets/images/perenity_software.png"
+            alt="Logo Perenity"
+            class="logo-compact"
+          />
         </div>
-        <ng-template #noProfilTpl>
-          <div class="user-profil muted">Profil non défini</div>
-        </ng-template>
-        <div class="user-email" [title]="u.email">{{ u.email }}</div>
+
+        <div class="logo-text" *ngIf="!isSidebarCollapsed">
+          <div class="logo-title">PERENITY</div>
+          <div class="logo-subtitle">Software Platform</div>
+        </div>
       </div>
-    </div>
 
-    <!-- 1er menu : Administration -->
-    <h3 class="menu-title">Administration</h3>
-    <mat-nav-list class="menu-list">
-      <ng-container *ngFor="let item of visibleAdminMenu">
-        <a mat-list-item
-           [routerLink]="item.route"
-           routerLinkActive="active"
-           [routerLinkActiveOptions]="{exact: false}">
-          <mat-icon *ngIf="item.icon" class="nav-icon">{{ item.icon }}</mat-icon>
-          <span class="nav-label">{{ item.label }}</span>
-          <span class="nav-pill" *ngIf="item.requiredRoles?.includes('ADMIN')">
-            Admin only
-          </span>
-        </a>
-      </ng-container>
-    </mat-nav-list>
-
-    <!-- 2ème menu : Environnements -->
-    <h3 class="menu-title" *ngIf="hasEnvMenu">Environnements</h3>
-    <mat-nav-list class="menu-list" *ngIf="hasEnvMenu">
-      <a mat-list-item
-         *ngFor="let envItem of envMenu"
-         [routerLink]="envItem.route"
-         routerLinkActive="active"
-         [routerLinkActiveOptions]="{exact: false}">
-        <mat-icon class="nav-icon">dns</mat-icon>
-        <span class="nav-label">{{ envItem.label }}</span>
-        <span class="env-chip">
-          {{ envItem.env?.code }}
-        </span>
-      </a>
-    </mat-nav-list>
-
-    <!-- Spacer pour pousser le bouton logout en bas -->
-    <div class="spacer"></div>
-
-    <!-- Bouton Logout en bas -->
-    <div class="logout-section">
-      <button mat-button class="logout-button" (click)="logout()">
-        <mat-icon>logout</mat-icon>
-        <span>Se déconnecter</span>
+      <button
+        mat-icon-button
+        class="toggle-btn"
+        (click)="toggleSidebar()"
+        [matTooltip]="isSidebarCollapsed ? 'Agrandir le menu' : 'Réduire le menu'"
+        matTooltipPosition="right"
+        [attr.aria-label]="isSidebarCollapsed ? 'Agrandir le menu' : 'Réduire le menu'">
+        <mat-icon>{{ isSidebarCollapsed ? 'chevron_right' : 'chevron_left' }}</mat-icon>
       </button>
     </div>
 
+    <!-- Bloc Utilisateur -->
+    <div class="user-block" *ngIf="context?.user as u">
+      <div
+        class="user-avatar"
+        [attr.aria-label]="'Avatar de ' + userDisplayName">
+        {{ getUserInitials() }}
+      </div>
+
+      <div class="user-info" *ngIf="!isSidebarCollapsed">
+        <div class="user-name" [title]="userDisplayName">
+          {{ userDisplayName }}
+        </div>
+
+        <div
+          class="user-profil"
+          *ngIf="userProfilLabel; else noProfilTpl"
+          [title]="userProfilLabel">
+          {{ userProfilLabel }}
+        </div>
+
+        <ng-template #noProfilTpl>
+          <div class="user-profil muted">Profil non défini</div>
+        </ng-template>
+
+        <div class="user-email" [title]="userEmail">
+          {{ userEmail }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav-container" [attr.aria-label]="'Menu principal'">
+      <mat-nav-list class="menu-list">
+
+        <!-- Section Administration -->
+        <ng-container *ngIf="visibleAdminMenu.length > 0">
+          <div class="nav-section-label" *ngIf="!isSidebarCollapsed">
+            Administration
+          </div>
+
+          <a
+            mat-list-item
+            *ngFor="let item of visibleAdminMenu"
+            [routerLink]="item.route"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{exact: false}"
+            [matTooltip]="isSidebarCollapsed ? item.label : ''"
+            matTooltipPosition="right"
+            [matTooltipDisabled]="!isSidebarCollapsed"
+            [attr.aria-label]="item.label">
+            <mat-icon *ngIf="item.icon" class="nav-icon">{{ item.icon }}</mat-icon>
+            <span class="nav-label" *ngIf="!isSidebarCollapsed">{{ item.label }}</span>
+          </a>
+        </ng-container>
+
+        <!-- Séparateur entre admin & env si les deux existent -->
+        <mat-divider *ngIf="visibleAdminMenu.length > 0 && hasEnvMenu"></mat-divider>
+
+        <!-- Section Environnements -->
+        <ng-container *ngIf="hasEnvMenu">
+          <div class="nav-section-label" *ngIf="!isSidebarCollapsed">
+            Environnements
+          </div>
+
+          <a
+            mat-list-item
+            *ngFor="let envItem of envMenu"
+            [routerLink]="envItem.route"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{exact: false}"
+            [matTooltip]="isSidebarCollapsed ? envItem.label : ''"
+            matTooltipPosition="right"
+            [matTooltipDisabled]="!isSidebarCollapsed"
+            [attr.aria-label]="envItem.label">
+            <mat-icon class="nav-icon">cloud</mat-icon>
+            <span class="nav-label" *ngIf="!isSidebarCollapsed">{{ envItem.label }}</span>
+          </a>
+        </ng-container>
+
+      </mat-nav-list>
+    </nav>
+
+    <!-- Footer -->
+    <div class="sidebar-footer">
+      <button
+        mat-button
+        class="logout-button"
+        (click)="logout()"
+        [matTooltip]="isSidebarCollapsed ? 'Se déconnecter' : ''"
+        matTooltipPosition="right"
+        [matTooltipDisabled]="!isSidebarCollapsed"
+        aria-label="Se déconnecter">
+        <mat-icon>logout</mat-icon>
+        <span *ngIf="!isSidebarCollapsed">Se déconnecter</span>
+      </button>
+    </div>
   </mat-sidenav>
 
+  <!-- CONTENU PRINCIPAL -->
   <mat-sidenav-content>
-    <mat-toolbar color="primary" class="top-toolbar">
+
+    <!-- Toolbar -->
+    <mat-toolbar class="top-toolbar" role="banner">
       <div class="toolbar-left">
-        <mat-icon class="toolbar-logo">space_dashboard</mat-icon>
-        <span class="app-title">Environment Management</span>
+        <mat-icon class="toolbar-logo" aria-hidden="true">space_dashboard</mat-icon>
+        <h1 class="app-title">Environment Management</h1>
       </div>
 
       <span class="toolbar-spacer"></span>
 
-      <!-- Info utilisateur dans toolbar -->
+      <!-- Toggle Dark Mode -->
+      <button
+        mat-icon-button
+        class="theme-toggle"
+        (click)="toggleDarkMode()"
+        [matTooltip]="isDarkMode ? 'Activer le mode clair' : 'Activer le mode sombre'"
+        [attr.aria-label]="isDarkMode ? 'Activer le mode clair' : 'Activer le mode sombre'">
+        <mat-icon>{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
+      </button>
+
+      <!-- User Info -->
       <div class="toolbar-user" *ngIf="context?.user as u">
-        <div class="toolbar-user-avatar">
+        <div
+          class="toolbar-user-avatar"
+          [attr.aria-label]="'Avatar de ' + userDisplayName">
           {{ getUserInitials() }}
         </div>
+
         <div class="toolbar-user-text">
           <span class="toolbar-user-name">{{ userDisplayName }}</span>
-          <span class="toolbar-user-role">
-            {{ userProfilLabel || 'Utilisateur' }}
-          </span>
+          <span class="toolbar-user-role">{{ userProfilLabel || 'Utilisateur' }}</span>
         </div>
-        <mat-chip class="admin-badge" *ngIf="u.admin">ADMIN</mat-chip>
+
+        <mat-chip
+          class="admin-badge"
+          *ngIf="u.admin"
+          [attr.aria-label]="'Administrateur'">
+          <mat-icon aria-hidden="true">verified</mat-icon>
+          <span>ADMIN</span>
+        </mat-chip>
       </div>
     </mat-toolbar>
 
-    <div class="content">
+    <!-- Content -->
+    <main class="content" role="main">
       <div class="content-inner">
         <router-outlet></router-outlet>
       </div>
-    </div>
+    </main>
+
   </mat-sidenav-content>
+
 </mat-sidenav-container>

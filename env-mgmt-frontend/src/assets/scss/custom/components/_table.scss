@@ -1,0 +1,75 @@
+//
+// _table.scss
+//
+
+.table {
+
+  .table-light{
+    color: $body-color;
+    border-color: $table-border-color;
+    background-color: $table-head-bg;
+  }
+  --bs-table-bg: var(--second) !important;
+  --bs-table-accent-bg: var(--second) !important;
+}
+
+.table {
+  th{
+    span, i{
+      font-weight: bold !important;
+    }
+    div .mdi-dots-vertical{
+      font-size: var(--fs-1) !important;
+    }
+    overflow: auto;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    height: 28px;
+    min-height: 1px;
+    color: var(--principal);
+    font-size: var(--fs-3) !important;
+    font-weight: bold !important;
+  }
+  tbody tr td{
+    border-bottom: var(--border-3) solid var(--principal);
+  }
+  td {
+    .form-control {
+      border: var(--border-3) solid var(--principal);
+    }
+    font-weight: lighter !important;
+    overflow: auto;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    height: 28px;
+    font-size: var(--fs-3) !important;
+    color: var(--default);
+    min-height: 1px;
+  }
+  thead{
+    border-top: var(--border-1) solid var(--principal) !important;
+    border-bottom: var(--border-1) solid var(--principal) !important;
+  }
+}
+
+.table-bordered {
+  border: $table-border-width solid $table-border-color;
+
+  th,
+  td {
+    border: $table-border-width solid $table-border-color;
+  }
+}
+
+
+.table-dark>:not(:last-child)>:last-child>*{
+  border-bottom-color:  $table-dark-border-color;
+}
+
+.table-nowrap {
+  th, td {
+    white-space: nowrap;
+  }
+}
+
+

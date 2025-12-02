@@ -1,41 +1,59 @@
-.form-row {
-  margin-bottom: 12px;
-}
+// src/app/roles/role-form/role-form.component.scss
 
-.full-width {
-  width: 100%;
-}
+$primary-blue: #0077B6;
+$secondary-blue: #00A5E3;
+$accent-blue: #48CAE4;
 
-.roles-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 12px;
-}
 
-.roles-table th,
-.roles-table td {
-  padding: 8px 6px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-}
 
-.chip {
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 0.75rem;
-}
-
-.chip-active {
-  background: rgba(22, 163, 74, 0.1);
-  color: #15803d;
-}
-
-.chip-inactive {
-  background: rgba(220, 38, 38, 0.1);
-  color: #b91c1c;
-}
-
-.toolbar {
+/* ===== Styles spécifiques aux rôles ===== */
+.action-option {
   display: flex;
-  justify-content: flex-end;
-  margin: 8px 0 4px;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.action-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: $primary-blue;
+}
+
+.action-label {
+  font-weight: 500;
+  color: #212529;
+}
+
+.option-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 12px;
+}
+
+.option-libelle {
+  flex: 1;
+  font-weight: 500;
+  color: #212529;
+}
+
+.option-code {
+  padding: 2px 8px;
+  background: rgba(0, 119, 182, 0.1);
+  color: $primary-blue;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Dark theme */
+body.dark-theme {
+  .action-label,
+  .option-libelle {
+    color: #f1f5f9;
+  }
 }

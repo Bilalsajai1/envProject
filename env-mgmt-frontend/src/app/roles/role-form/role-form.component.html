@@ -1,38 +1,235 @@
-<mat-card>
-  <mat-card-title>
-    {{ mode === 'create' ? 'Créer un rôle' : 'Modifier un rôle' }}
-  </mat-card-title>
+<!-- src/app/roles/role-form/role-form.component.html -->
 
-  <form [formGroup]="form" (ngSubmit)="save()">
-    <div class="form-row">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Code</mat-label>
-        <input matInput formControlName="code" />
-      </mat-form-field>
-    </div>
+<div class="form-page">
 
-    <div class="form-row">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Libellé</mat-label>
-        <input matInput formControlName="libelle" />
-      </mat-form-field>
-    </div>
-
-    <div class="form-row">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Description</mat-label>
-        <textarea matInput rows="3" formControlName="description"></textarea>
-      </mat-form-field>
-    </div>
-
-    <div class="form-row">
-      <mat-checkbox formControlName="actif">Actif</mat-checkbox>
-    </div>
-
-    <div class="actions">
-      <button mat-raised-button color="primary" type="submit">
-        Enregistrer
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <button mat-icon-button class="back-button" (click)="cancel()">
+        <mat-icon>arrow_back</mat-icon>
       </button>
+
+      <div class="header-info">
+        <h1 class="page-title">
+          <mat-icon class="title-icon">{{ isEdit ? 'edit' : 'add_circle' }}</mat-icon>
+          {{ isEdit ? 'Modifier un rôle' : 'Nouveau rôle' }}
+        </h1>
+        <p class="page-subtitle">
+          {{ isEdit ? 'Mise à jour des informations du rôle' : 'Création d\'un nouveau rôle applicatif' }}
+        </p>
+      </div>
     </div>
-  </form>
-</mat-card>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p class="loading-text">Chargement des données...</p>
+  </div>
+
+  <!-- Form -->
+  <div class="form-container" *ngIf="!loading">
+    <form [formGroup]="form" (ngSubmit)="submit()">
+
+      <!-- Informations de base -->
+      <div class="form-section">
+        <div class="section-header">
+          <mat-icon class="section-icon">badge</mat-icon>
+          <h2 class="section-title">Informations de base</h2>
+        </div>
+
+        <div class="form-grid">
+          <!-- Code -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Code du rôle</mat-label>
+            <mat-icon matPrefix>fingerprint</mat-icon>
+            <input matInput
+                   formControlName="code"
+                   placeholder="Ex: ENV_CONSULT"
+                   [readonly]="isEdit" />
+            <mat-hint align="start">Format: MAJUSCULES, chiffres et underscore uniquement</mat-hint>
+            <mat-error>{{ getErrorMessage('code') }}</mat-error>
+          </mat-form-field>
+
+          <!-- Libellé -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Libellé</mat-label>
+            <mat-icon matPrefix>label</mat-icon>
+            <input matInput
+                   formControlName="libelle"
+                   placeholder="Description du rôle" />
+            <mat-hint align="start">Nom descriptif du rôle</mat-hint>
+            <mat-error>{{ getErrorMessage('libelle') }}</mat-error>
+          </mat-form-field>
+
+          <!-- Action -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Action</mat-label>
+            <mat-icon matPrefix>bolt</mat-icon>
+            <mat-select formControlName="action" placeholder="Sélectionner une action">
+              <mat-option *ngFor="let action of actions" [value]="action">
+                <div class="action-option">
+                  <mat-icon class="action-icon">
+                    {{ action === 'CONSULT' ? 'visibility' :
+                    action === 'CREATE' ? 'add_circle' :
+                      action === 'UPDATE' ? 'edit' :
+                        action === 'DELETE' ? 'delete' :
+                          action === 'EXPORT' ? 'download' :
+                            action === 'IMPORT' ? 'upload' :
+                              action === 'VALIDATE' ? 'check_circle' :
+                                action === 'APPROVE' ? 'thumb_up' :
+                                  action === 'REJECT' ? 'thumb_down' : 'settings' }}
+                  </mat-icon>
+                  <span class="action-label">{{ action }}</span>
+                </div>
+              </mat-option>
+            </mat-select>
+            <mat-hint align="start">Type d'action autorisée par ce rôle</mat-hint>
+            <mat-error *ngIf="actionControl?.hasError('required')">
+              L'action est obligatoire
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Associations -->
+      <div class="form-section">
+        <div class="section-header">
+          <mat-icon class="section-icon">link</mat-icon>
+          <h2 class="section-title">Associations (optionnel)</h2>
+        </div>
+
+        <div class="form-grid">
+          <!-- Menu -->
+          <mat-form-field appearance="outline">
+            <mat-label>Menu</mat-label>
+            <mat-icon matPrefix>menu_book</mat-icon>
+            <mat-select formControlName="menuId" placeholder="Aucun">
+              <mat-option [value]="null">
+                <em>Aucun menu</em>
+              </mat-option>
+              <mat-option *ngIf="loadingOptions" disabled>
+                <mat-spinner diameter="20"></mat-spinner>
+                Chargement...
+              </mat-option>
+              <mat-option *ngFor="let menu of menus" [value]="menu.id">
+                <div class="option-content">
+                  <span class="option-libelle">{{ menu.libelle }}</span>
+                  <span class="option-code">{{ menu.code }}</span>
+                </div>
+              </mat-option>
+            </mat-select>
+            <mat-hint>Menu associé au rôle</mat-hint>
+          </mat-form-field>
+
+          <!-- Environnement -->
+          <mat-form-field appearance="outline">
+            <mat-label>Environnement</mat-label>
+            <mat-icon matPrefix>cloud</mat-icon>
+            <mat-select formControlName="environnementId" placeholder="Aucun">
+              <mat-option [value]="null">
+                <em>Aucun environnement</em>
+              </mat-option>
+              <mat-option *ngIf="loadingOptions" disabled>
+                <mat-spinner diameter="20"></mat-spinner>
+                Chargement...
+              </mat-option>
+              <mat-option *ngFor="let env of environnements" [value]="env.id">
+                <div class="option-content">
+                  <span class="option-libelle">{{ env.libelle }}</span>
+                  <span class="option-code">{{ env.code }}</span>
+                </div>
+              </mat-option>
+            </mat-select>
+            <mat-hint>Environnement associé au rôle</mat-hint>
+          </mat-form-field>
+
+          <!-- Projet -->
+          <mat-form-field appearance="outline">
+            <mat-label>Projet</mat-label>
+            <mat-icon matPrefix>folder</mat-icon>
+            <mat-select formControlName="projetId" placeholder="Aucun">
+              <mat-option [value]="null">
+                <em>Aucun projet</em>
+              </mat-option>
+              <mat-option *ngIf="loadingOptions" disabled>
+                <mat-spinner diameter="20"></mat-spinner>
+                Chargement...
+              </mat-option>
+              <mat-option *ngFor="let projet of projets" [value]="projet.id">
+                <div class="option-content">
+                  <span class="option-libelle">{{ projet.libelle }}</span>
+                  <span class="option-code">{{ projet.code }}</span>
+                </div>
+              </mat-option>
+            </mat-select>
+            <mat-hint>Projet associé au rôle</mat-hint>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Statut -->
+      <div class="form-section">
+        <div class="section-header">
+          <mat-icon class="section-icon">settings</mat-icon>
+          <h2 class="section-title">Statut</h2>
+        </div>
+
+        <div class="status-toggle">
+          <div class="toggle-header">
+            <mat-icon class="toggle-icon">{{ actifControl?.value ? 'check_circle' : 'cancel' }}</mat-icon>
+            <div class="toggle-info">
+              <span class="toggle-label">Statut du rôle</span>
+              <span class="toggle-description">
+                {{ actifControl?.value ? 'Rôle actif et utilisable' : 'Rôle désactivé' }}
+              </span>
+            </div>
+          </div>
+          <mat-slide-toggle
+            formControlName="actif"
+            color="primary"
+            class="status-slide-toggle">
+            {{ actifControl?.value ? 'Actif' : 'Inactif' }}
+          </mat-slide-toggle>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <div class="actions-info">
+          <mat-icon class="info-icon">info</mat-icon>
+          <span class="info-text">
+            {{ isEdit ? 'Les modifications seront appliquées immédiatement' : 'Le rôle sera disponible après création' }}
+          </span>
+        </div>
+
+        <div class="actions-buttons">
+          <button mat-stroked-button
+                  type="button"
+                  (click)="cancel()"
+                  [disabled]="saving"
+                  class="cancel-button">
+            <mat-icon>close</mat-icon>
+            <span>Annuler</span>
+          </button>
+
+          <button mat-raised-button
+                  color="primary"
+                  type="submit"
+                  [disabled]="saving || form.invalid"
+                  class="submit-button">
+            <mat-spinner *ngIf="saving"
+                         diameter="20"
+                         strokeWidth="3"
+                         class="button-spinner">
+            </mat-spinner>
+            <mat-icon *ngIf="!saving">{{ isEdit ? 'save' : 'add' }}</mat-icon>
+            <span>{{ saving ? 'Enregistrement...' : (isEdit ? 'Enregistrer' : 'Créer') }}</span>
+          </button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+
+</div>

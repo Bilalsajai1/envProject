@@ -3,13 +3,13 @@ import "./chunk-VON75VBJ.js";
 import "./chunk-XA6252L2.js";
 import "./chunk-GUGIMSVJ.js";
 import {
+  BidiModule
+} from "./chunk-LGOJHUOV.js";
+import {
   Platform
 } from "./chunk-HGIXQTMX.js";
 import "./chunk-JDI3SQXM.js";
 import "./chunk-UC72YTJX.js";
-import {
-  BidiModule
-} from "./chunk-LGOJHUOV.js";
 import {
   ChangeDetectionStrategy,
   Component,

@@ -10,11 +10,11 @@ import {
 } from "./chunk-NGX5KMVR.js";
 import "./chunk-BEZIKZCY.js";
 import "./chunk-DXBXJWPT.js";
-import "./chunk-JDI3SQXM.js";
-import "./chunk-UC72YTJX.js";
 import {
   BidiModule
 } from "./chunk-LGOJHUOV.js";
+import "./chunk-JDI3SQXM.js";
+import "./chunk-UC72YTJX.js";
 import {
   ChangeDetectionStrategy,
   Component,

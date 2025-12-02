@@ -1,1 +1,43 @@
-<p>confirm-dialog works!</p>
+<!-- src/app/shared/components/confirm-dialog/confirm-dialog.component.html -->
+
+<div class="confirm-dialog" [ngClass]="dialogTypeClass">
+
+  <!-- Header avec icône -->
+  <div class="dialog-header">
+    <div class="dialog-icon-wrapper">
+      <mat-icon class="dialog-icon">{{ data.icon }}</mat-icon>
+    </div>
+    <h2 mat-dialog-title class="dialog-title">{{ data.title }}</h2>
+    <button mat-icon-button
+            class="close-button"
+            (click)="onCancel()"
+            aria-label="Fermer">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Contenu -->
+  <mat-dialog-content class="dialog-content">
+    <p class="dialog-message">{{ data.message }}</p>
+  </mat-dialog-content>
+
+  <!-- Actions -->
+  <mat-dialog-actions class="dialog-actions" align="end">
+    <button mat-stroked-button
+            class="cancel-button"
+            (click)="onCancel()">
+      <mat-icon>close</mat-icon>
+      <span>{{ data.cancelText }}</span>
+    </button>
+    <button mat-raised-button
+            class="confirm-button"
+            [class.confirm-danger]="data.type === 'danger'"
+            [class.confirm-warning]="data.type === 'warning'"
+            [class.confirm-info]="data.type === 'info'"
+            (click)="onConfirm()">
+      <mat-icon>check</mat-icon>
+      <span>{{ data.confirmText }}</span>
+    </button>
+  </mat-dialog-actions>
+
+</div>

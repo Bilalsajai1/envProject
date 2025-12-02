@@ -1,0 +1,77 @@
+//
+// _nav.scss
+//
+
+.nav-tabs,.nav-pills {
+  > li {
+      > a {
+          color: $gray-700;
+          font-weight: $fw-medium;
+      }
+  }
+}
+
+.nav-pills {
+  > a {
+      color: $gray-700;
+      font-weight: $fw-medium;
+  }
+}
+
+
+.nav-tabs-custom {
+  border-bottom: var(--border-2) solid var(--minor);
+  margin-left: 0.3em;
+
+  .nav-item {
+    position: relative;
+    color: var(--minor) ;
+
+    .nav-link {
+      border: none;
+      color: var(--minor) ;
+      font-weight: bold;
+      font-size: var(--fs-2);
+      max-height: 25px;
+      min-height: 23px;
+      padding-bottom: 24px;
+      border-bottom: 3px solid var(--minor) ;
+      &::after {
+        content: "";
+        background: var(--principal);
+        height: 2px;
+        position: absolute;
+        width: 100%;
+        left: 0;
+        bottom: -1px;
+        transition: all 250ms ease 0s;
+        transform: scale(0);
+      }
+
+      &.active{
+        border-bottom: var(--border-1) solid var(--principal) ;
+        color: var(--principal);
+        &:after{
+          transform: scale(1);
+        }
+      }
+
+    }
+  }
+}
+
+
+// vertical nav
+
+.vertical-nav{
+  .nav{
+      .nav-link{
+          padding: 24px 16px;
+          text-align: center;
+          margin-bottom: 8px;
+          .nav-icon{
+              font-size: 24px;
+          }
+      }
+  }
+}
