@@ -19,9 +19,5 @@ public class UserPermissionsDTO {
     private String profilLibelle;
     private boolean admin;
 
-    /**
-     * Codes des rôles Keycloak / BD :
-     * Exemple : ENV_EDITION_CONSULT, ENV_CLIENT_CREATE, ...
-     */
     private Set<String> roles;
 }

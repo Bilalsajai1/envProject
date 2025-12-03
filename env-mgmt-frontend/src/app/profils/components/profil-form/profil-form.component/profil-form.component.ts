@@ -1,10 +1,16 @@
 // src/app/profils/components/profil-form/profil-form.component.ts
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject, Optional } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import {ProfilCreateUpdateDTO, ProfilDTO, ProfilService} from '../../../services/profil.service';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { ProfilCreateUpdateDTO, ProfilDTO, ProfilService } from '../../../services/profil.service';
+
+interface ProfilFormData {
+  mode: 'create' | 'edit';
+  profilId?: number;
+}
 
 @Component({
   selector: 'app-profil-form',
@@ -20,22 +26,36 @@ export class ProfilFormComponent implements OnInit {
 
   loading = false;
   saving = false;
+  private isDialog = false;
 
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
     private profilService: ProfilService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    @Optional() private dialogRef?: MatDialogRef<ProfilFormComponent>,
+    @Optional() @Inject(MAT_DIALOG_DATA) public data?: ProfilFormData
   ) {}
 
   ngOnInit(): void {
     this.buildForm();
 
-    const idParam = this.route.snapshot.paramMap.get('id');
-    if (idParam) {
-      this.isEdit = true;
-      this.profilId = Number(idParam);
+    // Dialog usage
+    if (this.data) {
+      this.isDialog = true;
+      this.isEdit = this.data.mode === 'edit';
+      this.profilId = this.data.profilId;
+    } else {
+      // Routed usage
+      const idParam = this.route.snapshot.paramMap.get('id');
+      if (idParam) {
+        this.isEdit = true;
+        this.profilId = Number(idParam);
+      }
+    }
+
+    if (this.isEdit && this.profilId) {
       this.loadProfil(this.profilId);
     }
   }
@@ -64,7 +84,7 @@ export class ProfilFormComponent implements OnInit {
         this.loading = false;
       },
       error: () => {
-        this.snackBar.open('❌ Erreur lors du chargement', 'Fermer', { duration: 3000 });
+        this.snackBar.open('Erreur lors du chargement', 'Fermer', { duration: 3000 });
         this.loading = false;
       }
     });
@@ -77,7 +97,6 @@ export class ProfilFormComponent implements OnInit {
     }
 
     this.saving = true;
-
     const payload: ProfilCreateUpdateDTO = this.form.value;
 
     const obs = this.isEdit && this.profilId
@@ -87,21 +106,29 @@ export class ProfilFormComponent implements OnInit {
     obs.subscribe({
       next: () => {
         this.snackBar.open(
-          `✅ Profil ${this.isEdit ? 'modifié' : 'créé'} avec succès`,
+          `Profil ${this.isEdit ? 'modifié' : 'créé'} avec succès`,
           'Fermer',
           { duration: 3000 }
         );
         this.saving = false;
-        this.router.navigate(['/admin/profils']);
+        if (this.isDialog) {
+          this.dialogRef?.close(true);
+        } else {
+          this.router.navigate(['/admin/profils']);
+        }
       },
       error: () => {
-        this.snackBar.open('❌ Erreur lors de la sauvegarde', 'Fermer', { duration: 3000 });
+        this.snackBar.open('Erreur lors de la sauvegarde', 'Fermer', { duration: 3000 });
         this.saving = false;
       }
     });
   }
 
   cancel(): void {
-    this.router.navigate(['/admin/profils']);
+    if (this.isDialog) {
+      this.dialogRef?.close(false);
+    } else {
+      this.router.navigate(['/admin/profils']);
+    }
   }
 }

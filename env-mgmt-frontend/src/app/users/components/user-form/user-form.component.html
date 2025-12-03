@@ -21,14 +21,15 @@
     </div>
   </div>
 
-  <!-- Loading State -->
-  <div class="loading-container" *ngIf="loading">
-    <mat-spinner diameter="50"></mat-spinner>
-    <p class="loading-text">Chargement des données...</p>
-  </div>
+  <mat-progress-bar
+    *ngIf="loading"
+    mode="indeterminate"
+    color="primary"
+    class="loading-bar">
+  </mat-progress-bar>
 
   <!-- Form -->
-  <div class="form-container" *ngIf="!loading">
+  <div class="form-container">
     <form [formGroup]="form" (ngSubmit)="submit()">
 
       <!-- Informations de base -->
@@ -41,26 +42,26 @@
         <div class="form-grid">
           <!-- Code -->
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Code utilisateur</mat-label>
-            <mat-icon matPrefix>fingerprint</mat-icon>
-            <input matInput formControlName="code" placeholder="Ex: USR001" />
-            <mat-hint align="start">Code unique de l'utilisateur</mat-hint>
-            <mat-error *ngIf="codeControl?.hasError('required')">
-              Le code est obligatoire
-            </mat-error>
-            <mat-error *ngIf="codeControl?.hasError('minlength')">
-              Minimum 3 caractères requis
-            </mat-error>
-            <mat-error *ngIf="codeControl?.hasError('maxlength')">
-              Maximum 50 caractères autorisés
-            </mat-error>
-          </mat-form-field>
+          <mat-label>Code utilisateur</mat-label>
+          <mat-icon matPrefix>fingerprint</mat-icon>
+          <input matInput formControlName="code" placeholder="Ex: USR001" />
+          <mat-hint align="start">Code unique de l'utilisateur</mat-hint>
+          <mat-error *ngIf="codeControl?.hasError('required')">
+            Le code est obligatoire
+          </mat-error>
+          <mat-error *ngIf="codeControl?.hasError('minlength')">
+            Minimum 3 caractères requis
+          </mat-error>
+          <mat-error *ngIf="codeControl?.hasError('maxlength')">
+            Maximum 50 caractères autorisés
+          </mat-error>
+        </mat-form-field>
 
-          <!-- Prénom -->
+          <!-- PrÇ¸nom -->
           <mat-form-field appearance="outline">
-            <mat-label>Prénom</mat-label>
+            <mat-label>PrÇ¸nom</mat-label>
             <mat-icon matPrefix>person</mat-icon>
-            <input matInput formControlName="firstName" placeholder="Prénom" />
+            <input matInput formControlName="firstName" placeholder="PrÇ¸nom" />
             <mat-error>{{ getErrorMessage('firstName') }}</mat-error>
           </mat-form-field>
 
@@ -74,9 +75,9 @@
 
           <!-- Email -->
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Adresse email</mat-label>
-            <mat-icon matPrefix>email</mat-icon>
-            <input matInput
+          <mat-label>Adresse email</mat-label>
+          <mat-icon matPrefix>email</mat-icon>
+          <input matInput
                    type="email"
                    formControlName="email"
                    placeholder="utilisateur@example.com" />
@@ -98,7 +99,7 @@
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Profil</mat-label>
             <mat-icon matPrefix>shield</mat-icon>
-            <mat-select formControlName="profilId" placeholder="Sélectionner un profil">
+            <mat-select formControlName="profilId" placeholder="Sélectionner un profil" panelClass="profil-panel">
               <mat-option *ngIf="profilsLoading" disabled>
                 <mat-spinner diameter="20"></mat-spinner>
                 Chargement...
@@ -167,7 +168,7 @@
                          class="button-spinner">
             </mat-spinner>
             <mat-icon *ngIf="!saving">{{ isEdit ? 'save' : 'add' }}</mat-icon>
-            <span>{{ saving ? 'Enregistrement...' : (isEdit ? 'Enregistrer' : 'Créer') }}</span>
+            <span>{{ saving ? 'Enregistrement...' : (isEdit ? 'Enregistrer' : 'créer') }}</span>
           </button>
         </div>
       </div>

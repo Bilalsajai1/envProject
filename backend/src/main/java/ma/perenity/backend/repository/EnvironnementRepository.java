@@ -12,20 +12,6 @@ public interface EnvironnementRepository extends
         JpaRepository<EnvironnementEntity, Long>,
         JpaSpecificationExecutor<EnvironnementEntity> {
 
-    @Query("""
-           SELECT e
-           FROM EnvironnementEntity e
-           JOIN e.projet p
-           JOIN e.type t
-           WHERE p.id = :projetId
-             AND t.code = :typeCode
-           ORDER BY e.code
-           """)
-    List<EnvironnementEntity> findByProjetAndType(
-            @Param("projetId") Long projetId,
-            @Param("typeCode") String typeCode
-    );
-
     long countByActifTrue();
 
 

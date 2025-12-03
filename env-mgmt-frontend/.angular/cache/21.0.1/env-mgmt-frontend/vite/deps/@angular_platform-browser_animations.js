@@ -1,8 +1,8 @@
 import {
   BrowserModule,
   DomRendererFactory2
-} from "./chunk-YHLKLURS.js";
-import "./chunk-JDI3SQXM.js";
+} from "./chunk-2IRT4DJ4.js";
+import "./chunk-TUQ2NQAY.js";
 import "./chunk-UC72YTJX.js";
 import {
   ANIMATION_MODULE_TYPE,
@@ -19,14 +19,15 @@ import {
   ɵɵdefineInjector,
   ɵɵdefineNgModule,
   ɵɵinject
-} from "./chunk-4ZVEXLGF.js";
-import "./chunk-J46EEYGT.js";
-import "./chunk-4YCCEXQQ.js";
+} from "./chunk-TABGSH6Q.js";
+import "./chunk-T6GXCI7K.js";
+import "./chunk-MXSBR7BG.js";
+import "./chunk-KRGGMXET.js";
 import {
   __objRest,
   __spreadProps,
   __spreadValues
-} from "./chunk-U7EDC2PH.js";
+} from "./chunk-4FRP4S3T.js";
 
 // ../node_modules/@angular/core/fesm2022/_effect-chunk.mjs
 var activeConsumer = null;

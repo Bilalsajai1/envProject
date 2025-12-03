@@ -1,7 +1,16 @@
+$accent: #152f56;
+$border: #e5e7eb;
+$muted: #6b7280;
+$surface: #ffffff;
+$shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+$radius-lg: 16px;
+$radius-sm: 8px;
+
 .profil-list-page {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
+  padding: 12px 0;
 }
 
 .page-header {
@@ -12,21 +21,25 @@
   h1 {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 1.4rem;
+    gap: 10px;
+    font-size: 24px;
     font-weight: 700;
     margin: 0;
+    color: $accent;
 
     .header-icon {
       font-size: 26px;
-      color: #1d4ed8;
+      background: #e1e8f5;
+      color: $accent;
+      padding: 6px;
+      border-radius: 10px;
     }
   }
 
   .subtitle {
     margin: 4px 0 0;
-    font-size: 0.9rem;
-    color: #64748b;
+    font-size: 14px;
+    color: $muted;
   }
 
   .add-button {
@@ -35,13 +48,18 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    box-shadow: $shadow;
+    background: linear-gradient(120deg, $accent, lighten($accent, 8%));
+    color: #fff;
   }
 }
 
 .data-card {
-  padding: 16px 16px 8px;
-  border-radius: 18px;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  padding: 16px;
+  border-radius: $radius-lg;
+  box-shadow: $shadow;
+  border: 1px solid $border;
+  background: linear-gradient(145deg, #ffffff, #f6f9ff);
 }
 
 .search-toolbar {
@@ -58,18 +76,19 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    font-size: 0.85rem;
-    color: #64748b;
+    font-size: 0.9rem;
+    color: $muted;
 
     mat-icon {
       font-size: 18px;
+      color: $accent;
     }
   }
 }
 
 .table-container {
   overflow: auto;
-  max-height: calc(100vh - 260px); // adapté à ton layout
+  max-height: calc(100vh - 260px);
 }
 
 .profils-table {
@@ -80,20 +99,22 @@
     transition: background 0.15s ease, transform 0.15s ease;
 
     &:hover {
-      background: rgba(15, 23, 42, 0.02);
+      background: #f5f8fc;
       transform: translateY(-1px);
+      box-shadow: inset 4px 0 0 $accent;
     }
   }
 
   th.mat-mdc-header-cell {
-    font-weight: 600;
+    font-weight: 700;
     font-size: 0.85rem;
-    color: #64748b;
+    color: $accent;
     border-bottom-width: 1px;
   }
 
   td.mat-mdc-cell {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
+    color: #0f172a;
   }
 }
 
@@ -103,7 +124,7 @@
   padding: 4px 8px;
   border-radius: 999px;
   background: #eff6ff;
-  color: #1d4ed8;
+  color: $accent;
 }
 
 .admin-chip {
@@ -148,6 +169,18 @@
   display: flex;
   align-items: center;
   gap: 6px;
+
+  button {
+    border-radius: $radius-sm;
+    background: #f8fafc;
+    border: 1px solid $border;
+    transition: transform 0.15s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: $shadow;
+    }
+  }
 }
 
 .empty-state {
@@ -165,7 +198,7 @@
   }
 
   .empty-hint {
-    font-size: 0.88rem;
+    font-size: 0.9rem;
   }
 }
 
@@ -176,5 +209,28 @@
   justify-content: center;
   padding: 40px 0;
   gap: 12px;
-  color: #64748b;
+  color: $muted;
+}
+
+mat-paginator {
+  border-top: 1px solid $border;
+  background: #f8fafc;
+  border-radius: 0 0 $radius-lg $radius-lg;
+}
+
+@media (max-width: 768px) {
+  .profil-list-page {
+    padding: 0 8px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .search-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }

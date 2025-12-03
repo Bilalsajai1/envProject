@@ -12,6 +12,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
@@ -33,6 +34,7 @@ import {MatSortModule} from '@angular/material/sort';
     MatSelectModule,
     MatChipsModule,
     MatSlideToggleModule,
+    MatProgressBarModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
     MatCardModule,

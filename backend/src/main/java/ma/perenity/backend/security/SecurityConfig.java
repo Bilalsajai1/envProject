@@ -33,8 +33,8 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth").permitAll()  // login public
-                        .anyRequest().authenticated()                           // donc GET /auth/me est protégé
+                        .requestMatchers(HttpMethod.POST, "/auth").permitAll()
+                        .anyRequest().authenticated()
                 )
 
                 .oauth2ResourceServer(oauth2 ->

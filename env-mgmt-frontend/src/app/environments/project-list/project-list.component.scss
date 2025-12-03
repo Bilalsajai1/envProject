@@ -1,7 +1,17 @@
-// src/app/environments/components/project-list/project-list.component.scss
+$accent: #152f56;
+$border: #e5e7eb;
+$muted: #6b7280;
+$surface: #ffffff;
+$shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+$radius: 12px;
 
 .project-list-container {
-  animation: fadeIn 0.3s ease-in;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0;
+  margin: 0;
+  max-width: none;
 }
 
 @keyframes fadeIn {
@@ -13,19 +23,20 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   font-size: 14px;
-  color: #666;
+  color: $muted;
 
   mat-icon {
     font-size: 18px;
     width: 18px;
     height: 18px;
+    color: $accent;
   }
 
   .current {
-    color: #1976d2;
-    font-weight: 500;
+    color: $accent;
+    font-weight: 600;
   }
 }
 
@@ -33,37 +44,43 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 
   h2 {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin: 0 0 4px 0;
+    margin: 0;
     font-size: 22px;
-    font-weight: 500;
+    font-weight: 700;
+    color: $accent;
 
     mat-icon {
-      color: #1976d2;
+      color: $accent;
     }
   }
 
   .subtitle {
-    margin: 0;
+    margin: 2px 0 0;
     font-size: 13px;
-    color: #666;
+    color: $muted;
   }
 
   button {
     display: flex;
     align-items: center;
     gap: 8px;
+    border-radius: 10px;
+    box-shadow: $shadow;
   }
 }
 
 mat-card {
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: $radius;
+  box-shadow: $shadow;
+  border: 1px solid $border;
+  background: $surface;
+  padding: 16px;
 }
 
 .projects-table {
@@ -71,20 +88,22 @@ mat-card {
 
   .clickable-row {
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background 0.2s, transform 0.15s ease;
 
     &:hover {
-      background: #f5f5f5;
+      background: #f5f8fc;
+      transform: translateY(-1px);
+      box-shadow: inset 4px 0 0 $accent;
     }
   }
 
   .project-code {
-    font-family: 'Courier New', monospace;
-    font-size: 13px;
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+    font-size: 12px;
     background: #e3f2fd;
     padding: 4px 8px;
-    border-radius: 4px;
-    color: #1976d2;
+    border-radius: 12px;
+    color: $accent;
   }
 
   .status-active {
@@ -99,7 +118,7 @@ mat-card {
 
   .actions-cell {
     display: flex;
-    gap: 4px;
+    gap: 6px;
   }
 }
 
@@ -108,24 +127,18 @@ mat-card {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
-  color: #999;
+  padding: 40px 16px;
+  color: #94a3b8;
+  text-align: center;
 
   mat-icon {
-    font-size: 64px;
-    width: 64px;
-    height: 64px;
-    margin-bottom: 16px;
-    color: #ccc;
-  }
-
-  p {
-    margin: 8px 0;
+    font-size: 48px;
+    margin-bottom: 10px;
   }
 
   .hint {
     font-size: 14px;
-    color: #bbb;
+    color: $muted;
   }
 }
 
@@ -133,10 +146,10 @@ mat-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 80px 20px;
+  padding: 40px 16px;
 
   p {
-    margin-top: 16px;
-    color: #666;
+    margin-top: 12px;
+    color: $muted;
   }
 }

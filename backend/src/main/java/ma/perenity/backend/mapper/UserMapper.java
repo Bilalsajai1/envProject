@@ -21,13 +21,12 @@ public interface UserMapper {
 
     List<UserDTO> toDtoList(List<UtilisateurEntity> entities);
 
-    // Pour CREATE
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "profil", ignore = true) // sera set dans le service via profilRepository
-    @Mapping(target = "keycloakId", ignore = true) // si tu gères ça plus tard
+    @Mapping(target = "profil", ignore = true)
+    @Mapping(target = "keycloakId", ignore = true)
     UtilisateurEntity toEntity(UserCreateUpdateDTO dto);
 
-    // Pour UPDATE partiel
+
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "profil", ignore = true)

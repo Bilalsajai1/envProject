@@ -31,7 +31,7 @@ public class RoleEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
-    private RoleScope scope;  // ✅ NOUVEAU
+    private RoleScope scope;
 
     @Builder.Default
     @Column(nullable = false)

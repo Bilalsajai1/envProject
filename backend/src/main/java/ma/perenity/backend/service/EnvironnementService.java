@@ -31,9 +31,7 @@ public class EnvironnementService {
     private final EnvironnementMapper mapper;
     private final PermissionService permissionService;
 
-    // =====================================================
-    // GET : environnements actifs par projet + type
-    // =====================================================
+
 
     public List<EnvironnementDTO> getEnvironmentsByProjetAndType(Long projetId, String typeCode) {
 
@@ -68,9 +66,7 @@ public class EnvironnementService {
                 ));
     }
 
-    // =====================================================
-    // CREATE
-    // =====================================================
+
 
     public EnvironnementDTO create(EnvironnementDTO dto) {
 
@@ -104,9 +100,7 @@ public class EnvironnementService {
     }
 
 
-    // =====================================================
-    // UPDATE
-    // =====================================================
+
 
     public EnvironnementDTO update(Long id, EnvironnementDTO dto) {
 
@@ -124,9 +118,7 @@ public class EnvironnementService {
         return mapper.toDto(env);
     }
 
-    // =====================================================
-    // DELETE LOGIQUE
-    // =====================================================
+
 
     public void delete(Long id) {
         EnvironnementEntity entity = getByIdOrThrow(id);
@@ -141,9 +133,6 @@ public class EnvironnementService {
         environnementRepository.save(entity);
     }
 
-    // =====================================================
-    // SEARCH (pagination + filtres dynamiques)
-    // =====================================================
 
     public PaginatedResponse<EnvironnementDTO> search(PaginationRequest req) {
 

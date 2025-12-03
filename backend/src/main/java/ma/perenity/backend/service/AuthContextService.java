@@ -21,10 +21,9 @@ public class AuthContextService {
 
     public AuthContextDTO getCurrentContext() {
 
-        // Infos utilisateur + rôles
         UserPermissionsDTO user = permissionService.getCurrentUserPermissions();
 
-        // Types d'environnement actifs
+
         List<EnvironmentTypeEntity> envTypes = environmentTypeRepository.findByActifTrue();
 
         List<EnvironmentTypePermissionDTO> envPermissions = envTypes.stream()

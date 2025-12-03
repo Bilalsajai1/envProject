@@ -23,5 +23,4 @@ public interface ProjetRepository extends
 
     List<ProjetEntity> findByActifTrue();
 
-    boolean existsByCode(String code);
 }

@@ -101,7 +101,7 @@ public class RoleServiceImpl implements RoleService {
                 .code(dto.getCode())
                 .libelle(dto.getLibelle())
                 .action(actionType)
-                .actif(dto.getActif() == null ? true : dto.getActif())
+                .actif(dto.getActif() == null || dto.getActif())
                 .menu(menu)
                 .environnement(env)
                 .projet(projet)

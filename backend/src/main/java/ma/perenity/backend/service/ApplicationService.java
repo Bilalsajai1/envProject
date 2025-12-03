@@ -30,10 +30,6 @@ public class ApplicationService {
                     "Administration des applications réservée à l'administrateur");
         }
     }
-
-    // ============================================================
-    // GET ALL (actifs + inactifs) - ADMIN
-    // ============================================================
     public List<ApplicationDTO> getAll() {
         checkAdmin();
         return repository.findAll()
@@ -42,10 +38,6 @@ public class ApplicationService {
                 .toList();
     }
 
-    // ============================================================
-    // GET ALL ACTIVES UNIQUEMENT - accessible à tout le monde
-    // (utilisé par les écrans qui doivent lister les applications)
-    // ============================================================
     public List<ApplicationDTO> getAllActive() {
         return repository.findByActifTrue()
                 .stream()
@@ -53,9 +45,6 @@ public class ApplicationService {
                 .toList();
     }
 
-    // ============================================================
-    // GET BY ID (only active) - ADMIN
-    // ============================================================
     public ApplicationDTO getById(Long id) {
         checkAdmin();
 
@@ -66,9 +55,6 @@ public class ApplicationService {
         return mapper.toDto(entity);
     }
 
-    // ============================================================
-    // CREATE - ADMIN
-    // ============================================================
     public ApplicationDTO create(ApplicationDTO dto) {
         checkAdmin();
 
@@ -82,9 +68,6 @@ public class ApplicationService {
         return mapper.toDto(entity);
     }
 
-    // ============================================================
-    // UPDATE (seulement si actif) - ADMIN
-    // ============================================================
     public ApplicationDTO update(Long id, ApplicationDTO dto) {
         checkAdmin();
 
@@ -98,9 +81,7 @@ public class ApplicationService {
         return mapper.toDto(entity);
     }
 
-    // ============================================================
-    // DELETE LOGIQUE - ADMIN
-    // ============================================================
+
     public void delete(Long id) {
         checkAdmin();
 
@@ -111,9 +92,7 @@ public class ApplicationService {
         repository.save(entity);
     }
 
-    // ============================================================
-    // SEARCH (avec filtres dynamiques + pagination) - ADMIN
-    // ============================================================
+
     public PaginatedResponse<ApplicationDTO> search(PaginationRequest req) {
         checkAdmin();
 

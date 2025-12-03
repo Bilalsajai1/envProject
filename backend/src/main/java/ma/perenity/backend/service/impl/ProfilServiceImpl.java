@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
-@Slf4j
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -176,17 +176,10 @@ public class ProfilServiceImpl implements ProfilService {
 
         List<RoleEntity> roles = profilRoleRepository.findRolesByProfil(profilId);
 
-        log.debug("Récupération des permissions pour le profil {} : {} rôles trouvés",
-                profilId, roles.size());
 
-        // ============================================================
-        // 🔥 CORRECTION : Détection des rôles par CODE, pas par relation
-        // ============================================================
 
-        // Map pour grouper les actions par type d'environnement (par code)
         Map<String, Set<ActionType>> envTypeActionsMap = new HashMap<>();
 
-        // Map pour grouper les actions par projet (par ID)
         Map<Long, Set<ActionType>> projectActionsMap = new HashMap<>();
 
         for (RoleEntity role : roles) {
@@ -197,8 +190,6 @@ public class ProfilServiceImpl implements ProfilService {
                 continue;
             }
 
-            // ✅ Détection des rôles ENV_TYPE par leur CODE
-            // Format: ENV_{TYPE}_{ACTION}
             if (code.startsWith("ENV_")) {
                 String[] parts = code.split("_");
                 if (parts.length >= 3) {
@@ -207,26 +198,23 @@ public class ProfilServiceImpl implements ProfilService {
                             .computeIfAbsent(typeCode, k -> new HashSet<>())
                             .add(action);
 
-                    log.debug("Rôle ENV détecté : {} -> type={}, action={}",
-                            code, typeCode, action);
+
                 }
             }
-            // ✅ Détection des rôles PROJECT par leur CODE ou relation
+
             else if (code.startsWith("PROJ_")) {
-                // Si le rôle a une relation avec un projet, l'utiliser
+
                 if (role.getProjet() != null) {
                     projectActionsMap
                             .computeIfAbsent(role.getProjet().getId(), k -> new HashSet<>())
                             .add(action);
 
-                    log.debug("Rôle PROJET détecté (avec relation) : {} -> projet={}, action={}",
-                            code, role.getProjet().getCode(), action);
+
                 } else {
-                    // Sinon, essayer de déduire le projet depuis le code
-                    // Format: PROJ_{CODE}_{ACTION}
+
                     String[] parts = code.split("_");
                     if (parts.length >= 3) {
-                        // Reconstruire le code du projet (tout sauf PROJ_ et _ACTION)
+
                         StringBuilder projectCodeBuilder = new StringBuilder();
                         for (int i = 1; i < parts.length - 1; i++) {
                             if (i > 1) projectCodeBuilder.append("_");
@@ -234,7 +222,7 @@ public class ProfilServiceImpl implements ProfilService {
                         }
                         String projectCode = projectCodeBuilder.toString();
 
-                        // Chercher le projet par code
+
                         projetRepository.findAll().stream()
                                 .filter(p -> p.getCode().equalsIgnoreCase(projectCode))
                                 .findFirst()
@@ -243,20 +231,14 @@ public class ProfilServiceImpl implements ProfilService {
                                             .computeIfAbsent(projet.getId(), k -> new HashSet<>())
                                             .add(action);
 
-                                    log.debug("Rôle PROJET détecté (par code) : {} -> projet={}, action={}",
-                                            code, projectCode, action);
+
                                 });
                     }
                 }
             }
         }
 
-        log.debug("Types d'environnement avec permissions : {}", envTypeActionsMap.keySet());
-        log.debug("Projets avec permissions : {}", projectActionsMap.keySet());
 
-        // ============================================================
-        // Construire les DTOs pour les types d'environnement
-        // ============================================================
 
         List<EnvironmentTypeEntity> allTypes = environmentTypeRepository.findByActifTrue();
         List<EnvironmentTypePermissionDTO> envPermissions = allTypes.stream()
@@ -264,7 +246,6 @@ public class ProfilServiceImpl implements ProfilService {
                     Set<ActionType> actions = envTypeActionsMap.getOrDefault(
                             type.getCode().toUpperCase(), Collections.emptySet());
 
-                    log.debug("Type {} : {} actions", type.getCode(), actions.size());
 
                     return EnvironmentTypePermissionDTO.builder()
                             .id(type.getId())
@@ -276,9 +257,7 @@ public class ProfilServiceImpl implements ProfilService {
                 })
                 .toList();
 
-        // ============================================================
-        // Construire les DTOs pour les projets
-        // ============================================================
+
 
         List<ProjetEntity> allProjects = projetRepository.findByActifTrue();
         List<ProjectPermissionDTO> projPermissions = allProjects.stream()
@@ -286,7 +265,6 @@ public class ProfilServiceImpl implements ProfilService {
                     Set<ActionType> actions = projectActionsMap.getOrDefault(
                             projet.getId(), Collections.emptySet());
 
-                    log.debug("Projet {} : {} actions", projet.getCode(), actions.size());
 
                     return ProjectPermissionDTO.builder()
                             .id(projet.getId())
@@ -313,7 +291,7 @@ public class ProfilServiceImpl implements ProfilService {
         ProfilEntity profil = profilRepository.findById(profilId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Profil introuvable"));
 
-        // Construire une map des permissions demandées
+
         Map<String, Set<ActionType>> requested = (envPermissions != null ? envPermissions : List.<EnvTypePermissionUpdateDTO>of())
                 .stream()
                 .filter(dto -> dto.getEnvTypeCode() != null && dto.getActions() != null)
@@ -323,7 +301,7 @@ public class ProfilServiceImpl implements ProfilService {
                         (a, b) -> b
                 ));
 
-        // Supprimer tous les rôles ENV_ pour ce profil
+
         profilRoleRepository.deleteByProfilIdAndRoleCodePrefix(profilId, "ENV_");
 
         List<EnvironmentTypeEntity> envTypes = environmentTypeRepository.findByActifTrue();
@@ -346,7 +324,7 @@ public class ProfilServiceImpl implements ProfilService {
                                     .code(roleCode)
                                     .libelle("Permission " + action.name() + " sur type " + type.getCode())
                                     .action(action)
-                                    .scope(RoleScope.ENV_TYPE)  // ✅ SET SCOPE
+                                    .scope(RoleScope.ENV_TYPE)
                                     .actif(true)
                                     .build();
                             return roleRepository.save(newRole);
@@ -368,7 +346,6 @@ public class ProfilServiceImpl implements ProfilService {
         ProfilEntity profil = profilRepository.findById(profilId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Profil introuvable"));
 
-        log.info("Mise à jour des permissions projet pour le profil {}", profilId);
 
         Map<Long, Set<ActionType>> requestedById = (projectPermissions != null ? projectPermissions : List.<ProjectPermissionUpdateDTO>of())
                 .stream()
@@ -379,7 +356,7 @@ public class ProfilServiceImpl implements ProfilService {
                         (a, b) -> b
                 ));
 
-        // Supprimer tous les rôles PROJ_ pour ce profil
+
         profilRoleRepository.deleteByProfilIdAndRoleCodePrefix(profilId, "PROJ_");
 
         List<ProjetEntity> projects = projetRepository.findByActifTrue();
@@ -388,7 +365,6 @@ public class ProfilServiceImpl implements ProfilService {
             Set<ActionType> actions = requestedById.get(projet.getId());
 
             if (actions == null || actions.isEmpty()) {
-                log.debug("Aucune permission pour le projet {}", projet.getCode());
                 continue;
             }
 
@@ -397,7 +373,6 @@ public class ProfilServiceImpl implements ProfilService {
             for (ActionType action : actions) {
                 String roleCode = "PROJ_" + projectCodeUpper + "_" + action.name();
 
-                log.debug("Création/récupération du rôle : {}", roleCode);
 
                 RoleEntity role = roleRepository.findByCode(roleCode)
                         .orElseGet(() -> {
@@ -405,14 +380,14 @@ public class ProfilServiceImpl implements ProfilService {
                                     .code(roleCode)
                                     .libelle("Permission " + action.name() + " sur projet " + projet.getCode())
                                     .action(action)
-                                    .scope(RoleScope.PROJECT)  // ✅ SET SCOPE
-                                    .projet(projet)  // ✅ SET PROJECT RELATION
+                                    .scope(RoleScope.PROJECT)
+                                    .projet(projet)
                                     .actif(true)
                                     .build();
                             return roleRepository.save(newRole);
                         });
 
-                // Si le rôle existait déjà mais sans projet assigné, on le met à jour
+
                 if (role.getProjet() == null) {
                     role.setProjet(projet);
                     role.setScope(RoleScope.PROJECT);
@@ -428,20 +403,15 @@ public class ProfilServiceImpl implements ProfilService {
 
     }
 
-    /**
-     * ✅ NOUVELLE MÉTHODE : Mise à jour de toutes les permissions en une seule fois
-     */
     @Override
     public void updateAllPermissions(Long profilId, UpdateProfilPermissionsRequest request) {
         checkAdmin();
 
 
-        // Mise à jour des permissions par type
         if (request.getEnvTypePermissions() != null) {
             updateEnvTypePermissions(profilId, request.getEnvTypePermissions());
         }
 
-        // Mise à jour des permissions par projet
         if (request.getProjectPermissions() != null) {
             updateProjectPermissions(profilId, request.getProjectPermissions());
         }

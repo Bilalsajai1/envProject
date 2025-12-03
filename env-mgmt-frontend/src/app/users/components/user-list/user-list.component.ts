@@ -100,7 +100,7 @@ export class UserListComponent implements OnInit, OnDestroy {
   private initSearchListener(): void {
     this.searchSubject
       .pipe(
-        debounceTime(400),
+        debounceTime(0),
         distinctUntilChanged(),
         takeUntil(this.destroy$)
       )
@@ -274,6 +274,10 @@ export class UserListComponent implements OnInit, OnDestroy {
 
   get isEmpty(): boolean {
     return !this.loading && this.users.length === 0;
+  }
+
+  trackByUser(_: number, user: UserDTO): number | undefined {
+    return user.id;
   }
 
   get resultsLabel(): string {

@@ -29,10 +29,7 @@
           />
         </div>
 
-        <div class="logo-text" *ngIf="!isSidebarCollapsed">
-          <div class="logo-title">PERENITY</div>
-          <div class="logo-subtitle">Software Platform</div>
-        </div>
+        
       </div>
 
       <button
@@ -156,36 +153,32 @@
 
       <span class="toolbar-spacer"></span>
 
-      <!-- Toggle Dark Mode -->
-      <button
-        mat-icon-button
-        class="theme-toggle"
-        (click)="toggleDarkMode()"
-        [matTooltip]="isDarkMode ? 'Activer le mode clair' : 'Activer le mode sombre'"
-        [attr.aria-label]="isDarkMode ? 'Activer le mode clair' : 'Activer le mode sombre'">
-        <mat-icon>{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
-      </button>
+      <!-- User Info Card -->
+      <div class="user-card" *ngIf="context?.user as u">
+        <div class="user-card-content">
+          <div class="user-avatar" [attr.aria-label]="'Avatar de ' + userDisplayName">
+            {{ getUserInitials() }}
+          </div>
 
-      <!-- User Info -->
-      <div class="toolbar-user" *ngIf="context?.user as u">
-        <div
-          class="toolbar-user-avatar"
-          [attr.aria-label]="'Avatar de ' + userDisplayName">
-          {{ getUserInitials() }}
+          <div class="user-details">
+            <div class="user-name">{{ userDisplayName }}</div>
+            <div class="user-role">
+              {{ u.admin ? 'Administrateur' : 'Utilisateur' }}
+            </div>
+          </div>
+
+          <mat-divider [vertical]="true"></mat-divider>
+
+          <div class="user-status" *ngIf="u.admin" class="admin-status">
+            <mat-icon>verified_user</mat-icon>
+            <span>ADMIN</span>
+          </div>
+
+          <div class="user-status" *ngIf="!u.admin" class="user-status-badge">
+            <mat-icon>person</mat-icon>
+            <span>USER</span>
+          </div>
         </div>
-
-        <div class="toolbar-user-text">
-          <span class="toolbar-user-name">{{ userDisplayName }}</span>
-          <span class="toolbar-user-role">{{ userProfilLabel || 'Utilisateur' }}</span>
-        </div>
-
-        <mat-chip
-          class="admin-badge"
-          *ngIf="u.admin"
-          [attr.aria-label]="'Administrateur'">
-          <mat-icon aria-hidden="true">verified</mat-icon>
-          <span>ADMIN</span>
-        </mat-chip>
       </div>
     </mat-toolbar>
 

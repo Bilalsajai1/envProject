@@ -25,7 +25,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Slf4j  // ✅ Ajout des logs
+
 @Service
 @RequiredArgsConstructor
 public class PermissionServiceImpl implements PermissionService {
@@ -104,8 +104,6 @@ public class PermissionServiceImpl implements PermissionService {
                 .map(String::toUpperCase)
                 .collect(Collectors.toSet());
 
-        log.debug("Chargement du contexte utilisateur : email={}, profil={}, roles={}",
-                email, profil.getCode(), roleCodes);
 
         UserContext ctx = new UserContext();
         ctx.setUser(user);
@@ -118,7 +116,6 @@ public class PermissionServiceImpl implements PermissionService {
     @Override
     public boolean isAdmin() {
         boolean admin = loadCurrentUser().isAdmin();
-        log.debug("Vérification admin : {}", admin);
         return admin;
     }
 
@@ -130,7 +127,6 @@ public class PermissionServiceImpl implements PermissionService {
         UserContext ctx = loadCurrentUser();
         boolean hasRole = ctx.getRoleCodes().contains(roleCode.trim().toUpperCase());
 
-        log.debug("Vérification du rôle {} : {}", roleCode, hasRole);
 
         return hasRole;
     }
@@ -145,13 +141,11 @@ public class PermissionServiceImpl implements PermissionService {
 
         for (String rc : roleCodes) {
             if (rc != null && userRoles.contains(rc.trim().toUpperCase())) {
-                log.debug("Utilisateur possède le rôle {}", rc);
                 return true;
             }
         }
 
-        log.debug("Utilisateur ne possède aucun des rôles : {}",
-                String.join(", ", roleCodes));
+
 
         return false;
     }
@@ -161,7 +155,6 @@ public class PermissionServiceImpl implements PermissionService {
         UserContext ctx = loadCurrentUser();
 
         if (ctx.isAdmin()) {
-            log.debug("Admin bypass pour l'accès au type {}", envTypeCode);
             return true;
         }
 
@@ -174,8 +167,7 @@ public class PermissionServiceImpl implements PermissionService {
 
         boolean hasAccess = ctx.getRoleCodes().contains(roleToCheck);
 
-        log.debug("Vérification accès type {} avec action {} : {} (rôle requis: {})",
-                envTypeCode, action, hasAccess, roleToCheck);
+
 
         return hasAccess;
     }
@@ -185,7 +177,6 @@ public class PermissionServiceImpl implements PermissionService {
         UserContext ctx = loadCurrentUser();
 
         if (ctx.isAdmin()) {
-            log.debug("Admin bypass pour l'accès au projet {}", projectCode);
             return true;
         }
 
@@ -196,8 +187,7 @@ public class PermissionServiceImpl implements PermissionService {
         String code = "PROJ_" + projectCode.trim().toUpperCase() + "_" + action.name();
         boolean hasAccess = ctx.getRoleCodes().contains(code);
 
-        log.debug("Vérification accès projet {} avec action {} : {} (rôle requis: {})",
-                projectCode, action, hasAccess, code);
+
 
         return hasAccess;
     }
@@ -215,7 +205,6 @@ public class PermissionServiceImpl implements PermissionService {
         UserContext ctx = loadCurrentUser();
 
         if (ctx.isAdmin()) {
-            log.debug("Admin bypass pour l'accès au projet ID {}", projectId);
             return true;
         }
 
@@ -223,19 +212,13 @@ public class PermissionServiceImpl implements PermissionService {
             return false;
         }
 
-        // Récupérer le projet depuis la BDD
         ProjetEntity projet = projetRepository.findById(projectId).orElse(null);
         if (projet == null) {
-            log.warn("Projet introuvable avec ID {}", projectId);
             return false;
         }
 
-        // Vérifier les permissions via le code du projet
         String code = "PROJ_" + projet.getCode().trim().toUpperCase() + "_" + action.name();
         boolean hasAccess = ctx.getRoleCodes().contains(code);
-
-        log.debug("Vérification accès projet ID {} (code={}) avec action {} : {} (rôle requis: {})",
-                projectId, projet.getCode(), action, hasAccess, code);
 
         return hasAccess;
     }
@@ -245,14 +228,12 @@ public class PermissionServiceImpl implements PermissionService {
         UserContext ctx = loadCurrentUser();
 
         if (ctx.isAdmin()) {
-            log.debug("Admin bypass pour l'accès à l'environnement {}",
-                    env != null ? env.getCode() : "null");
+
             return true;
         }
 
         if (env == null || env.getType() == null || env.getProjet() == null || action == null) {
-            log.warn("Paramètres invalides pour canAccessEnv : env={}, action={}",
-                    env != null ? env.getCode() : "null", action);
+
             return false;
         }
 
@@ -260,7 +241,6 @@ public class PermissionServiceImpl implements PermissionService {
         String projectCode = env.getProjet().getCode();
 
         if (envTypeCode == null || projectCode == null) {
-            log.warn("Type ou projet manquant pour l'environnement {}", env.getCode());
             return false;
         }
 
@@ -272,11 +252,6 @@ public class PermissionServiceImpl implements PermissionService {
         boolean hasProjRole = roles.contains(projRole);
         boolean hasAccess = hasEnvRole && hasProjRole;
 
-        log.debug("Vérification accès environnement {} (type={}, projet={}) avec action {} : {} " +
-                        "(envRole={} [{}], projRole={} [{}])",
-                env.getCode(), envTypeCode, projectCode, action, hasAccess,
-                envRole, hasEnvRole, projRole, hasProjRole);
-
         return hasAccess;
     }
 
@@ -286,7 +261,6 @@ public class PermissionServiceImpl implements PermissionService {
         UtilisateurEntity u = ctx.getUser();
         ProfilEntity p = ctx.getProfil();
 
-        log.debug("Récupération des permissions pour l'utilisateur {}", u.getEmail());
 
         return UserPermissionsDTO.builder()
                 .userId(u.getId())

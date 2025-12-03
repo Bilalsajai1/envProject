@@ -12,18 +12,12 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort, Sort } from '@angular/material/sort';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import {
-  debounceTime,
-  distinctUntilChanged,
-  Subject,
-  takeUntil,
-  finalize
-} from 'rxjs';
+import { Subject, takeUntil, finalize } from 'rxjs';
 
 import { ProfilDTO, ProfilService } from '../../../services/profil.service';
 import { PaginatedResponse } from '../../../../users/models/user.model';
 import { ConfirmDialogComponent } from '../../../../users/confirm-dialog/confirm-dialog.component';
-import {ProfilFormComponent} from '../../profil-form/profil-form.component/profil-form.component';
+import { ProfilFormComponent } from '../../profil-form/profil-form.component/profil-form.component';
 
 type SortDirection = 'asc' | 'desc';
 
@@ -65,7 +59,6 @@ export class ProfilListComponent implements OnInit, OnDestroy {
   sortDirection: SortDirection = 'asc';
 
   searchTerm = '';
-  private readonly searchSubject = new Subject<string>();
   private readonly destroy$ = new Subject<void>();
 
   loading = false;
@@ -78,31 +71,12 @@ export class ProfilListComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.initSearchListener();
     this.loadProfils();
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  // -----------------------
-  // Initialisation
-  // -----------------------
-
-  private initSearchListener(): void {
-    this.searchSubject
-      .pipe(
-        debounceTime(400),
-        distinctUntilChanged(),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(term => {
-        this.searchTerm = term.trim();
-        this.page = 0;
-        this.loadProfils();
-      });
   }
 
   private buildFilters(): Record<string, any> {
@@ -112,10 +86,6 @@ export class ProfilListComponent implements OnInit, OnDestroy {
     }
     return filters;
   }
-
-  // -----------------------
-  // Chargement des données
-  // -----------------------
 
   loadProfils(): void {
     const request: ProfilSearchRequest = {
@@ -131,6 +101,7 @@ export class ProfilListComponent implements OnInit, OnDestroy {
     this.profilService
       .search(request)
       .pipe(
+        takeUntil(this.destroy$),
         finalize(() => {
           this.loading = false;
           this.cdr.markForCheck();
@@ -142,24 +113,24 @@ export class ProfilListComponent implements OnInit, OnDestroy {
           this.totalElements = res.totalElements ?? 0;
           this.page = res.page ?? 0;
           this.size = res.size ?? this.size;
+          this.cdr.markForCheck();
         },
         error: () => {
-          this.showSnackBar('❌ Erreur lors du chargement des profils', 'error-snackbar');
+          this.showSnackBar('Erreur lors du chargement des profils', 'error-snackbar');
         }
       });
   }
 
-  // -----------------------
-  // Événements UI
-  // -----------------------
-
   onSearchChange(value: string): void {
-    this.searchSubject.next(value);
+    this.searchTerm = (value || '').trim();
+    this.page = 0;
+    this.loadProfils();
   }
 
   clearSearch(): void {
     this.searchTerm = '';
-    this.searchSubject.next('');
+    this.page = 0;
+    this.loadProfils();
   }
 
   onPageChange(event: PageEvent): void {
@@ -178,10 +149,6 @@ export class ProfilListComponent implements OnInit, OnDestroy {
     }
     this.loadProfils();
   }
-
-  // -----------------------
-  // Actions
-  // -----------------------
 
   addProfil(): void {
     this.openProfilForm('create');
@@ -218,8 +185,6 @@ export class ProfilListComponent implements OnInit, OnDestroy {
   }
 
   configurePermissions(profil: ProfilDTO): void {
-    // On garde la navigation, car c'est une page “complexe”
-    // mais tu pourras plus tard aussi la passer en dialog si tu veux
     window.location.href = `/admin/permissions?profilId=${profil.id}`;
   }
 
@@ -241,19 +206,15 @@ export class ProfilListComponent implements OnInit, OnDestroy {
 
         this.profilService.delete(profil.id).subscribe({
           next: () => {
-            this.showSnackBar('✅ Profil supprimé avec succès', 'success-snackbar');
+            this.showSnackBar('Profil supprimé avec succès', 'success-snackbar');
             this.loadProfils();
           },
           error: () => {
-            this.showSnackBar('❌ Erreur lors de la suppression', 'error-snackbar');
+            this.showSnackBar('Erreur lors de la suppression', 'error-snackbar');
           }
         });
       });
   }
-
-  // -----------------------
-  // Helpers
-  // -----------------------
 
   get isEmpty(): boolean {
     return !this.loading && this.profils.length === 0;

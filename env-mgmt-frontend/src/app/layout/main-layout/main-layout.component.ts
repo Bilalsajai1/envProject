@@ -85,7 +85,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadSavedStates();
-    this.applyTheme();
+  
 
     this.authCtx.getContext$()
       .pipe(takeUntil(this.destroy$))
@@ -117,10 +117,6 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     localStorage.setItem(this.SIDEBAR_STATE_KEY, this.isSidebarCollapsed.toString());
   }
 
-  private saveTheme(): void {
-    localStorage.setItem(this.THEME_KEY, this.isDarkMode ? 'dark' : 'light');
-  }
-
   toggleSidebar(): void {
     this.isSidebarCollapsed = !this.isSidebarCollapsed;
     this.saveSidebarState();
@@ -131,23 +127,6 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     }, 0);
 
     this.cdr.markForCheck();
-  }
-
-  toggleDarkMode(): void {
-    this.isDarkMode = !this.isDarkMode;
-    this.saveTheme();
-    this.applyTheme();
-    this.cdr.markForCheck();
-  }
-
-  private applyTheme(): void {
-    if (this.isDarkMode) {
-      document.body.classList.add('dark-theme');
-      document.body.classList.remove('light-theme');
-    } else {
-      document.body.classList.add('light-theme');
-      document.body.classList.remove('dark-theme');
-    }
   }
 
   private buildEnvMenu(): void {

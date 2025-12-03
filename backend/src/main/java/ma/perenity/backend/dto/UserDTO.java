@@ -2,7 +2,6 @@ package ma.perenity.backend.dto;
 
 import lombok.Data;
 
-// Dans UserMapper.java
 @Data
 public class UserDTO {
     private Long id;
@@ -14,5 +13,5 @@ public class UserDTO {
 
     private Long profilId;
     private String profilCode;
-    private String profilLibelle;  // ✅ Déjà mappé
+    private String profilLibelle;
 }

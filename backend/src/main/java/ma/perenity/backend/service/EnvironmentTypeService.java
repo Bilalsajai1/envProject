@@ -32,11 +32,9 @@ public class EnvironmentTypeService {
         }
     }
 
-    // ============================================================
-    // GET
-    // ============================================================
 
-    // Admin : tous les types
+
+
     public List<EnvironmentTypeDTO> getAll() {
         checkAdmin();
         return repository.findAll()
@@ -45,11 +43,11 @@ public class EnvironmentTypeService {
                 .toList();
     }
 
-    // Tous : seulement les types actifs pour lesquels l'utilisateur a CONSULT
+
     public List<EnvironmentTypeDTO> getAllActive() {
         List<EnvironmentTypeEntity> allActives = repository.findByActifTrue();
 
-        // Admin : voit tout
+
         if (permissionService.isAdmin()) {
             return allActives.stream().map(mapper::toDto).toList();
         }
@@ -60,7 +58,7 @@ public class EnvironmentTypeService {
                 .toList();
     }
 
-    // Admin uniquement
+
     public EnvironmentTypeDTO getById(Long id) {
         checkAdmin();
         EnvironmentTypeEntity entity = repository.findById(id)
@@ -70,14 +68,11 @@ public class EnvironmentTypeService {
         return mapper.toDto(entity);
     }
 
-    // ============================================================
-    // CREATE
-    // ============================================================
 
     public EnvironmentTypeDTO create(EnvironmentTypeDTO dto) {
         checkAdmin();
 
-        // Vérifier unicité du code
+
         if (repository.existsByCode(dto.getCode())) {
             throw new IllegalStateException("EnvironmentType code already exists: " + dto.getCode());
         }
@@ -89,9 +84,7 @@ public class EnvironmentTypeService {
         return mapper.toDto(entity);
     }
 
-    // ============================================================
-    // UPDATE
-    // ============================================================
+
 
     public EnvironmentTypeDTO update(Long id, EnvironmentTypeDTO dto) {
         checkAdmin();
@@ -101,7 +94,7 @@ public class EnvironmentTypeService {
                         "EnvironmentType not found with id = " + id
                 ));
 
-        // Si le code change, on vérifie qu'il n'est pas déjà utilisé
+
         if (!entity.getCode().equals(dto.getCode())
                 && repository.existsByCode(dto.getCode())) {
             throw new IllegalStateException("EnvironmentType code already exists: " + dto.getCode());
@@ -113,9 +106,7 @@ public class EnvironmentTypeService {
         return mapper.toDto(entity);
     }
 
-    // ============================================================
-    // DELETE LOGIQUE
-    // ============================================================
+
 
     public void delete(Long id) {
         checkAdmin();
@@ -129,9 +120,7 @@ public class EnvironmentTypeService {
         repository.save(entity);
     }
 
-    // ============================================================
-    // SEARCH (pagination + filtres dynamiques)
-    // ============================================================
+
 
     public PaginatedResponse<EnvironmentTypeDTO> search(PaginationRequest req) {
         checkAdmin();

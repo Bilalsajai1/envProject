@@ -137,11 +137,11 @@ public class UtilisateurServiceImpl implements UtilisateurService {
         EntitySpecification<UtilisateurEntity> specBuilder = new EntitySpecification<>();
         Specification<UtilisateurEntity> spec = specBuilder.getSpecification(rawFilters);
 
-        // 🔥 AJOUT: Toujours filtrer sur les utilisateurs actifs
+
         Specification<UtilisateurEntity> actifSpec = (root, query, cb) ->
                 cb.equal(root.get("actif"), true);
         spec = spec.and(actifSpec);
-        // 🔥 FIN AJOUT
+
 
         if (search != null) {
             final String term = "%" + search.toLowerCase() + "%";

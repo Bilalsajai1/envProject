@@ -14,5 +14,4 @@ public interface UtilisateurRepository extends
     Optional<UtilisateurEntity> findByEmail(String email);
     List<UtilisateurEntity> findByActifTrue();
 
-    boolean existsByCode(String code);
 }

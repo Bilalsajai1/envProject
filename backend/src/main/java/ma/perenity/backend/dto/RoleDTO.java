@@ -26,7 +26,6 @@ public class RoleDTO {
     private Long environnementId;
     private String environnementCode;
 
-    // Nouveau : infos projet (si applicable)
     private Long projetId;
     private String projetCode;
 }

@@ -22,7 +22,7 @@ public interface ProfilService {
 
     PaginatedResponse<ProfilDTO> search(PaginationRequest req);
 
-    // === Gestion des permissions ===
+
 
     ProfilPermissionsDTO getPermissions(Long profilId);
 

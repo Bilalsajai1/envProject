@@ -31,9 +31,7 @@ public class EnvApplicationService {
     private final EnvApplicationMapper mapper;
     private final PermissionService permissionService;
 
-    // ============================================================
-    // GET BY ENV (ACTIFS UNIQUEMENT)
-    // ============================================================
+
     public List<EnvApplicationDTO> getByEnvironnement(Long envId) {
 
         EnvironnementEntity env = environnementRepository.findById(envId)
@@ -51,9 +49,7 @@ public class EnvApplicationService {
                 .toList();
     }
 
-    // ============================================================
-    // CREATE
-    // ============================================================
+
     public EnvApplicationDTO create(EnvApplicationDTO dto) {
 
         if (dto.getEnvironnementId() == null) {
@@ -78,7 +74,7 @@ public class EnvApplicationService {
                         "Application not found with id = " + dto.getApplicationId()
                 ));
 
-        // Vérification doublon (application déjà active dans cet environnement)
+
         boolean exists = repository.findByEnvironnementId(dto.getEnvironnementId())
                 .stream()
                 .filter(EnvApplicationEntity::getActif)
@@ -100,9 +96,7 @@ public class EnvApplicationService {
     }
 
 
-    // ============================================================
-    // UPDATE (uniquement si actif)
-    // ============================================================
+
     public EnvApplicationDTO update(Long id, EnvApplicationDTO dto) {
 
         EnvApplicationEntity entity = repository.findById(id)
@@ -114,7 +108,7 @@ public class EnvApplicationService {
                     "Vous n'avez pas le droit de modifier cette application d'environnement");
         }
 
-        // Les relations env/application ne sont pas modifiées ici (mapper ignore ces champs)
+
         mapper.updateEntityFromDto(dto, entity);
 
         entity = repository.save(entity);
@@ -122,9 +116,6 @@ public class EnvApplicationService {
         return mapper.toDto(entity);
     }
 
-    // ============================================================
-    // DELETE LOGIQUE
-    // ============================================================
     public void delete(Long id) {
 
         EnvApplicationEntity entity = repository.findById(id)
@@ -140,9 +131,6 @@ public class EnvApplicationService {
         repository.save(entity);
     }
 
-    // ============================================================
-    // SEARCH (ADMIN : ACTIF + INACTIF)
-    // ============================================================
     public PaginatedResponse<EnvApplicationDTO> search(PaginationRequest req) {
 
         if (!permissionService.isAdmin()) {

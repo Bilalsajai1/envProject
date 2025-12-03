@@ -1,5 +1,3 @@
-// src/app/admin/users/user-form/user-form.component.ts
-
 import {
   Component,
   OnInit,
@@ -41,7 +39,6 @@ export class UserFormComponent implements OnInit, OnDestroy {
   saving = false;
   profilsLoading = false;
 
-  // Pour détecter si le formulaire a été modifié
   initialFormValue: any;
 
   private destroy$ = new Subject<void>();
@@ -60,12 +57,13 @@ export class UserFormComponent implements OnInit, OnDestroy {
     this.loadProfils();
 
     this.isEdit = this.data.mode === 'edit' && !!this.data.userId;
+
     if (this.isEdit && this.data.userId) {
       this.userId = this.data.userId;
       this.loadUser(this.userId);
     } else {
-      // valeur initiale en mode création
       this.initialFormValue = this.form.value;
+      this.loading = false; // ✅ Mettre false dès le départ en création
     }
   }
 
@@ -117,9 +115,8 @@ export class UserFormComponent implements OnInit, OnDestroy {
             profilId: user.profilId
           });
 
-          // Sauvegarder la valeur initiale après le chargement
           this.initialFormValue = this.form.value;
-          this.loading = false;
+          this.loading = false; // ✅ Important: mettre false APRÈS patchValue
         },
         error: (error) => {
           console.error('Erreur lors du chargement de l\'utilisateur:', error);
@@ -150,12 +147,14 @@ export class UserFormComponent implements OnInit, OnDestroy {
         next: () => {
           this.saving = false;
           const message = this.isEdit
-            ? 'Utilisateur modifié avec succès'
-            : 'Utilisateur créé avec succès';
+            ? '✅ Utilisateur modifié avec succès'
+            : '✅ Utilisateur créé avec succès';
           this.showSuccess(message);
 
-          // ✅ on ferme le dialog et on indique au parent de recharger la liste
-          this.dialogRef.close(true);
+          // ✅ Fermer et indiquer au parent de recharger
+          setTimeout(() => {
+            this.dialogRef.close(true);
+          }, 500);
         },
         error: (error) => {
           console.error('Erreur lors de l\'enregistrement:', error);
@@ -169,7 +168,6 @@ export class UserFormComponent implements OnInit, OnDestroy {
   }
 
   cancel(): void {
-    // Vérifier si le formulaire a été modifié
     if (this.hasFormChanged()) {
       const dialogRef = this.dialog.open(ConfirmDialogComponent, {
         width: '450px',
@@ -198,24 +196,25 @@ export class UserFormComponent implements OnInit, OnDestroy {
   }
 
   private showSuccess(message: string): void {
-    this.snackBar.open(message, 'Fermer', {
+    this.snackBar.open(message, '', {
       duration: 3000,
       horizontalPosition: 'end',
       verticalPosition: 'top',
-      panelClass: ['success-snackbar']
+      panelClass: ['toast-success'],
+      announcementMessage: message
     });
   }
 
   private showError(message: string): void {
-    this.snackBar.open(message, 'Fermer', {
+    this.snackBar.open(message, '', {
       duration: 5000,
       horizontalPosition: 'end',
       verticalPosition: 'top',
-      panelClass: ['error-snackbar']
+      panelClass: ['toast-error'],
+      announcementMessage: message
     });
   }
 
-  // Getters pour faciliter l'accès aux contrôles dans le template
   get codeControl() { return this.form.get('code'); }
   get firstNameControl() { return this.form.get('firstName'); }
   get lastNameControl() { return this.form.get('lastName'); }
@@ -223,7 +222,6 @@ export class UserFormComponent implements OnInit, OnDestroy {
   get profilIdControl() { return this.form.get('profilId'); }
   get actifControl() { return this.form.get('actif'); }
 
-  // Helper pour obtenir les messages d'erreur
   getErrorMessage(controlName: string): string {
     const control = this.form.get(controlName);
     if (!control || !control.errors) return '';

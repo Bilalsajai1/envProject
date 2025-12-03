@@ -1,80 +1,109 @@
-.profil-form-dialog {
-  min-width: 100%;
+$accent: #152f56;
+$border: #e5e7eb;
+$muted: #6b7280;
+$surface: #ffffff;
+$radius: 12px;
+$shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+
+.form-container {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: $shadow;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.dialog-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
+.loading-bar {
+  border-radius: 6px;
+}
 
-  h2 {
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  h1 {
     margin: 0;
-    font-size: 1.2rem;
+    font-size: 22px;
     font-weight: 700;
+    color: $accent;
   }
 
   .subtitle {
     margin: 4px 0 0;
-    font-size: 0.85rem;
-    color: #64748b;
+    font-size: 14px;
+    color: $muted;
   }
 }
 
 .profil-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 16px;
 
   .full-width {
     grid-column: 1 / -1;
   }
+}
 
-  .checkbox-row {
-    grid-column: 1 / -1;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 
-    .admin-hint {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.8rem;
-      color: #64748b;
-
-      mat-icon {
-        font-size: 16px;
-      }
-    }
-  }
-
-  .toggle-row {
+  .admin-hint {
     display: flex;
     align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: $muted;
+
+    mat-icon {
+      font-size: 16px;
+    }
   }
 }
 
-.dialog-actions {
+.form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
-  margin-top: 8px;
+  gap: 10px;
 
   button[mat-raised-button] {
-    min-width: 110px;
+    min-width: 120px;
+    box-shadow: $shadow;
+    background: linear-gradient(120deg, $accent, lighten($accent, 10%));
+    color: #fff;
+    border-radius: 10px;
+  }
+
+  button[mat-stroked-button] {
+    border-color: $border;
+    color: $muted;
+    border-radius: 10px;
+    background: #f8fafc;
   }
 }
 
-.loading {
+.loading-state {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 32px 0;
+  color: $muted;
+}
+
+@media (max-width: 768px) {
+  .form-container {
+    padding: 16px;
+  }
 }

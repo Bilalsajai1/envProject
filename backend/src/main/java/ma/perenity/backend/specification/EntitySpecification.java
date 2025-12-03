@@ -26,12 +26,9 @@ public class EntitySpecification<T> {
                 if (value instanceof String str && str.isBlank()) {
                     continue;
                 }
-
-                // ---- Champs imbriqués : ex "profil.libelle"
                 if (key.contains(".")) {
                     String[] parts = key.split("\\.");
                     if (parts.length != 2) {
-                        // clé mal formée → on ignore simplement
                         continue;
                     }
 
@@ -48,12 +45,10 @@ public class EntitySpecification<T> {
                     continue;
                 }
 
-                // ---- Champ simple
                 Path<?> path;
                 try {
                     path = root.get(key);
                 } catch (IllegalArgumentException ex) {
-                    // Champ inconnu côté entity → on ignore le filtre pour éviter un crash
                     continue;
                 }
 
@@ -78,7 +73,7 @@ public class EntitySpecification<T> {
 
                 } else if (Number.class.isAssignableFrom(javaType)) {
 
-                    // En général, Jackson aura déjà casté en Number (Integer/Long/Double)
+
                     predicate = cb.and(predicate, cb.equal(path, value));
 
                 } else {

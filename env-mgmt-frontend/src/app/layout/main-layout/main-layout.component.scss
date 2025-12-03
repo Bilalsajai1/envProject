@@ -25,6 +25,20 @@
   overflow: hidden;
 }
 
+mat-sidenav-container.layout-container,
+mat-sidenav,
+mat-sidenav-content,
+.mat-drawer-content {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+:host ::ng-deep .mat-drawer-content,
+:host ::ng-deep .mat-sidenav-content {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
 /* ============= SIDEBAR ============= */
 
 .sidenav {
@@ -460,6 +474,7 @@ mat-divider {
   border-bottom: 1px solid rgba(148, 163, 184, 0.2);
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
   transition: all var(--transition-base);
+  color: #0b1220;
 }
 
 .toolbar-left {
@@ -483,8 +498,8 @@ mat-divider {
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  font-size: 0.9rem;
-  color: #0f172a;
+  font-size: 1rem;
+  color: #0b1220;
   position: relative;
 
   &::after {
@@ -567,15 +582,15 @@ mat-divider {
 }
 
 .toolbar-user-name {
-  font-size: 0.92rem;
-  font-weight: 600;
-  color: #0f172a;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0b1220;
   line-height: 1.2;
 }
 
 .toolbar-user-role {
-  font-size: 0.75rem;
-  color: #64748b;
+  font-size: 0.78rem;
+  color: #475569;
   line-height: 1.2;
 }
 
@@ -620,8 +635,8 @@ mat-divider {
     linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
 
   display: flex;
-  justify-content: center;
-  padding: 28px;
+  justify-content: flex-start;
+  padding: 0;
 
   /* Custom scrollbar */
   &::-webkit-scrollbar {
@@ -644,8 +659,9 @@ mat-divider {
 
 .content-inner {
   width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
+  max-width: none;
+  margin: 0;
+  padding: 0;
   animation: fadeInUp 0.5s ease-out;
 }
 
@@ -673,7 +689,7 @@ mat-divider {
   }
 
   .content {
-    padding: 20px;
+    padding: 0;
   }
 
   .top-toolbar {
@@ -706,7 +722,7 @@ mat-divider {
   }
 
   .content {
-    padding: 16px;
+    padding: 0;
   }
 }
 
@@ -729,112 +745,122 @@ mat-divider {
   }
 }
 
-/* ============= DARK THEME ============= */
+.top-toolbar {
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  height: 64px;
+  box-shadow: var(--shadow-md);
 
-body.dark-theme {
-  /* Variables pour dark mode */
-  --perenity-primary-dark: #1e3a5f;
-  --perenity-accent-dark: #60a5fa;
+  .toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 
-  .sidenav {
-    background: linear-gradient(165deg, #0f1419 0%, #020617 50%, #000000 100%);
-    box-shadow: 4px 0 32px rgba(0, 0, 0, 0.6);
+    .toolbar-logo {
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+      color: var(--primary-color, #3b82f6);
+    }
 
-    &::before {
-      background: radial-gradient(ellipse at top left, rgba(96, 165, 250, 0.12), transparent 60%);
+    .app-title {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
     }
   }
 
-  /* User Block Dark */
-  .user-block {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.08);
+  .toolbar-spacer {
+    flex: 1 1 auto;
+  }
+
+  .theme-toggle {
+    margin-right: 16px;
+    transition: transform 0.2s ease;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.1);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+      transform: scale(1.1);
     }
   }
 
-  /* Navigation Dark */
-  .menu-list .mat-mdc-list-item {
-    &:hover {
-      background: rgba(255, 255, 255, 0.08);
-    }
-
-    &.active {
-      background: rgba(96, 165, 250, 0.15);
-      box-shadow: 0 4px 16px rgba(96, 165, 250, 0.25);
-    }
-  }
-
-  /* Topbar Dark */
-  .top-toolbar {
-    background: rgba(15, 23, 42, 0.98);
-    backdrop-filter: blur(20px) saturate(180%);
-    border-bottom-color: rgba(71, 85, 105, 0.3);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-  }
-
-  .app-title {
-    color: #e0ecff;
-
-    &::after {
-      background: linear-gradient(90deg, var(--perenity-accent-dark), transparent);
-    }
-  }
-
-  .toolbar-logo {
-    color: #93c5fd;
+  .user-card {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 12px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
 
     &:hover {
-      color: var(--perenity-accent-dark);
+      box-shadow: var(--shadow-md);
     }
-  }
 
-  .theme-toggle mat-icon {
-    color: #93c5fd;
+    .user-card-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
 
-    &:hover {
-      color: var(--perenity-accent-dark);
-    }
-  }
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 14px;
+      }
 
-  .toolbar-user {
-    background: rgba(255, 255, 255, 0.04);
+      .user-details {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
 
-    &:hover {
-      background: rgba(255, 255, 255, 0.08);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-    }
-  }
+        .user-name {
+          font-weight: 600;
+          font-size: 14px;
+        }
 
-  .toolbar-user-name {
-    color: #f9fafb;
-  }
+        .user-role {
+          font-size: 12px;
+          color: var(--text-secondary);
+        }
+      }
 
-  .toolbar-user-role {
-    color: #94a3b8;
-  }
+      mat-divider {
+        margin: 0 8px;
+      }
 
-  /* Content Dark */
-  .content {
-    background:
-      radial-gradient(circle at top right, rgba(30, 58, 138, 0.15) 0%, transparent 50%),
-      radial-gradient(circle at bottom left, rgba(17, 24, 39, 0.8) 0%, transparent 50%),
-      linear-gradient(180deg, #0f172a 0%, #020617 100%);
-  }
+      .user-status {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 4px 8px;
+        border-radius: 6px;
 
-  /* Scrollbar Dark */
-  .content::-webkit-scrollbar-track {
-    background: rgba(15, 23, 42, 0.3);
-  }
+        mat-icon {
+          font-size: 16px;
+          width: 16px;
+          height: 16px;
+        }
 
-  .content::-webkit-scrollbar-thumb {
-    background: rgba(71, 85, 105, 0.5);
+        &.admin-status {
+          background-color: rgba(239, 68, 68, 0.1);
+          color: #ef4444;
+        }
 
-    &:hover {
-      background: rgba(100, 116, 139, 0.7);
+        &.user-status-badge {
+          background-color: rgba(59, 130, 246, 0.1);
+          color: #3b82f6;
+        }
+      }
     }
   }
 }

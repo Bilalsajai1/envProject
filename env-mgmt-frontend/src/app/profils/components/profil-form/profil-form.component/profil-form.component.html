@@ -1,6 +1,13 @@
 <!-- src/app/profils/components/profil-form/profil-form.component.html -->
 
-<div class="form-container" *ngIf="!loading; else loadingTpl">
+<div class="form-container">
+  <mat-progress-bar
+    *ngIf="loading"
+    mode="indeterminate"
+    color="primary"
+    class="loading-bar">
+  </mat-progress-bar>
+
   <div class="form-header">
     <div>
       <h1>{{ isEdit ? 'Modifier un profil' : 'Nouveau profil' }}</h1>
@@ -72,9 +79,3 @@
     </div>
   </form>
 </div>
-
-<ng-template #loadingTpl>
-  <div class="loading">
-    <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
-  </div>
-</ng-template>

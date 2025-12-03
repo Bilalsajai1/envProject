@@ -165,10 +165,10 @@
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>Actions</th>
             <td mat-cell *matCellDef="let user" class="actions-cell">
-              <button mat-icon-button color="primary" (click)="editUser(user)">
+              <button mat-icon-button color="primary" class="action-btn edit" (click)="editUser(user)">
                 <mat-icon>edit</mat-icon>
               </button>
-              <button mat-icon-button color="warn" (click)="deleteUser(user)">
+              <button mat-icon-button color="warn" class="action-btn delete" (click)="deleteUser(user)">
                 <mat-icon>delete</mat-icon>
               </button>
             </td>
@@ -177,7 +177,7 @@
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr
             mat-row
-            *matRowDef="let row; columns: displayedColumns;"
+            *matRowDef="let row; columns: displayedColumns; trackBy: trackByUser"
             class="table-row">
           </tr>
 

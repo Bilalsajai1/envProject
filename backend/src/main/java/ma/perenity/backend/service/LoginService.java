@@ -37,7 +37,7 @@ public class LoginService {
 
         RestTemplate restTemplate = new RestTemplate();
 
-        // Body form-data
+
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("grant_type", "password");
         formData.add("client_id", clientId);
@@ -64,8 +64,7 @@ public class LoginService {
             throw new RuntimeException("Erreur d'authentification Keycloak");
         }
 
-        // Pour l’instant, on renvoie les rôles vides.
-        // Tu peux plus tard les décoder depuis le JWT si tu veux.
+
         return LoginResponse.builder()
                 .accessToken(token.getAccessToken())
                 .refreshToken(token.getRefreshToken())

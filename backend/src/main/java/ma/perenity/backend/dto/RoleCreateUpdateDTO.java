@@ -28,6 +28,5 @@ public class RoleCreateUpdateDTO {
     private Long menuId;
     private Long environnementId;
 
-    // Nouveau : projet porteur de ce rôle (peut être null)
     private Long projetId;
 }

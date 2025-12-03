@@ -25,9 +25,6 @@ public class ProjetService {
     private final ProjetMapper projetMapper;
     private final PermissionService permissionService;
 
-    // ============================================================
-    // GET par type d'environnement (actifs + inactifs)
-    // ============================================================
 
     public List<ProjetDTO> getProjectsByEnvironmentType(String typeCode) {
 
@@ -51,9 +48,7 @@ public class ProjetService {
     }
 
 
-    // ============================================================
-    // GET ALL (uniquement actifs) - ADMIN ONLY
-    // ============================================================
+
 
     public List<ProjetDTO> getAll() {
 
@@ -68,12 +63,10 @@ public class ProjetService {
                 .toList();
     }
 
-    // ============================================================
-    // GET BY ID (uniquement actif) - ADMIN ONLY
-    // ============================================================
+
 
     public ProjetDTO getById(Long id) {
-        // ✅ Vérifier si l'utilisateur a accès (admin OU permission CONSULT)
+
         if (!permissionService.isAdmin() &&
                 !permissionService.canAccessProjectById(id, ActionType.CONSULT)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
@@ -88,9 +81,7 @@ public class ProjetService {
 
         return projetMapper.toDto(entity);
     }
-    // ============================================================
-    // CREATE - ADMIN ONLY
-    // ============================================================
+
 
     public ProjetDTO create(ProjetDTO dto) {
 
@@ -102,7 +93,7 @@ public class ProjetService {
         ProjetEntity entity = projetMapper.toEntity(dto);
         entity.setId(null);
 
-        // si non renseigné, on force actif = true
+
         if (entity.getActif() == null) {
             entity.setActif(true);
         }
@@ -111,9 +102,6 @@ public class ProjetService {
         return projetMapper.toDto(entity);
     }
 
-    // ============================================================
-    // UPDATE - ADMIN ONLY
-    // ============================================================
 
     public ProjetDTO update(Long id, ProjetDTO dto) {
 
@@ -128,16 +116,12 @@ public class ProjetService {
                         "Projet introuvable (ou inactif) avec id = " + id
                 ));
 
-        // update partiel via mapper (ignore les nulls)
+
         projetMapper.updateEntityFromDto(dto, entity);
 
         entity = projetRepository.save(entity);
         return projetMapper.toDto(entity);
     }
-
-    // ============================================================
-    // DELETE LOGIQUE - ADMIN ONLY
-    // ============================================================
 
     public void delete(Long id) {
 
@@ -154,9 +138,6 @@ public class ProjetService {
         projetRepository.save(projet);
     }
 
-    // ============================================================
-    // SEARCH (pagination + filtres dynamiques) - ADMIN ONLY
-    // ============================================================
 
     public PaginatedResponse<ProjetDTO> search(PaginationRequest req) {
 

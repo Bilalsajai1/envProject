@@ -17,7 +17,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Slf4j
+
 @Service
 @RequiredArgsConstructor
 public class MenuDynamicService {
@@ -27,16 +27,12 @@ public class MenuDynamicService {
     private final PermissionService permissionService;
     private final MenuMapper menuMapper;
 
-    /**
-     * Récupère les menus accessibles pour l'utilisateur connecté
-     * basé sur ses permissions
-     */
+
     @Transactional(readOnly = true)
     public List<MenuDTO> getAccessibleMenusForCurrentUser() {
 
-        // Si admin, retourner tous les menus
+
         if (permissionService.isAdmin()) {
-            log.debug("Utilisateur admin - retourne tous les menus");
             return menuRepository.findAll()
                     .stream()
                     .filter(MenuEntity::getVisible)
@@ -46,7 +42,7 @@ public class MenuDynamicService {
                     .collect(Collectors.toList());
         }
 
-        // Pour les utilisateurs non-admin, filtrer selon les permissions
+
         List<EnvironmentTypeEntity> accessibleTypes = environmentTypeRepository
                 .findByActifTrue()
                 .stream()
@@ -54,12 +50,6 @@ public class MenuDynamicService {
                         type.getCode(), ActionType.CONSULT))
                 .toList();
 
-        log.debug("Types d'environnement accessibles : {}",
-                accessibleTypes.stream()
-                        .map(EnvironmentTypeEntity::getCode)
-                        .collect(Collectors.joining(", ")));
-
-        // Récupérer les menus pour ces types
         List<MenuEntity> accessibleMenus = new ArrayList<>();
 
         for (EnvironmentTypeEntity type : accessibleTypes) {
@@ -67,13 +57,11 @@ public class MenuDynamicService {
                     .findByEnvironmentType_CodeAndVisibleTrueOrderByOrdreAsc(
                             type.getCode());
 
-            log.debug("Menus trouvés pour le type {} : {}",
-                    type.getCode(), menusForType.size());
 
             accessibleMenus.addAll(menusForType);
         }
 
-        // Supprimer les doublons et trier
+
         return accessibleMenus.stream()
                 .distinct()
                 .sorted(Comparator.comparing(MenuEntity::getOrdre,
@@ -82,17 +70,13 @@ public class MenuDynamicService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Récupère les menus pour un type d'environnement spécifique
-     * (avec vérification de permission)
-     */
+
     @Transactional(readOnly = true)
     public List<MenuDTO> getMenusForEnvironmentType(String typeCode) {
 
         // Vérifier que l'utilisateur a accès à ce type
         if (!permissionService.isAdmin()
                 && !permissionService.canAccessEnvType(typeCode, ActionType.CONSULT)) {
-            log.warn("Accès refusé au type {} pour l'utilisateur", typeCode);
             return List.of();
         }
 

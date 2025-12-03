@@ -11,16 +11,6 @@ import java.util.List;
 public interface MenuRepository extends JpaRepository<MenuEntity, Long>,
         JpaSpecificationExecutor<MenuEntity> {
 
-    @Query("""
-                SELECT DISTINCT m
-                FROM MenuEntity m
-                JOIN m.roles r
-                WHERE r.id IN :roleIds
-                ORDER BY m.ordre ASC
-            """)
-    List<MenuEntity> findMenusByRoles(@Param("roleIds") List<Long> roleIds);
-
     List<MenuEntity> findByEnvironmentType_CodeAndVisibleTrueOrderByOrdreAsc(String code);
 
-    boolean existsByCode(String code);
 }
