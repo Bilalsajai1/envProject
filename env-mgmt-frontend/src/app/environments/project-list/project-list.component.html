@@ -1,8 +1,5 @@
-<!-- src/app/environments/components/project-list/project-list.component.html -->
-
 <div class="project-list-container">
 
-  <!-- Breadcrumb -->
   <nav class="breadcrumb">
     <mat-icon>home</mat-icon>
     <span>{{ typeCode }}</span>
@@ -10,7 +7,6 @@
     <span class="current">Projets</span>
   </nav>
 
-  <!-- Header -->
   <div class="list-header">
     <div>
       <h2>
@@ -29,93 +25,87 @@
     </button>
   </div>
 
-  <!-- Carte -->
-  <mat-card *ngIf="!loading; else loadingTpl">
-    <table
-      mat-table
-      [dataSource]="projects"
-      class="projects-table">
+  @if (!loading) {
+    <mat-card>
+      <table
+        mat-table
+        [dataSource]="projects"
+        class="projects-table">
 
-      <!-- Code -->
-      <ng-container matColumnDef="code">
-        <th mat-header-cell *matHeaderCellDef>Code</th>
-        <td mat-cell *matCellDef="let project">
-          <span class="project-code">{{ project.code }}</span>
-        </td>
-      </ng-container>
+        <ng-container matColumnDef="code">
+          <th mat-header-cell *matHeaderCellDef>Code</th>
+          <td mat-cell *matCellDef="let project">
+            <span class="project-code">{{ project.code }}</span>
+          </td>
+        </ng-container>
 
-      <!-- Libellé -->
-      <ng-container matColumnDef="libelle">
-        <th mat-header-cell *matHeaderCellDef>Libellé</th>
-        <td mat-cell *matCellDef="let project">
-          <strong>{{ project.libelle }}</strong>
-        </td>
-      </ng-container>
+        <ng-container matColumnDef="libelle">
+          <th mat-header-cell *matHeaderCellDef>Libellé</th>
+          <td mat-cell *matCellDef="let project">
+            <strong>{{ project.libelle }}</strong>
+          </td>
+        </ng-container>
 
-      <!-- Description -->
-      <ng-container matColumnDef="description">
-        <th mat-header-cell *matHeaderCellDef>Description</th>
-        <td mat-cell *matCellDef="let project">
-          {{ project.description || '-' }}
-        </td>
-      </ng-container>
+        <ng-container matColumnDef="description">
+          <th mat-header-cell *matHeaderCellDef>Description</th>
+          <td mat-cell *matCellDef="let project">
+            {{ project.description || '-' }}
+          </td>
+        </ng-container>
 
-      <!-- Actif -->
-      <ng-container matColumnDef="actif">
-        <th mat-header-cell *matHeaderCellDef>Statut</th>
-        <td mat-cell *matCellDef="let project">
-          <mat-chip
-            [class.status-active]="project.actif"
-            [class.status-inactive]="!project.actif">
-            {{ project.actif ? 'Actif' : 'Inactif' }}
-          </mat-chip>
-        </td>
-      </ng-container>
+        <ng-container matColumnDef="actif">
+          <th mat-header-cell *matHeaderCellDef>Statut</th>
+          <td mat-cell *matCellDef="let project">
+            <mat-chip
+              [class.status-active]="project.actif"
+              [class.status-inactive]="!project.actif">
+              {{ project.actif ? 'Actif' : 'Inactif' }}
+            </mat-chip>
+          </td>
+        </ng-container>
 
-      <!-- Actions -->
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef>Actions</th>
-        <td mat-cell *matCellDef="let project" class="actions-cell">
-          <button
-            mat-icon-button
-            (click)="editProject($event, project)"
-            matTooltip="Modifier"
-            color="primary">
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button
-            mat-icon-button
-            (click)="deleteProject($event, project)"
-            matTooltip="Supprimer"
-            color="warn">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </td>
-      </ng-container>
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let project" class="actions-cell">
+            <button
+              mat-icon-button
+              (click)="editProject($event, project)"
+              matTooltip="Modifier"
+              color="primary">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              (click)="deleteProject($event, project)"
+              matTooltip="Supprimer"
+              color="warn">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: displayedColumns;"
-        class="clickable-row"
-        (click)="openProject(row)"></tr>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns;"
+          class="clickable-row"
+          (click)="openProject(row)"></tr>
 
-    </table>
+      </table>
 
-    <!-- Empty state -->
-    <div *ngIf="projects.length === 0" class="empty-state">
-      <mat-icon>folder_off</mat-icon>
-      <p>Aucun projet trouvé</p>
-      <p class="hint">Créez votre premier projet pour ce type d'environnement</p>
+      @if (projects.length === 0) {
+        <div class="empty-state">
+          <mat-icon>folder_off</mat-icon>
+          <p>Aucun projet trouvé</p>
+          <p class="hint">Créez votre premier projet pour ce type d'environnement</p>
+        </div>
+      }
+    </mat-card>
+  } @else {
+    <div class="loading-state">
+      <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+      <p>Chargement des projets...</p>
     </div>
-
-  </mat-card>
+  }
 
 </div>
-
-<ng-template #loadingTpl>
-  <div class="loading-state">
-    <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
-    <p>Chargement des projets...</p>
-  </div>
-</ng-template>

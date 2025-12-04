@@ -1,21 +1,22 @@
 // src/app/users/components/user-list/user-list.component.scss
 
-@use 'sass:color';
-
+// Réutilisation des variables du projet
 $accent: #152f56;
 $accent-soft: #e1e8f5;
-$muted: #6b7280;
-$border: #e5e7eb;
-$surface: #ffffff;
+$muted: #053ba8;
+$border: #000000;
+$surface: rgba(224, 226, 246, 0.72);
 $shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
 $radius-lg: 16px;
 $radius-md: 12px;
 $radius-sm: 8px;
 $action-edit: #2563eb;
 $action-delete: #e11d48;
+$row-alt: #f9f3f7;
+$header-bg: #152f56;
 
 .user-list-page {
-  padding: 0;
+  padding: 24px;
   max-width: none;
   margin: 0;
   display: flex;
@@ -85,7 +86,7 @@ $action-delete: #e11d48;
       font-weight: 600;
       border-radius: 999px;
       box-shadow: $shadow;
-      background: linear-gradient(120deg, $accent, color.scale($accent, $lightness: 10%));
+      background: linear-gradient(120deg, $accent, darken($accent, 5%));
       color: #fff;
 
       mat-icon {
@@ -109,8 +110,8 @@ $action-delete: #e11d48;
   align-items: center;
   gap: 16px;
   padding: 18px 20px;
-  border-bottom: 1px solid $border;
-  background: linear-gradient(135deg, #f7f9fb, #eef3fb);
+  border-bottom: 2px solid $border;
+  background: linear-gradient(135deg, #f3f3f3, #ffffff);
 
   .search-field {
     flex: 1;
@@ -154,14 +155,14 @@ $action-delete: #e11d48;
 .content-wrapper {
   position: relative;
   min-height: 240px;
-  padding: 12px 20px 20px;
+  padding: 0;
 }
 
 .loading-overlay {
   position: absolute;
   inset: 0;
   z-index: 2;
-  background: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.85);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -174,7 +175,6 @@ $action-delete: #e11d48;
     color: $muted;
   }
 }
-
 .table-container {
   overflow-x: auto;
   transition: filter 0.2s ease, opacity 0.2s ease;
@@ -185,112 +185,29 @@ $action-delete: #e11d48;
     pointer-events: none;
   }
 }
-
 .users-table {
   width: 100%;
   background: $surface;
-  border-radius: $radius-md;
-
+  border-collapse: collapse;
+  border: 1px solid $border;
+  margin: 0 !important;
+  thead tr {
+    background: $header-bg !important;
+  }
   th {
-    background: #f5f7fb;
-    font-weight: 700;
-    color: $accent;
-    font-size: 12px;
+    background: $header-bg !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    font-size: 13px;
     text-transform: uppercase;
-    letter-spacing: 0.6px;
+    letter-spacing: 0.8px;
+    padding: 14px 16px !important;
+    text-align: left !important;
+    border-right: 1px solid darken($header-bg, 15%) !important;
+    border-bottom: none !important;
   }
+  tbody {
 
-  td {
-    font-size: 14px;
-    color: #0f172a;
-  }
-
-  .table-row {
-    cursor: default;
-    transition: background 0.15s ease, box-shadow 0.15s ease;
-
-    &:hover {
-      background: #f1f5fb;
-      box-shadow: inset 4px 0 0 $accent;
-    }
-  }
-
-  .user-code {
-    font-family: 'Courier New', monospace;
-    font-size: 12px;
-    background: $accent-soft;
-    padding: 4px 8px;
-    border-radius: $radius-sm;
-    color: $accent;
-  }
-
-  .email-link {
-    color: $accent;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-
-  .email-missing {
-    color: #9ca3af;
-    font-style: italic;
-  }
-
-  .profil-chip {
-    background: #e8edf7;
-    color: $accent;
-    font-size: 12px;
-    font-weight: 600;
-    height: 28px;
-    border-radius: 16px;
-  }
-
-  .profil-missing {
-    font-size: 12px;
-    color: #9ca3af;
-    font-style: italic;
-  }
-
-  .status-active {
-    background: #e6f7ef;
-    color: #0f9d58;
-  }
-
-  .status-inactive {
-    background: #fdecec;
-    color: #d93025;
-  }
-
-  .status-icon {
-    font-size: 16px;
-    margin-right: 4px;
-  }
-
-  .actions-cell {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-
-    .action-btn {
-      border-radius: $radius-sm;
-      background: #f8fafc;
-      border: 1px solid $border;
-      transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
-
-      &:hover {
-        transform: translateY(-1px);
-        box-shadow: $shadow;
-      }
-
-      &.edit:hover {
-        background: color.scale($action-edit, $lightness: 90%);
-      }
-
-      &.delete:hover {
-        background: color.scale($action-delete, $lightness: 90%);
-      }
-    }
   }
 }
 
@@ -299,7 +216,7 @@ $action-delete: #e11d48;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
+  padding: 80px 20px;
   color: $muted;
   text-align: center;
 
@@ -320,10 +237,7 @@ $action-delete: #e11d48;
   }
 }
 
-mat-paginator {
-  border-top: 1px solid $border;
-  background: #f8fafc;
-}
+
 
 ::ng-deep {
   .success-snackbar {
@@ -367,6 +281,21 @@ mat-paginator {
     th,
     td {
       white-space: nowrap;
+      padding: 10px 8px !important;
+      font-size: 12px;
+    }
+
+    .actions-cell {
+      gap: 4px;
+
+      .action-btn {
+        width: 32px;
+        height: 32px;
+
+        mat-icon {
+          font-size: 16px;
+        }
+      }
     }
   }
 }

@@ -1,273 +1,346 @@
-@use 'sass:color';
-
-$accent: #152f56;
-$border: #e5e7eb;
-$muted: #6b7280;
-$surface: #ffffff;
-$radius-lg: 16px;
-$radius-md: 12px;
-$radius-sm: 8px;
-$shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
-
-.form-page {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+:host {
+  outline: 3px solid hotpink !important;
 }
 
+:host {
+  display: block;
+}
+
+/* =========================
+   Layout général de la page
+   ========================= */
+
+.form-page {
+  min-height: calc(100vh - 80px);
+  padding: 1.5rem 2rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* =========================
+   Header de page
+   ========================= */
+
 .page-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding-bottom: 0.75rem;
+  background: linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.85),
+      rgba(255, 255, 255, 0)
+  );
+  backdrop-filter: blur(12px);
+}
+
+.header-content {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 1rem;
+}
 
-  .header-content {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+/* Bouton retour */
+.back-button {
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: var(--shadow-faint);
+  transition: background 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+
+  mat-icon {
+    font-size: 20px;
   }
 
-  .back-button {
-    border: 1px solid $border;
-    border-radius: 50%;
-    background: $surface;
+  &:hover {
+    background: var(--accent-soft);
+    transform: translateX(-1px);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.18);
   }
+}
 
-  .header-info {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
+/* Titre et sous-titre */
+.header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
 
-  .page-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 0;
-    font-size: 22px;
-    font-weight: 700;
-    color: $accent;
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
 
-    .title-icon {
-      background: #e1e8f5;
-      color: $accent;
-      border-radius: 50%;
-      padding: 6px;
-      font-size: 22px;
-    }
-  }
+.title-icon {
+  font-size: 1.4rem;
+  padding: 0.35rem;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
 
 .page-subtitle {
   margin: 0;
-  color: $muted;
-  font-size: 14px;
-}
+  font-size: 0.9rem;
+  color: var(--text-muted);
 }
 
+/* =========================
+   Barre de loading
+   ========================= */
+
 .loading-bar {
-  margin-bottom: 8px;
-  border-radius: $radius-sm;
+  border-radius: 999px;
   overflow: hidden;
 }
 
+/* =========================
+   Conteneur du formulaire
+   ========================= */
+
 .form-container {
-  background: $surface;
-  border: 1px solid $border;
-  border-radius: $radius-lg;
-  box-shadow: $shadow;
-  padding: 20px;
-  overflow: visible;
-  position: relative;
+  max-width: 960px;
+  margin: 0 auto;
 }
 
-.form-section {
-  border: 1px solid $border;
-  border-radius: $radius-md;
-  padding: 16px 18px;
-  margin-bottom: 16px;
-  background: #f9fbff;
-  overflow: visible;
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
 
-  &:last-of-type {
-    margin-bottom: 0;
-  }
+/* =========================
+   Sections (cartes)
+   ========================= */
+
+.form-section {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-soft);
+  padding: 1.25rem 1.4rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .section-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-
-  .section-icon {
-    color: $accent;
-    background: #e1e8f5;
-    padding: 6px;
-    border-radius: 10px;
-  }
-
-  .section-title {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 700;
-    color: $accent;
-  }
+  gap: 0.6rem;
 }
+
+.section-icon {
+  font-size: 1.2rem;
+  padding: 0.35rem;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.section-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+/* =========================
+   Grille des champs
+   ========================= */
 
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 16px;
-
-  .full-width {
-    grid-column: 1 / -1;
-  }
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.1rem;
 }
 
-.status-toggle {
-  border: 1px solid $border;
-  border-radius: $radius-md;
-  padding: 14px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  background: #f7f9fb;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 10px 24px rgba(15, 23, 42, 0.04);
-
-  .toggle-header {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-  }
-
-  .toggle-icon {
-    color: #10b981;
-    font-size: 26px;
-    background: #e8f7ef;
-    padding: 6px;
-    border-radius: 10px;
-  }
-
-  .toggle-info {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-
-    .toggle-label {
-      font-weight: 700;
-      color: $accent;
-    }
-
-    .toggle-description {
-      color: $muted;
-      font-size: 13px;
-    }
-  }
+.full-width {
+  grid-column: 1 / -1;
 }
+
+/* Mat form fields */
+mat-form-field {
+  width: 100%;
+}
+
+/* Donne une forme un peu plus douce aux champs Material */
+:host ::ng-deep .mat-mdc-text-field-wrapper {
+  border-radius: var(--radius-sm);
+}
+
+/* =========================
+   Select Profil
+   ========================= */
 
 .profil-option {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-
-  .profil-libelle {
-    font-weight: 600;
-  }
-
-  .profil-code {
-    color: $muted;
-    font-size: 12px;
-  }
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 
-.profil-panel {
-  z-index: 1200;
+.profil-libelle {
+  font-weight: 500;
 }
+
+.profil-code {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* =========================
+   Bloc statut
+   ========================= */
+
+.status-toggle {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-soft);
+  padding: 0.9rem 1rem;
+  background: rgba(21, 47, 86, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.toggle-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.toggle-icon {
+  font-size: 1.4rem;
+  color: var(--accent);
+}
+
+.toggle-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.toggle-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+.toggle-description {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.status-slide-toggle {
+  align-self: flex-start;
+}
+
+/* =========================
+   Actions bas de page
+   ========================= */
 
 .form-actions {
-  margin-top: 8px;
+  margin-top: 0.25rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--border-soft);
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-
-  .actions-info {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: $muted;
-    font-size: 13px;
-
-    .info-icon {
-      color: $accent;
-    }
-  }
-
-  .actions-buttons {
-    display: flex;
-    gap: 10px;
-
-    .cancel-button {
-      border-color: $border;
-      color: $muted;
-      border-radius: $radius-sm;
-      background: #f8fafc;
-    }
-
-    .submit-button {
-      min-width: 140px;
-      border-radius: $radius-sm;
-      box-shadow: $shadow;
-      background: linear-gradient(120deg, $accent, color.scale($accent, $lightness: 10%));
-      color: #fff;
-      text-transform: none;
-    }
-
-    .button-spinner {
-      margin-right: 8px;
-    }
-  }
+  justify-content: space-between;
+  gap: 1rem;
 }
 
-@media (max-width: 768px) {
+.actions-info {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.info-icon {
+  font-size: 1rem;
+}
+
+/* Boutons */
+.actions-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.cancel-button,
+.submit-button {
+  border-radius: 999px; // override radius-sm global
+  padding: 0 1.2rem;
+  height: 40px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.submit-button {
+  box-shadow: 0 12px 26px rgba(21, 47, 86, 0.35);
+}
+
+.button-spinner {
+  margin-right: 0.3rem;
+}
+
+/* =========================
+   Messages d'erreur
+   ========================= */
+
+mat-error {
+  font-size: 0.78rem;
+}
+
+/* =========================
+   Responsive
+   ========================= */
+
+@media (max-width: 900px) {
   .form-page {
-    padding: 16px;
+    padding: 1rem 1rem 2rem;
   }
 
-  .form-container {
-    padding: 16px;
+  .form-grid {
+    grid-template-columns: 1fr;
   }
 
   .form-actions {
     flex-direction: column;
-    align-items: stretch;
+    align-items: flex-start;
+  }
 
-    .actions-buttons {
-      width: 100%;
-
-      button {
-        flex: 1;
-      }
-    }
+  .actions-buttons {
+    width: 100%;
+    justify-content: flex-end;
   }
 }
 
-::ng-deep {
-  .toast-success {
-    background: #0f9d58 !important;
-    color: #fff !important;
-    border-radius: 12px !important;
-    box-shadow: $shadow !important;
+@media (max-width: 600px) {
+  .header-content {
+    align-items: flex-start;
   }
 
-  .toast-error {
-    background: #d93025 !important;
-    color: #fff !important;
-    border-radius: 12px !important;
-    box-shadow: $shadow !important;
+  .page-title {
+    font-size: 1.2rem;
+  }
+
+  .page-subtitle {
+    font-size: 0.82rem;
+  }
+
+  .form-section {
+    padding: 1rem 1rem 0.9rem;
   }
 }

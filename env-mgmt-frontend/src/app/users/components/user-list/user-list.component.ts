@@ -1,5 +1,3 @@
-// src/app/users/components/user-list/user-list.component.ts
-
 import {
   Component,
   OnInit,
@@ -79,10 +77,6 @@ export class UserListComponent implements OnInit, OnDestroy {
     private readonly cdr: ChangeDetectorRef
   ) {}
 
-  // -----------------------
-  // Lifecycle
-  // -----------------------
-
   ngOnInit(): void {
     this.initSearchListener();
     this.loadUsers();
@@ -93,10 +87,6 @@ export class UserListComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // -----------------------
-  // Initialisation
-  // -----------------------
-
   private initSearchListener(): void {
     this.searchSubject
       .pipe(
@@ -106,14 +96,11 @@ export class UserListComponent implements OnInit, OnDestroy {
       )
       .subscribe(term => {
         this.searchTerm = term.trim();
-        this.page = 0; // on revient à la première page
+        this.page = 0;
         this.loadUsers();
       });
   }
 
-  // -----------------------
-  // Chargement des données
-  // -----------------------
 
   private buildFilters(): Record<string, any> {
     const filters: Record<string, any> = {};
@@ -151,7 +138,7 @@ export class UserListComponent implements OnInit, OnDestroy {
         },
         error: () => {
           this.showSnackBar(
-            '❌ Erreur lors du chargement des utilisateurs',
+            ' Erreur lors du chargement des utilisateurs',
             'error-snackbar'
           );
         }
@@ -162,9 +149,6 @@ export class UserListComponent implements OnInit, OnDestroy {
     this.loadUsers();
   }
 
-  // -----------------------
-  // Événements UI
-  // -----------------------
 
   onSearchChange(value: string): void {
     this.searchSubject.next(value);
@@ -226,10 +210,8 @@ export class UserListComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(shouldReload => {
         if (shouldReload) {
-          // recharge les données → loadUsers() fera déjà markForCheck()
           this.loadUsers();
         } else {
-          // même si rien n’est rechargé, on force un check
           this.cdr.markForCheck();
         }
       });
@@ -268,9 +250,7 @@ export class UserListComponent implements OnInit, OnDestroy {
     });
   }
 
-  // -----------------------
-  // Helpers
-  // -----------------------
+
 
   get isEmpty(): boolean {
     return !this.loading && this.users.length === 0;

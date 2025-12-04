@@ -1,5 +1,3 @@
-// src/app/layout/main-layout/main-layout.component.ts
-
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -41,15 +39,12 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
 
   context: AuthContext | null = null;
 
-  // État du sidebar et du thème
   isSidebarCollapsed = false;
   isDarkMode = false;
 
-  // Storage keys
   private readonly SIDEBAR_STATE_KEY = 'perenity-sidebar-collapsed';
   private readonly THEME_KEY = 'perenity-theme';
 
-  // Menu Administration
   adminMenu: AdminNavItem[] = [
     {
       label: 'Utilisateurs',
@@ -71,8 +66,9 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     }
   ];
 
-  // Menu Environnements
   envMenu: EnvNavItem[] = [];
+
+  private readonly ENV_ORDER: string[] = ['EDITION', 'INTEGRATION', 'CLIENT'];
 
   private readonly destroy$ = new Subject<void>();
 
@@ -85,7 +81,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadSavedStates();
-  
+
 
     this.authCtx.getContext$()
       .pipe(takeUntil(this.destroy$))
@@ -121,7 +117,6 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     this.isSidebarCollapsed = !this.isSidebarCollapsed;
     this.saveSidebarState();
 
-    // force Angular Material à recalculer les marges du contenu
     setTimeout(() => {
       this.sidenavContainer?.updateContentMargins();
     }, 0);
@@ -136,14 +131,31 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.envMenu = ctx.environmentTypes
+    const rawMenu = ctx.environmentTypes
       .filter(t => t.allowedActions && t.allowedActions.includes('CONSULT'))
       .map(t => ({
         label: t.libelle,
         route: `/env/${t.code.toLowerCase()}`,
         env: t
-      }))
-      .sort((a, b) => a.label.localeCompare(b.label));
+      }));
+
+    this.envMenu = rawMenu.sort((a, b) => {
+      const aCode = a.env.code;
+      const bCode = b.env.code;
+
+      const aIndex = this.ENV_ORDER.indexOf(aCode);
+      const bIndex = this.ENV_ORDER.indexOf(bCode);
+      if (aIndex !== -1 && bIndex !== -1) {
+        return aIndex - bIndex;
+      }
+      if (aIndex !== -1) {
+        return -1;
+      }
+      if (bIndex !== -1) {
+        return 1;
+      }
+      return a.label.localeCompare(b.label);
+    });
   }
 
   isAdmin(): boolean {

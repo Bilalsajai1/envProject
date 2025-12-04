@@ -1,8 +1,5 @@
-<!-- src/app/permissions/permission-management/permission-management.component.html -->
-
 <div class="permission-page">
 
-  <!-- En-tête -->
   <div class="page-header">
     <div>
       <h1>Gestion des Permissions</h1>
@@ -12,7 +9,6 @@
     </div>
   </div>
 
-  <!-- Sélection du profil -->
   <div class="card profil-selector">
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Sélectionnez un profil</mat-label>
@@ -20,118 +16,126 @@
         [(value)]="selectedProfilId"
         (selectionChange)="onProfilChange($event.value)"
         [disabled]="loading">
-        <mat-option *ngFor="let profil of profils" [value]="profil.id">
-          {{ profil.libelle }} ({{ profil.code }})
-        </mat-option>
+        @for (profil of profils; track profil.id) {
+          <mat-option [value]="profil.id">
+            {{ profil.libelle }} ({{ profil.code }})
+          </mat-option>
+        }
       </mat-select>
     </mat-form-field>
   </div>
 
-  <!-- Zone de chargement -->
-  <div *ngIf="loading && !permissions" class="loading-zone">
-    <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
-    <p>Chargement des permissions...</p>
-  </div>
-
-  <!-- Formulaire de permissions -->
-  <div *ngIf="permissions && !loading" class="permissions-container">
-
-    <!-- MODULE 1 : Types d'environnement -->
-    <mat-card class="permission-module">
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>dns</mat-icon>
-          Types d'Environnement
-        </mat-card-title>
-        <mat-card-subtitle>
-          Configurez les permissions pour chaque type d'environnement (Édition, Intégration, Client)
-        </mat-card-subtitle>
-      </mat-card-header>
-
-      <mat-card-content>
-        <div class="env-type-grid">
-          <div *ngFor="let envType of permissions.envTypePermissions" class="env-type-row">
-
-            <div class="env-type-label">
-              <strong>{{ envType.typeLibelle }}</strong>
-              <span class="env-type-code">{{ envType.typeCode }}</span>
-            </div>
-
-            <div class="actions-checkboxes">
-              <mat-checkbox
-                *ngFor="let action of allActions"
-                [checked]="isEnvTypeActionChecked(envType.typeCode, action)"
-                (change)="toggleEnvTypeAction(envType.typeCode, action)"
-                [color]="'primary'">
-                {{ action }}
-              </mat-checkbox>
-            </div>
-
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <!-- MODULE 2 : Projets (par projet) -->
-    <!-- ✅ CORRECTION LIGNE 77 : retiré les ?. -->
-    <mat-card class="permission-module"
-              *ngIf="permissions && permissions.projectPermissions.length > 0">
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>folder</mat-icon>
-          Projets
-        </mat-card-title>
-        <mat-card-subtitle>
-          Permissions par projet (consultation / création / mise à jour / suppression)
-        </mat-card-subtitle>
-      </mat-card-header>
-
-      <mat-card-content>
-        <div class="env-type-grid">
-          <div *ngFor="let proj of permissions.projectPermissions" class="env-type-row">
-
-            <div class="env-type-label">
-              <strong>{{ proj.projectLibelle }}</strong>
-              <span class="env-type-code">{{ proj.projectCode }}</span>
-            </div>
-
-            <div class="actions-checkboxes">
-              <mat-checkbox
-                *ngFor="let action of allActions"
-                [checked]="isProjectActionChecked(proj.projectId, action)"
-                (change)="toggleProjectAction(proj.projectId, action)"
-                [color]="'primary'">
-                {{ action }}
-              </mat-checkbox>
-            </div>
-
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <!-- Actions -->
-    <div class="form-actions">
-      <button mat-stroked-button (click)="cancel()" [disabled]="saving">
-        Annuler
-      </button>
-
-      <button
-        mat-raised-button
-        color="primary"
-        (click)="save()"
-        [disabled]="saving">
-        <mat-progress-spinner
-          *ngIf="saving"
-          mode="indeterminate"
-          diameter="16"
-          strokeWidth="2">
-        </mat-progress-spinner>
-        <mat-icon *ngIf="!saving">save</mat-icon>
-        <span>{{ saving ? 'Enregistrement...' : 'Enregistrer' }}</span>
-      </button>
+  @if (loading && !permissions) {
+    <div class="loading-zone">
+      <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+      <p>Chargement des permissions...</p>
     </div>
+  }
 
-  </div>
+  @if (permissions && !loading) {
+    <div class="permissions-container">
 
+      <mat-card class="permission-module">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>dns</mat-icon>
+            Types d'Environnement
+          </mat-card-title>
+          <mat-card-subtitle>
+            Configurez les permissions pour chaque type d'environnement (Édition, Intégration, Client)
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="env-type-grid">
+            @for (envType of permissions.envTypePermissions; track envType.typeCode) {
+              <div class="env-type-row">
+
+                <div class="env-type-label">
+                  <strong>{{ envType.typeLibelle }}</strong>
+                  <span class="env-type-code">{{ envType.typeCode }}</span>
+                </div>
+
+                <div class="actions-checkboxes">
+                  @for (action of allActions; track action) {
+                    <mat-checkbox
+                      [checked]="isEnvTypeActionChecked(envType.typeCode, action)"
+                      (change)="toggleEnvTypeAction(envType.typeCode, action)"
+                      [color]="'primary'">
+                      {{ action }}
+                    </mat-checkbox>
+                  }
+                </div>
+
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      @if (permissions.projectPermissions.length > 0) {
+        <mat-card class="permission-module">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>folder</mat-icon>
+              Projets
+            </mat-card-title>
+            <mat-card-subtitle>
+              Permissions par projet (consultation / création / mise à jour / suppression)
+            </mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div class="env-type-grid">
+              @for (proj of permissions.projectPermissions; track proj.projectId) {
+                <div class="env-type-row">
+
+                  <div class="env-type-label">
+                    <strong>{{ proj.projectLibelle }}</strong>
+                    <span class="env-type-code">{{ proj.projectCode }}</span>
+                  </div>
+
+                  <div class="actions-checkboxes">
+                    @for (action of allActions; track action) {
+                      <mat-checkbox
+                        [checked]="isProjectActionChecked(proj.projectId, action)"
+                        (change)="toggleProjectAction(proj.projectId, action)"
+                        [color]="'primary'">
+                        {{ action }}
+                      </mat-checkbox>
+                    }
+                  </div>
+
+                </div>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      <div class="form-actions">
+        <button mat-stroked-button (click)="cancel()" [disabled]="saving">
+          Annuler
+        </button>
+
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="save()"
+          [disabled]="saving">
+          @if (saving) {
+            <mat-progress-spinner
+              mode="indeterminate"
+              diameter="16"
+              strokeWidth="2">
+            </mat-progress-spinner>
+            <span>Enregistrement...</span>
+          } @else {
+            <mat-icon>save</mat-icon>
+            <span>Enregistrer</span>
+          }
+        </button>
+      </div>
+    </div>
+  }
 </div>

@@ -1,5 +1,3 @@
-<!-- src/app/environments/components/dialogs/application-dialog/application-dialog.component.html -->
-
 <h2 mat-dialog-title>
   {{ isEdit ? 'Modifier l\'application' : 'Ajouter une application' }}
 </h2>
@@ -7,23 +5,29 @@
 <mat-dialog-content>
   <form [formGroup]="form" class="dialog-form">
 
-    <!-- Sélection de l'application -->
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Application</mat-label>
       <mat-select formControlName="applicationId">
-        <mat-option *ngFor="let app of availableApplications" [value]="app.id">
-          {{ app.libelle }} ({{ app.code }})
-        </mat-option>
+        @for (app of availableApplications; track app.id) {
+          <mat-option [value]="app.id">
+            {{ app.libelle }} ({{ app.code }})
+          </mat-option>
+        }
       </mat-select>
-      <mat-hint *ngIf="isEdit">
-        L'application ne peut pas être modifiée en édition
-      </mat-hint>
-      <mat-error *ngIf="form.get('applicationId')?.hasError('required')">
-        Application obligatoire
-      </mat-error>
+
+      @if (isEdit) {
+        <mat-hint>
+          L'application ne peut pas être modifiée en édition
+        </mat-hint>
+      }
+
+      @if (form.get('applicationId')?.hasError('required')) {
+        <mat-error>
+          Application obligatoire
+        </mat-error>
+      }
     </mat-form-field>
 
-    <!-- Section Connexion -->
     <div class="section-title">
       <mat-icon>settings_ethernet</mat-icon>
       Informations de connexion
@@ -59,7 +63,6 @@
       </mat-form-field>
     </div>
 
-    <!-- Section Authentification -->
     <div class="section-title">
       <mat-icon>security</mat-icon>
       Authentification
@@ -78,13 +81,11 @@
       </mat-form-field>
     </div>
 
-    <!-- Description -->
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Description / Notes</mat-label>
       <textarea matInput rows="3" formControlName="description"></textarea>
     </mat-form-field>
 
-    <!-- Actif -->
     <mat-slide-toggle formControlName="actif">
       Actif
     </mat-slide-toggle>
@@ -97,12 +98,17 @@
     Annuler
   </button>
   <button mat-raised-button color="primary" (click)="save()" [disabled]="saving">
-    <mat-progress-spinner
-      *ngIf="saving"
-      mode="indeterminate"
-      diameter="16"
-      strokeWidth="2">
-    </mat-progress-spinner>
-    <span *ngIf="!saving">{{ isEdit ? 'Enregistrer' : 'Ajouter' }}</span>
+
+    @if (saving) {
+      <mat-progress-spinner
+        mode="indeterminate"
+        diameter="16"
+        strokeWidth="2">
+      </mat-progress-spinner>
+    }
+
+    @if (!saving) {
+      <span>{{ isEdit ? 'Enregistrer' : 'Ajouter' }}</span>
+    }
   </button>
 </mat-dialog-actions>

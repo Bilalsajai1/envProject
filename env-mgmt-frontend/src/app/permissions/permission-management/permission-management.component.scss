@@ -167,3 +167,64 @@
     color: white !important;
   }
 }
+// Styles pour le panel de sélection du profil
+::ng-deep .mat-mdc-select-panel {
+  background-color: #ffffff !important;
+
+  .mat-mdc-option {
+    background-color: #ffffff;
+
+    &:hover {
+      background-color: #f5f5f5;
+    }
+
+    &.mdc-list-item--selected {
+      background-color: #e3f2fd;
+    }
+
+    &.mat-mdc-option-active {
+      background-color: #e8f5e9;
+    }
+  }
+}
+
+// Style spécifique pour le sélecteur de profil
+.profil-selector {
+  .mat-mdc-form-field {
+    width: 100%;
+
+    .mat-mdc-select {
+      background-color: #ffffff;
+    }
+  }
+}
+
+// Alternative : Style global pour tous les mat-select (à mettre dans styles.scss)
+.mat-mdc-select-panel {
+  background-color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e0e0e0;
+
+  .mat-mdc-option {
+    background-color: #ffffff;
+    padding: 12px 16px;
+
+    &:hover {
+      background-color: #f5f5f5;
+    }
+
+    &.mdc-list-item--selected {
+      background-color: #e3f2fd;
+      font-weight: 500;
+
+      .mat-pseudo-checkbox {
+        color: #1976d2;
+      }
+    }
+  }
+
+  // Espacement entre les options
+  .mat-mdc-option + .mat-mdc-option {
+    border-top: 1px solid #f0f0f0;
+  }
+}

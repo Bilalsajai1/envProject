@@ -12,7 +12,6 @@ import { MaterialModule } from './shared/material/material.module';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 
 import { UsersModule } from './users/users-module';
-import { RolesModule } from './roles/roles-module';
 import { PermissionsModule } from './permissions/permissions-module';
 import { EnvironmentsModule } from './environments/environments-module';
 import { ProfilsModule } from './profils/profils-module';
@@ -32,14 +31,11 @@ import { AuthInterceptor } from './auth/interceptors/auth.interceptor';
     ReactiveFormsModule,
     MaterialModule,
 
-    // Feature modules
     UsersModule,
-    RolesModule,
     PermissionsModule,
     EnvironmentsModule,
     ProfilsModule,
 
-    // Routing en dernier
     AppRoutingModule
   ],
   providers: [

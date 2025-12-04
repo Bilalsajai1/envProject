@@ -1,12 +1,11 @@
-<!-- src/app/profils/components/profil-form/profil-form.component.html -->
-
 <div class="form-container">
-  <mat-progress-bar
-    *ngIf="loading"
-    mode="indeterminate"
-    color="primary"
-    class="loading-bar">
-  </mat-progress-bar>
+  @if (loading) {
+    <mat-progress-bar
+      mode="indeterminate"
+      color="primary"
+      class="loading-bar">
+    </mat-progress-bar>
+  }
 
   <div class="form-header">
     <div>
@@ -27,17 +26,23 @@
       <mat-form-field appearance="outline">
         <mat-label>Code</mat-label>
         <input matInput formControlName="code" />
-        <mat-error *ngIf="form.get('code')?.hasError('required')">
-          Code obligatoire
-        </mat-error>
+
+        @if (form.get('code')?.hasError('required')) {
+          <mat-error>
+            Code obligatoire
+          </mat-error>
+        }
       </mat-form-field>
 
       <mat-form-field appearance="outline">
         <mat-label>Libellé</mat-label>
         <input matInput formControlName="libelle" />
-        <mat-error *ngIf="form.get('libelle')?.hasError('required')">
-          Libellé obligatoire
-        </mat-error>
+
+        @if (form.get('libelle')?.hasError('required')) {
+          <mat-error>
+            Libellé obligatoire
+          </mat-error>
+        }
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
@@ -66,15 +71,18 @@
       </button>
 
       <button mat-raised-button color="primary" type="submit" [disabled]="saving">
-        <mat-progress-spinner
-          *ngIf="saving"
-          mode="indeterminate"
-          diameter="16"
-          strokeWidth="2">
-        </mat-progress-spinner>
-        <span *ngIf="!saving">
-          {{ isEdit ? 'Enregistrer' : 'Créer' }}
-        </span>
+        @if (saving) {
+          <mat-progress-spinner
+            mode="indeterminate"
+            diameter="16"
+            strokeWidth="2">
+          </mat-progress-spinner>
+          <span>Enregistrement...</span>
+        } @else {
+          <span>
+            {{ isEdit ? 'Enregistrer' : 'Créer' }}
+          </span>
+        }
       </button>
     </div>
   </form>

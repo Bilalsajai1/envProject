@@ -1,8 +1,5 @@
-<!-- src/app/layout/main-layout/main-layout.component.html -->
-
 <mat-sidenav-container class="layout-container" autosize>
 
-  <!-- SIDEBAR -->
   <mat-sidenav
     mode="side"
     opened
@@ -11,25 +8,24 @@
     role="navigation"
     aria-label="Navigation principale">
 
-    <!-- Header avec Logo -->
     <div class="sidebar-header">
       <div class="logo-container" [class.collapsed]="isSidebarCollapsed">
         <div class="logo-icon">
-          <img
-            *ngIf="!isSidebarCollapsed"
-            src="/assets/images/icones/logo-perenity-software.svg"
-            alt="Logo Perenity Software"
-            class="logo-full"
-          />
-          <img
-            *ngIf="isSidebarCollapsed"
-            src="/assets/images/perenity_software.png"
-            alt="Logo Perenity"
-            class="logo-compact"
-          />
+          @if (!isSidebarCollapsed) {
+            <img
+              src="/assets/images/icones/logo-perenity-software.svg"
+              alt="Logo Perenity Software"
+              class="logo-full"
+            />
+          }
+          @if (isSidebarCollapsed) {
+            <img
+              src="/assets/images/perenity_software.png"
+              alt="Logo Perenity"
+              class="logo-compact"
+            />
+          }
         </div>
-
-        
       </div>
 
       <button
@@ -43,89 +39,100 @@
       </button>
     </div>
 
-    <!-- Bloc Utilisateur -->
-    <div class="user-block" *ngIf="context?.user as u">
-      <div
-        class="user-avatar"
-        [attr.aria-label]="'Avatar de ' + userDisplayName">
-        {{ getUserInitials() }}
-      </div>
-
-      <div class="user-info" *ngIf="!isSidebarCollapsed">
-        <div class="user-name" [title]="userDisplayName">
-          {{ userDisplayName }}
-        </div>
-
+    @if (context?.user; as u) {
+      <div class="user-block">
         <div
-          class="user-profil"
-          *ngIf="userProfilLabel; else noProfilTpl"
-          [title]="userProfilLabel">
-          {{ userProfilLabel }}
+          class="user-avatar"
+          [attr.aria-label]="'Avatar de ' + userDisplayName">
+          {{ getUserInitials() }}
         </div>
 
-        <ng-template #noProfilTpl>
-          <div class="user-profil muted">Profil non défini</div>
-        </ng-template>
+        @if (!isSidebarCollapsed) {
+          <div class="user-info">
+            <div class="user-name" [title]="userDisplayName">
+              {{ userDisplayName }}
+            </div>
 
-        <div class="user-email" [title]="userEmail">
-          {{ userEmail }}
-        </div>
+            @if (userProfilLabel) {
+              <div
+                class="user-profil"
+                [title]="userProfilLabel">
+                {{ userProfilLabel }}
+              </div>
+            } @else {
+              <div class="user-profil muted">Profil non défini</div>
+            }
+
+            <div class="user-email" [title]="userEmail">
+              {{ userEmail }}
+            </div>
+          </div>
+        }
       </div>
-    </div>
+    }
 
-    <!-- Navigation -->
     <nav class="nav-container" [attr.aria-label]="'Menu principal'">
       <mat-nav-list class="menu-list">
 
-        <!-- Section Administration -->
-        <ng-container *ngIf="visibleAdminMenu.length > 0">
-          <div class="nav-section-label" *ngIf="!isSidebarCollapsed">
-            Administration
-          </div>
+        @if (visibleAdminMenu.length > 0) {
+          @if (!isSidebarCollapsed) {
+            <div class="nav-section-label">
+              Administration
+            </div>
+          }
 
-          <a
-            mat-list-item
-            *ngFor="let item of visibleAdminMenu"
-            [routerLink]="item.route"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{exact: false}"
-            [matTooltip]="isSidebarCollapsed ? item.label : ''"
-            matTooltipPosition="right"
-            [matTooltipDisabled]="!isSidebarCollapsed"
-            [attr.aria-label]="item.label">
-            <mat-icon *ngIf="item.icon" class="nav-icon">{{ item.icon }}</mat-icon>
-            <span class="nav-label" *ngIf="!isSidebarCollapsed">{{ item.label }}</span>
-          </a>
-        </ng-container>
+          @for (item of visibleAdminMenu; track item.label) {
+            <a
+              mat-list-item
+              [routerLink]="item.route"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{exact: false}"
+              [matTooltip]="isSidebarCollapsed ? item.label : ''"
+              matTooltipPosition="right"
+              [matTooltipDisabled]="!isSidebarCollapsed"
+              [attr.aria-label]="item.label">
+              @if (item.icon) {
+                <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+              }
+              @if (!isSidebarCollapsed) {
+                <span class="nav-label">{{ item.label }}</span>
+              }
+            </a>
+          }
+        }
 
-        <!-- Séparateur entre admin & env si les deux existent -->
-        <mat-divider *ngIf="visibleAdminMenu.length > 0 && hasEnvMenu"></mat-divider>
+        @if (visibleAdminMenu.length > 0 && hasEnvMenu) {
+          <mat-divider></mat-divider>
+        }
 
-        <!-- Section Environnements -->
-        <ng-container *ngIf="hasEnvMenu">
-          <div class="nav-section-label" *ngIf="!isSidebarCollapsed">
-            Environnements
-          </div>
+        @if (hasEnvMenu) {
+          @if (!isSidebarCollapsed) {
+            <div class="nav-section-label">
+              Environnements
+            </div>
+          }
 
-          <a
-            mat-list-item
-            *ngFor="let envItem of envMenu"
-            [routerLink]="envItem.route"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{exact: false}"
-            [matTooltip]="isSidebarCollapsed ? envItem.label : ''"
-            matTooltipPosition="right"
-            [matTooltipDisabled]="!isSidebarCollapsed"
-            [attr.aria-label]="envItem.label">
-            <mat-icon class="nav-icon">cloud</mat-icon>
-            <span class="nav-label" *ngIf="!isSidebarCollapsed">{{ envItem.label }}</span>
-          </a>
-        </ng-container>
+          @for (envItem of envMenu; track envItem.label) {
+            <a
+              mat-list-item
+              [routerLink]="envItem.route"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{exact: false}"
+              [matTooltip]="isSidebarCollapsed ? envItem.label : ''"
+              matTooltipPosition="right"
+              [matTooltipDisabled]="!isSidebarCollapsed"
+              [attr.aria-label]="envItem.label">
+              <mat-icon class="nav-icon">cloud</mat-icon>
+              @if (!isSidebarCollapsed) {
+                <span class="nav-label">{{ envItem.label }}</span>
+              }
+            </a>
+          }
+        }
 
       </mat-nav-list>
     </nav>
 
-    <!-- Footer -->
     <div class="sidebar-footer">
       <button
         mat-button
@@ -136,15 +143,15 @@
         [matTooltipDisabled]="!isSidebarCollapsed"
         aria-label="Se déconnecter">
         <mat-icon>logout</mat-icon>
-        <span *ngIf="!isSidebarCollapsed">Se déconnecter</span>
+        @if (!isSidebarCollapsed) {
+          <span>Se déconnecter</span>
+        }
       </button>
     </div>
   </mat-sidenav>
 
-  <!-- CONTENU PRINCIPAL -->
   <mat-sidenav-content>
 
-    <!-- Toolbar -->
     <mat-toolbar class="top-toolbar" role="banner">
       <div class="toolbar-left">
         <mat-icon class="toolbar-logo" aria-hidden="true">space_dashboard</mat-icon>
@@ -153,36 +160,38 @@
 
       <span class="toolbar-spacer"></span>
 
-      <!-- User Info Card -->
-      <div class="user-card" *ngIf="context?.user as u">
-        <div class="user-card-content">
-          <div class="user-avatar" [attr.aria-label]="'Avatar de ' + userDisplayName">
-            {{ getUserInitials() }}
-          </div>
-
-          <div class="user-details">
-            <div class="user-name">{{ userDisplayName }}</div>
-            <div class="user-role">
-              {{ u.admin ? 'Administrateur' : 'Utilisateur' }}
+      @if (context?.user; as u) {
+        <div class="user-card">
+          <div class="user-card-content">
+            <div class="user-avatar" [attr.aria-label]="'Avatar de ' + userDisplayName">
+              {{ getUserInitials() }}
             </div>
-          </div>
 
-          <mat-divider [vertical]="true"></mat-divider>
+            <div class="user-details">
+              <div class="user-name">{{ userDisplayName }}</div>
+              <div class="user-role">
+                {{ u.admin ? 'Administrateur' : 'Utilisateur' }}
+              </div>
+            </div>
 
-          <div class="user-status" *ngIf="u.admin" class="admin-status">
-            <mat-icon>verified_user</mat-icon>
-            <span>ADMIN</span>
-          </div>
+            <mat-divider [vertical]="true"></mat-divider>
 
-          <div class="user-status" *ngIf="!u.admin" class="user-status-badge">
-            <mat-icon>person</mat-icon>
-            <span>USER</span>
+            @if (u.admin) {
+              <div class="user-status admin-status">
+                <mat-icon>verified_user</mat-icon>
+                <span>ADMIN</span>
+              </div>
+            } @else {
+              <div class="user-status user-status-badge">
+                <mat-icon>person</mat-icon>
+                <span>USER</span>
+              </div>
+            }
           </div>
         </div>
-      </div>
+      }
     </mat-toolbar>
 
-    <!-- Content -->
     <main class="content" role="main">
       <div class="content-inner">
         <router-outlet></router-outlet>

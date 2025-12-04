@@ -1,4 +1,3 @@
-// src/app/app-routing.module.ts
 
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
@@ -9,9 +8,6 @@ import { AuthGuard } from './auth/guards/auth-guard';
 // === Administration ===
 import { UserListComponent } from './users/components/user-list/user-list.component';
 import { UserFormComponent } from './users/components/user-form/user-form.component';
-
-import { RoleListComponent } from './roles/role-list/role-list.component';
-import { RoleFormComponent } from './roles/role-form/role-form.component';
 
 import { PermissionManagementComponent } from './permissions/permission-management/permission-management.component';
 
@@ -98,26 +94,6 @@ const routes: Routes = [
             canActivate: [AuthGuard],
             data: { roles: ['ADMIN', 'ROLE_ROLES_EDIT'] }
           },
-
-          // --- Rôles ---
-          {
-            path: 'roles',
-            component: RoleListComponent,
-            canActivate: [AuthGuard],
-            data: { roles: ['ADMIN', 'ROLE_ROLES_ACCESS'] }
-          },
-          {
-            path: 'roles/new',
-            component: RoleFormComponent,
-            canActivate: [AuthGuard],
-            data: { roles: ['ADMIN', 'ROLE_ROLES_CREATE'] }
-          },
-          {
-            path: 'roles/:id/edit',
-            component: RoleFormComponent,
-            canActivate: [AuthGuard],
-            data: { roles: ['ADMIN', 'ROLE_ROLES_EDIT'] }
-          }
         ]
       },
 

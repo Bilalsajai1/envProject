@@ -42,7 +42,7 @@ mat-sidenav-content,
 /* ============= SIDEBAR ============= */
 
 .sidenav {
-  width: 280px;
+  width: 300px;
   border-right: none;
   display: flex;
   flex-direction: column;
@@ -263,7 +263,7 @@ mat-sidenav-content {
 .user-name {
   font-weight: 600;
   font-size: 0.95rem;
-  color: #ffffff;
+  color: rgb(11, 186, 11);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

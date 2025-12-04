@@ -1,5 +1,3 @@
-<!-- src/app/environments/components/dialogs/environment-dialog/environment-dialog.component.html -->
-
 <h2 mat-dialog-title>
   {{ isEdit ? 'Modifier l\'environnement' : 'Nouvel environnement' }}
 </h2>
@@ -9,17 +7,23 @@
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Code</mat-label>
       <input matInput formControlName="code" />
-      <mat-error *ngIf="form.get('code')?.hasError('required')">
-        Code obligatoire
-      </mat-error>
+
+      @if (form.get('code')?.hasError('required')) {
+        <mat-error>
+          Code obligatoire
+        </mat-error>
+      }
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Libellé</mat-label>
       <input matInput formControlName="libelle" />
-      <mat-error *ngIf="form.get('libelle')?.hasError('required')">
-        Libellé obligatoire
-      </mat-error>
+
+      @if (form.get('libelle')?.hasError('required')) {
+        <mat-error>
+          Libellé obligatoire
+        </mat-error>
+      }
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
@@ -38,12 +42,16 @@
     Annuler
   </button>
   <button mat-raised-button color="primary" (click)="save()" [disabled]="saving">
-    <mat-progress-spinner
-      *ngIf="saving"
-      mode="indeterminate"
-      diameter="16"
-      strokeWidth="2">
-    </mat-progress-spinner>
-    <span *ngIf="!saving">{{ isEdit ? 'Enregistrer' : 'Créer' }}</span>
+
+    @if (saving) {
+      <mat-progress-spinner
+        mode="indeterminate"
+        diameter="16"
+        strokeWidth="2">
+      </mat-progress-spinner>
+      <span>Sauvegarde en cours...</span>
+    } @else {
+      <span>{{ isEdit ? 'Enregistrer' : 'Créer' }}</span>
+    }
   </button>
 </mat-dialog-actions>
