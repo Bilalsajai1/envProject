@@ -38,10 +38,6 @@ public class RoleEntity {
     private Boolean actif = true;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "MENU_ID")
-    private MenuEntity menu;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ENV_ID")
     private EnvironnementEntity environnement;
 

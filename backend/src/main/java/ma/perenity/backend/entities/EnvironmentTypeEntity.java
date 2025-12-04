@@ -31,6 +31,4 @@ public class EnvironmentTypeEntity {
     @OneToMany(mappedBy = "type")
     private List<EnvironnementEntity> environnements;
 
-    @OneToMany(mappedBy = "environmentType")
-    private List<MenuEntity> menus;
 }

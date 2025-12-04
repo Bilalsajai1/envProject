@@ -6,13 +6,11 @@ import ma.perenity.backend.dto.PaginationRequest;
 import ma.perenity.backend.dto.RoleCreateUpdateDTO;
 import ma.perenity.backend.dto.RoleDTO;
 import ma.perenity.backend.entities.EnvironnementEntity;
-import ma.perenity.backend.entities.MenuEntity;
 import ma.perenity.backend.entities.ProjetEntity;
 import ma.perenity.backend.entities.RoleEntity;
 import ma.perenity.backend.entities.enums.ActionType;
 import ma.perenity.backend.mapper.RoleMapper;
 import ma.perenity.backend.repository.EnvironnementRepository;
-import ma.perenity.backend.repository.MenuRepository;
 import ma.perenity.backend.repository.ProjetRepository;
 import ma.perenity.backend.repository.RoleRepository;
 import ma.perenity.backend.service.PermissionService;
@@ -33,7 +31,6 @@ import static org.springframework.http.HttpStatus.*;
 public class RoleServiceImpl implements RoleService {
 
     private final RoleRepository roleRepository;
-    private final MenuRepository menuRepository;
     private final EnvironnementRepository environnementRepository;
     private final ProjetRepository projetRepository;
     private final RoleMapper roleMapper;
@@ -76,13 +73,6 @@ public class RoleServiceImpl implements RoleService {
                     "Action invalide : " + dto.getAction());
         }
 
-        MenuEntity menu = null;
-        if (dto.getMenuId() != null) {
-            menu = menuRepository.findById(dto.getMenuId())
-                    .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST,
-                            "Menu introuvable : " + dto.getMenuId()));
-        }
-
         EnvironnementEntity env = null;
         if (dto.getEnvironnementId() != null) {
             env = environnementRepository.findById(dto.getEnvironnementId())
@@ -102,7 +92,6 @@ public class RoleServiceImpl implements RoleService {
                 .libelle(dto.getLibelle())
                 .action(actionType)
                 .actif(dto.getActif() == null || dto.getActif())
-                .menu(menu)
                 .environnement(env)
                 .projet(projet)
                 .build();
@@ -132,13 +121,6 @@ public class RoleServiceImpl implements RoleService {
                     "Action invalide : " + dto.getAction());
         }
 
-        MenuEntity menu = null;
-        if (dto.getMenuId() != null) {
-            menu = menuRepository.findById(dto.getMenuId())
-                    .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST,
-                            "Menu introuvable : " + dto.getMenuId()));
-        }
-
         EnvironnementEntity env = null;
         if (dto.getEnvironnementId() != null) {
             env = environnementRepository.findById(dto.getEnvironnementId())
@@ -157,7 +139,6 @@ public class RoleServiceImpl implements RoleService {
         role.setLibelle(dto.getLibelle());
         role.setAction(actionType);
         role.setActif(dto.getActif() == null ? role.getActif() : dto.getActif());
-        role.setMenu(menu);
         role.setEnvironnement(env);
         role.setProjet(projet);
 
@@ -174,12 +155,6 @@ public class RoleServiceImpl implements RoleService {
 
         role.setActif(false);
         roleRepository.save(role);
-    }
-
-    @Override
-    public List<RoleDTO> getByMenu(Long menuId) {
-        checkAdmin();
-        return roleMapper.toDtoList(roleRepository.findByMenuId(menuId));
     }
 
     @Override

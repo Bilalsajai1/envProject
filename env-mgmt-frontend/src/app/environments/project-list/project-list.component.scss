@@ -1,5 +1,6 @@
 $accent: #152f56;
 $border: #e5e7eb;
+$border-dark: #1a1a1a;  // NOUVEAU
 $muted: #6b7280;
 $surface: #ffffff;
 $shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
@@ -12,6 +13,7 @@ $radius: 12px;
   padding: 0;
   margin: 0;
   max-width: none;
+  animation: fadeIn 0.3s ease-in;  // NOUVEAU
 }
 
 @keyframes fadeIn {
@@ -32,6 +34,17 @@ $radius: 12px;
     width: 18px;
     height: 18px;
     color: $accent;
+  }
+
+  .breadcrumb-link {  // NOUVEAU
+    cursor: pointer;
+    color: $accent;
+    text-decoration: none;
+    transition: text-decoration 0.2s;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 
   .current {
@@ -85,6 +98,29 @@ mat-card {
 
 .projects-table {
   width: 100%;
+  border-collapse: collapse;  // NOUVEAU
+
+  // NOUVEAU - Styles pour les en-têtes
+  th {
+    border: 1px solid $border-dark;
+    background-color: #f8f9fa;
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+  }
+
+  // NOUVEAU - Styles pour les cellules
+  td {
+    border: 1px solid $border-dark;
+    padding: 12px;
+  }
+
+  // NOUVEAU - Hover sur les lignes
+  tr {
+    &:hover {
+      background-color: #f5f8fc;
+    }
+  }
 
   .clickable-row {
     cursor: pointer;
@@ -119,6 +155,7 @@ mat-card {
   .actions-cell {
     display: flex;
     gap: 6px;
+    justify-content: center;  // NOUVEAU
   }
 }
 
@@ -136,9 +173,14 @@ mat-card {
     margin-bottom: 10px;
   }
 
+  p {
+    margin: 0;  // NOUVEAU
+  }
+
   .hint {
     font-size: 14px;
     color: $muted;
+    margin-top: 8px;  // NOUVEAU
   }
 }
 

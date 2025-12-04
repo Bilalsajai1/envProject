@@ -6,7 +6,7 @@
     <mat-icon>chevron_right</mat-icon>
     <a (click)="goBack()" class="breadcrumb-link">Environnements</a>
     <mat-icon>chevron_right</mat-icon>
-    <span class="current">Applications</span>
+    <span class="current">Env #{{ environmentId }}</span>
   </nav>
 
   <div class="list-header">
@@ -45,17 +45,13 @@
         [dataSource]="applications"
         class="applications-table">
 
-        <ng-container matColumnDef="applicationCode">
-          <th mat-header-cell *matHeaderCellDef>Code</th>
-          <td mat-cell *matCellDef="let app">
-            <span class="app-code">{{ app.applicationCode }}</span>
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="applicationLibelle">
+        <ng-container matColumnDef="application">
           <th mat-header-cell *matHeaderCellDef>Application</th>
           <td mat-cell *matCellDef="let app">
-            <strong>{{ app.applicationLibelle }}</strong>
+            <div class="app-main">
+              <span class="app-code">{{ app.applicationCode }}</span>
+              <span class="app-libelle">{{ app.applicationLibelle }}</span>
+            </div>
           </td>
         </ng-container>
 
@@ -86,14 +82,41 @@
           </td>
         </ng-container>
 
-        <ng-container matColumnDef="actif">
-          <th mat-header-cell *matHeaderCellDef>Statut</th>
+        <ng-container matColumnDef="username">
+          <th mat-header-cell *matHeaderCellDef>Username</th>
           <td mat-cell *matCellDef="let app">
-            <mat-chip
-              [class.status-active]="app.actif"
-              [class.status-inactive]="!app.actif">
-              {{ app.actif ? 'Actif' : 'Inactif' }}
-            </mat-chip>
+            {{ app.username || '-' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="password">
+          <th mat-header-cell *matHeaderCellDef>Password</th>
+          <td mat-cell *matCellDef="let app">
+            {{ app.password || '-' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="url">
+          <th mat-header-cell *matHeaderCellDef>URL</th>
+          <td mat-cell *matCellDef="let app">
+            @if (app.url) {
+              <a
+                [href]="app.url"
+                target="_blank"
+                rel="noopener"
+                class="url-link">
+                {{ app.url }}
+              </a>
+            } @else {
+              <span>-</span>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="dateDerniereLivraison">
+          <th mat-header-cell *matHeaderCellDef>Dernière livraison</th>
+          <td mat-cell *matCellDef="let app">
+            {{ app.dateDerniereLivraison ? (app.dateDerniereLivraison | date:'short') : '-' }}
           </td>
         </ng-container>
 

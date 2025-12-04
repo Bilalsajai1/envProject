@@ -19,8 +19,6 @@ public interface RoleService {
 
     void delete(Long id); // suppression logique (actif = false)
 
-    List<RoleDTO> getByMenu(Long menuId);
-
     List<RoleDTO> getByEnvironnement(Long envId);
     PaginatedResponse<RoleDTO> search(PaginationRequest req);
 

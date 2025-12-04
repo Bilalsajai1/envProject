@@ -20,9 +20,6 @@ public class RoleDTO {
     private String action;
     private Boolean actif;
 
-    private Long menuId;
-    private String menuCode;
-
     private Long environnementId;
     private String environnementCode;
 

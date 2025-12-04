@@ -25,7 +25,6 @@ public class RoleCreateUpdateDTO {
 
     private Boolean actif;
 
-    private Long menuId;
     private Long environnementId;
 
     private Long projetId;

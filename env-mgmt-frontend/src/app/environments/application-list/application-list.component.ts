@@ -1,6 +1,4 @@
-// src/app/environments/components/application-list/application-list.component.ts
-
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -18,21 +16,21 @@ import { ApplicationDialogComponent } from '../components/dialogs/application-di
   styleUrls: ['./application-list.component.scss']
 })
 export class ApplicationListComponent implements OnInit {
-
   typeCode: string = '';
   projectId!: number;
   environmentId!: number;
-  environment?: EnvironmentDTO;
   applications: EnvApplicationDTO[] = [];
   loading = false;
 
   displayedColumns = [
-    'applicationCode',
-    'applicationLibelle',
+    'application',
     'protocole',
     'host',
     'port',
-    'actif',
+    'username',
+    'password',
+    'url',
+    'dateDerniereLivraison',
     'actions'
   ];
 
@@ -47,7 +45,10 @@ export class ApplicationListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // ✅ CORRECTION : Utiliser combineLatest
+    this.initializeComponent();
+  }
+
+  private initializeComponent(): void {
     combineLatest([
       this.route.paramMap,
       this.route.parent?.parent?.parent?.paramMap ?? this.route.parent?.parent?.paramMap ?? this.route.paramMap
@@ -56,15 +57,13 @@ export class ApplicationListComponent implements OnInit {
       this.environmentId = Number(params.get('environmentId'));
       this.typeCode = (parentParams.get('typeCode') || '').toUpperCase();
 
-      console.log('🔍 ApplicationList - projectId:', this.projectId, 'environmentId:', this.environmentId, 'typeCode:', this.typeCode);
-
       if (this.environmentId) {
         this.loadApplications();
       }
     });
   }
 
-  loadApplications(): void {
+  private loadApplications(): void {
     this.loading = true;
     this.applicationService.getByEnvironment(this.environmentId).subscribe({
       next: (applications) => {
@@ -73,7 +72,7 @@ export class ApplicationListComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: () => {
-        this.snackBar.open('❌ Erreur lors du chargement des applications', 'Fermer', { duration: 3000 });
+        this.snackBar.open('Erreur lors du chargement des applications', 'Fermer', { duration: 3000 });
         this.loading = false;
       }
     });
@@ -125,11 +124,11 @@ export class ApplicationListComponent implements OnInit {
       if (confirmed) {
         this.applicationService.delete(app.id).subscribe({
           next: () => {
-            this.snackBar.open('✅ Application supprimée avec succès', 'Fermer', { duration: 3000 });
+            this.snackBar.open('Application supprimée avec succès', 'Fermer', { duration: 3000 });
             this.loadApplications();
           },
           error: () => {
-            this.snackBar.open('❌ Erreur lors de la suppression', 'Fermer', { duration: 3000 });
+            this.snackBar.open('Erreur lors de la suppression', 'Fermer', { duration: 3000 });
           }
         });
       }
@@ -137,6 +136,6 @@ export class ApplicationListComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['../../../'], { relativeTo: this.route });
+    this.router.navigate(['../../'], { relativeTo: this.route });
   }
 }

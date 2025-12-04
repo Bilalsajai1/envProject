@@ -53,11 +53,6 @@ public class RoleController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/by-menu/{menuId}")
-    public ResponseEntity<List<RoleDTO>> getByMenu(@PathVariable Long menuId) {
-        return ResponseEntity.ok(roleService.getByMenu(menuId));
-    }
-
     @GetMapping("/by-env/{envId}")
     public ResponseEntity<List<RoleDTO>> getByEnv(@PathVariable Long envId) {
         return ResponseEntity.ok(roleService.getByEnvironnement(envId));

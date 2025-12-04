@@ -1,5 +1,6 @@
 $accent: #152f56;
 $border: #e5e7eb;
+$border-dark: #1a1a1a;
 $muted: #6b7280;
 $surface: #ffffff;
 $shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
@@ -16,8 +17,14 @@ $radius: 12px;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .breadcrumb {
@@ -39,6 +46,7 @@ $radius: 12px;
     cursor: pointer;
     color: $accent;
     text-decoration: none;
+    transition: text-decoration 0.2s;
 
     &:hover {
       text-decoration: underline;
@@ -66,7 +74,9 @@ $radius: 12px;
     font-weight: 700;
     color: $accent;
 
-    mat-icon { color: $accent; }
+    mat-icon {
+      color: $accent;
+    }
   }
 
   .subtitle {
@@ -99,15 +109,24 @@ mat-card {
 
 .applications-table {
   width: 100%;
+  border-collapse: collapse;
 
-  .clickable-row {
-    cursor: pointer;
-    transition: background 0.2s, transform 0.15s ease;
+  th {
+    border: 1px solid $border-dark;
+    background-color: #f8f9fa;
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+  }
 
+  td {
+    border: 1px solid $border-dark;
+    padding: 12px;
+  }
+
+  tr {
     &:hover {
-      background: #f5f8fc;
-      transform: translateY(-1px);
-      box-shadow: inset 4px 0 0 $accent;
+      background-color: #f5f8fc;
     }
   }
 
@@ -118,6 +137,17 @@ mat-card {
     padding: 4px 8px;
     border-radius: 12px;
     color: #e65100;
+  }
+
+  .app-main {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .app-libelle {
+    font-weight: 500;
+    color: $accent;
   }
 
   .protocol-chip {
@@ -133,19 +163,21 @@ mat-card {
     color: #666;
   }
 
-  .status-active {
-    background: #e8f5e9;
-    color: #4caf50;
-  }
+  .url-link {
+    color: $accent;
+    text-decoration: none;
+    word-break: break-all;
+    transition: text-decoration 0.2s;
 
-  .status-inactive {
-    background: #ffebee;
-    color: #f44336;
+    &:hover {
+      text-decoration: underline;
+    }
   }
 
   .actions-cell {
     display: flex;
     gap: 6px;
+    justify-content: center;
   }
 }
 
@@ -163,9 +195,14 @@ mat-card {
     margin-bottom: 10px;
   }
 
+  p {
+    margin: 0;
+  }
+
   .hint {
     font-size: 14px;
     color: $muted;
+    margin-top: 8px;
   }
 }
 

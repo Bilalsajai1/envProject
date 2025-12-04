@@ -13,16 +13,8 @@ public interface RoleRepository extends JpaRepository<RoleEntity, Long>, JpaSpec
 
     List<RoleEntity> findByActifTrue();
 
-    List<RoleEntity> findByMenuId(Long menuId);
-
     List<RoleEntity> findByEnvironnementId(Long environnementId);
 
     Optional<RoleEntity> findByCode(String code);
-
-    @Query("SELECT r FROM RoleEntity r WHERE r.menu.id = :menuId")
-    List<RoleEntity> findRolesByMenu(@Param("menuId") Long menuId);
-
-    @Query("SELECT r FROM RoleEntity r WHERE r.menu IS NULL")
-    List<RoleEntity> findRolesWithoutMenu();
 
 }

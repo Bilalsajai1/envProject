@@ -11,8 +11,6 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface RoleMapper {
 
-    @Mapping(target = "menuId", source = "menu.id")
-    @Mapping(target = "menuCode", source = "menu.code")
     @Mapping(target = "environnementId", source = "environnement.id")
     @Mapping(target = "environnementCode", source = "environnement.code")
     @Mapping(target = "projetId", source = "projet.id")

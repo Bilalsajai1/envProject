@@ -1,5 +1,6 @@
 $accent: #152f56;
 $border: #e5e7eb;
+$border-dark: #1a1a1a;  // NOUVEAU
 $muted: #6b7280;
 $surface: #ffffff;
 $shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
@@ -93,8 +94,28 @@ $radius-sm: 8px;
 
 .profils-table {
   width: 100%;
-  border-spacing: 0;
+  border-collapse: collapse;  // NOUVEAU
 
+  // NOUVEAU - Styles pour les en-têtes
+  th.mat-mdc-header-cell {
+    border: 1px solid $border-dark;
+    background-color: #f8f9fa;
+    padding: 12px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: $accent;
+    text-align: left;
+  }
+
+  // NOUVEAU - Styles pour les cellules
+  td.mat-mdc-cell {
+    border: 1px solid $border-dark;
+    padding: 12px;
+    font-size: 0.95rem;
+    color: #0f172a;
+  }
+
+  // NOUVEAU - Hover sur les lignes
   tr.mat-mdc-row {
     transition: background 0.15s ease, transform 0.15s ease;
 
@@ -103,18 +124,6 @@ $radius-sm: 8px;
       transform: translateY(-1px);
       box-shadow: inset 4px 0 0 $accent;
     }
-  }
-
-  th.mat-mdc-header-cell {
-    font-weight: 700;
-    font-size: 0.85rem;
-    color: $accent;
-    border-bottom-width: 1px;
-  }
-
-  td.mat-mdc-cell {
-    font-size: 0.95rem;
-    color: #0f172a;
   }
 }
 
@@ -169,6 +178,7 @@ $radius-sm: 8px;
   display: flex;
   align-items: center;
   gap: 6px;
+  justify-content: center;  // NOUVEAU
 
   button {
     border-radius: $radius-sm;
@@ -197,8 +207,13 @@ $radius-sm: 8px;
     margin-bottom: 8px;
   }
 
+  p {
+    margin: 0;  // NOUVEAU
+  }
+
   .empty-hint {
     font-size: 0.9rem;
+    margin-top: 8px;  // NOUVEAU
   }
 }
 

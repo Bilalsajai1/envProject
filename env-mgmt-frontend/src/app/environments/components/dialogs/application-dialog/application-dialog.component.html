@@ -1,114 +1,253 @@
-<h2 mat-dialog-title>
-  {{ isEdit ? 'Modifier l\'application' : 'Ajouter une application' }}
-</h2>
+<div class="dialog-wrapper">
+  <div class="dialog-header">
+    <div class="header-content">
+      <mat-icon class="header-icon">{{ isEdit ? 'edit' : 'add_circle' }}</mat-icon>
+      <div class="header-text">
+        <h2 mat-dialog-title>
+          {{ isEdit ? 'Modifier l\'application' : 'Ajouter une application' }}
+        </h2>
+        <p class="header-subtitle">
+          {{ isEdit ? 'Mettez à jour les informations' : 'Configurez une nouvelle application' }}
+        </p>
+      </div>
+    </div>
+  </div>
 
-<mat-dialog-content>
-  <form [formGroup]="form" class="dialog-form">
+  <mat-dialog-content>
+    <form [formGroup]="form" class="dialog-form">
 
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Application</mat-label>
-      <mat-select formControlName="applicationId">
-        @for (app of availableApplications; track app.id) {
-          <mat-option [value]="app.id">
-            {{ app.libelle }} ({{ app.code }})
-          </mat-option>
+      <div class="form-section section-slide-1 application-section">
+        <div class="section-header">
+          <mat-icon class="section-icon">apps</mat-icon>
+          <div class="section-title-text">
+            <h3>Application</h3>
+            <p class="section-subtitle">Sélectionnez ou créez une application</p>
+          </div>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width application-selector">
+          <mat-label>
+            <mat-icon class="label-icon">app_registration</mat-icon>
+            Application
+          </mat-label>
+          <mat-select formControlName="applicationId">
+            @for (app of availableApplications; track app.id) {
+              <mat-option [value]="app.id" class="app-option">
+                <mat-icon class="option-icon">application</mat-icon>
+                {{ app.libelle }} ({{ app.code }})
+              </mat-option>
+            }
+            <mat-divider></mat-divider>
+            <mat-option value="AUTRE" class="autre-option">
+              <mat-icon class="option-icon">add_circle_outline</mat-icon>
+              Créer une nouvelle
+            </mat-option>
+          </mat-select>
+          <mat-error>Application obligatoire</mat-error>
+        </mat-form-field>
+
+        @if (showApplicationCustom) {
+          <div class="custom-field-container">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>
+                <mat-icon class="label-icon">label</mat-icon>
+                Nom de l'application
+              </mat-label>
+              <input
+                matInput
+                formControlName="applicationCustom"
+                placeholder="Ex: Mon Application Personnalisée"
+                required />
+              <mat-error>Veuillez entrer un nom</mat-error>
+            </mat-form-field>
+          </div>
         }
-      </mat-select>
+      </div>
 
-      @if (isEdit) {
-        <mat-hint>
-          L'application ne peut pas être modifiée en édition
-        </mat-hint>
+      <div class="form-section section-slide-2 connection-section">
+        <div class="section-header">
+          <mat-icon class="section-icon">settings_ethernet</mat-icon>
+          <div class="section-title-text">
+            <h3>Informations de connexion</h3>
+            <p class="section-subtitle">Configurez l'accès à l'application</p>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>
+              <mat-icon class="label-icon">public</mat-icon>
+              Protocole
+            </mat-label>
+            <mat-select formControlName="protocole">
+              @for (proto of protocols; track proto) {
+                <mat-option [value]="proto">
+                  <mat-icon class="option-icon">cloud</mat-icon>
+                  {{ proto }}
+                </mat-option>
+              }
+              <mat-divider></mat-divider>
+              <mat-option value="AUTRE" class="autre-option">
+                <mat-icon class="option-icon">add_circle_outline</mat-icon>
+                Personnalisé
+              </mat-option>
+            </mat-select>
+            <mat-error>Protocole obligatoire</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>
+              <mat-icon class="label-icon">dns</mat-icon>
+              Host
+            </mat-label>
+            <input matInput formControlName="host" placeholder="localhost / 192.168.1.1" />
+          </mat-form-field>
+        </div>
+
+        @if (showProtocolCustom) {
+          <div class="custom-field-container">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>
+                <mat-icon class="label-icon">code</mat-icon>
+                Protocole personnalisé
+              </mat-label>
+              <input
+                matInput
+                formControlName="protocoleCustom"
+                placeholder="Ex: TCP, UDP, MQTT, etc."
+                required />
+              <mat-error>Veuillez entrer un protocole</mat-error>
+            </mat-form-field>
+          </div>
+        }
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>
+              <mat-icon class="label-icon">pin</mat-icon>
+              Port
+            </mat-label>
+            <input matInput type="number" formControlName="port" placeholder="8080" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>
+              <mat-icon class="label-icon">link</mat-icon>
+              URL
+            </mat-label>
+            <input matInput formControlName="url" placeholder="https://example.com/api" />
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="form-section section-slide-3 auth-section">
+        <div class="section-header">
+          <mat-icon class="section-icon">security</mat-icon>
+          <div class="section-title-text">
+            <h3>Authentification</h3>
+            <p class="section-subtitle">Identifiants de connexion sécurisés</p>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>
+              <mat-icon class="label-icon">person</mat-icon>
+              Username
+            </mat-label>
+            <input matInput formControlName="username" autocomplete="off" placeholder="user@domain" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>
+              <mat-icon class="label-icon">lock</mat-icon>
+              Password
+            </mat-label>
+            <input
+              matInput
+              type="password"
+              formControlName="password"
+              autocomplete="new-password"
+              placeholder="••••••••" />
+            <mat-hint>Crypté en base de données</mat-hint>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="form-section section-slide-4 details-section">
+        <div class="section-header">
+          <mat-icon class="section-icon">info</mat-icon>
+          <div class="section-title-text">
+            <h3>Détails supplémentaires</h3>
+            <p class="section-subtitle">Informations additionnelles et statut</p>
+          </div>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>
+            <mat-icon class="label-icon">calendar_today</mat-icon>
+            Dernière livraison
+          </mat-label>
+          <input matInput type="datetime-local" formControlName="dateDerniereLivraison" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>
+            <mat-icon class="label-icon">description</mat-icon>
+            Description / Notes
+          </mat-label>
+          <textarea
+            matInput
+            rows="3"
+            formControlName="description"
+            placeholder="Ajoutez des notes sur cette application..."></textarea>
+        </mat-form-field>
+
+        <div class="toggle-section">
+          <div class="toggle-container">
+            <div class="toggle-info">
+              <mat-icon class="toggle-icon">{{ form.get('actif')?.value ? 'check_circle' : 'cancel' }}</mat-icon>
+              <div class="toggle-text">
+                <p class="toggle-label">État de l'application</p>
+                <p class="toggle-sublabel">
+                  {{ form.get('actif')?.value ? 'Application active' : 'Application inactive' }}
+                </p>
+              </div>
+            </div>
+            <mat-slide-toggle
+              formControlName="actif"
+              color="primary"
+              class="custom-toggle">
+            </mat-slide-toggle>
+          </div>
+        </div>
+      </div>
+
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="cancel()" [disabled]="saving" class="cancel-btn">
+      <mat-icon>close</mat-icon>
+      Annuler
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="save()"
+      [disabled]="saving || form.invalid"
+      class="save-btn">
+      @if (saving) {
+        <mat-progress-spinner
+          mode="indeterminate"
+          diameter="16"
+          strokeWidth="2">
+        </mat-progress-spinner>
       }
-
-      @if (form.get('applicationId')?.hasError('required')) {
-        <mat-error>
-          Application obligatoire
-        </mat-error>
+      @if (!saving) {
+        <mat-icon>{{ isEdit ? 'save' : 'add' }}</mat-icon>
+        <span>{{ isEdit ? 'Enregistrer' : 'Ajouter' }}</span>
       }
-    </mat-form-field>
-
-    <div class="section-title">
-      <mat-icon>settings_ethernet</mat-icon>
-      Informations de connexion
-    </div>
-
-    <div class="form-grid">
-      <mat-form-field appearance="outline">
-        <mat-label>Protocole</mat-label>
-        <mat-select formControlName="protocole">
-          <mat-option value="HTTP">HTTP</mat-option>
-          <mat-option value="HTTPS">HTTPS</mat-option>
-          <mat-option value="FTP">FTP</mat-option>
-          <mat-option value="SFTP">SFTP</mat-option>
-          <mat-option value="SSH">SSH</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Host</mat-label>
-        <input matInput formControlName="host" placeholder="localhost" />
-      </mat-form-field>
-    </div>
-
-    <div class="form-grid">
-      <mat-form-field appearance="outline">
-        <mat-label>Port</mat-label>
-        <input matInput type="number" formControlName="port" placeholder="8080" />
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>URL</mat-label>
-        <input matInput formControlName="url" placeholder="https://example.com/api" />
-      </mat-form-field>
-    </div>
-
-    <div class="section-title">
-      <mat-icon>security</mat-icon>
-      Authentification
-    </div>
-
-    <div class="form-grid">
-      <mat-form-field appearance="outline">
-        <mat-label>Username</mat-label>
-        <input matInput formControlName="username" autocomplete="off" />
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Password</mat-label>
-        <input matInput type="password" formControlName="password" autocomplete="new-password" />
-        <mat-hint>Le mot de passe est crypté en base</mat-hint>
-      </mat-form-field>
-    </div>
-
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Description / Notes</mat-label>
-      <textarea matInput rows="3" formControlName="description"></textarea>
-    </mat-form-field>
-
-    <mat-slide-toggle formControlName="actif">
-      Actif
-    </mat-slide-toggle>
-
-  </form>
-</mat-dialog-content>
-
-<mat-dialog-actions align="end">
-  <button mat-button (click)="cancel()" [disabled]="saving">
-    Annuler
-  </button>
-  <button mat-raised-button color="primary" (click)="save()" [disabled]="saving">
-
-    @if (saving) {
-      <mat-progress-spinner
-        mode="indeterminate"
-        diameter="16"
-        strokeWidth="2">
-      </mat-progress-spinner>
-    }
-
-    @if (!saving) {
-      <span>{{ isEdit ? 'Enregistrer' : 'Ajouter' }}</span>
-    }
-  </button>
-</mat-dialog-actions>
+    </button>
+  </mat-dialog-actions>
+</div>
