@@ -1,154 +1,25 @@
+// src/main/java/ma/perenity/backend/service/EnvironmentTypeService.java
 package ma.perenity.backend.service;
 
-import lombok.RequiredArgsConstructor;
 import ma.perenity.backend.dto.EnvironmentTypeDTO;
 import ma.perenity.backend.dto.PaginatedResponse;
 import ma.perenity.backend.dto.PaginationRequest;
-import ma.perenity.backend.entities.EnvironmentTypeEntity;
-import ma.perenity.backend.entities.enums.ActionType;
-import ma.perenity.backend.excepion.ResourceNotFoundException;
-import ma.perenity.backend.mapper.EnvironmentTypeMapper;
-import ma.perenity.backend.repository.EnvironmentTypeRepository;
-import ma.perenity.backend.specification.EntitySpecification;
-import org.springframework.data.domain.*;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
-@Service
-@RequiredArgsConstructor
-public class EnvironmentTypeService {
+public interface EnvironmentTypeService {
 
-    private final EnvironmentTypeRepository repository;
-    private final EnvironmentTypeMapper mapper;
-    private final PermissionService permissionService;
+    List<EnvironmentTypeDTO> getAll();
 
-    private void checkAdmin() {
-        if (!permissionService.isAdmin()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Administration des types d'environnement réservée à l'administrateur");
-        }
-    }
+    List<EnvironmentTypeDTO> getAllActive();
 
+    EnvironmentTypeDTO getById(Long id);
 
+    EnvironmentTypeDTO create(EnvironmentTypeDTO dto);
 
+    EnvironmentTypeDTO update(Long id, EnvironmentTypeDTO dto);
 
-    public List<EnvironmentTypeDTO> getAll() {
-        checkAdmin();
-        return repository.findAll()
-                .stream()
-                .map(mapper::toDto)
-                .toList();
-    }
+    void delete(Long id);
 
-
-    public List<EnvironmentTypeDTO> getAllActive() {
-        List<EnvironmentTypeEntity> allActives = repository.findByActifTrue();
-
-
-        if (permissionService.isAdmin()) {
-            return allActives.stream().map(mapper::toDto).toList();
-        }
-
-        return allActives.stream()
-                .filter(t -> permissionService.canAccessEnvType(t.getCode(), ActionType.CONSULT))
-                .map(mapper::toDto)
-                .toList();
-    }
-
-
-    public EnvironmentTypeDTO getById(Long id) {
-        checkAdmin();
-        EnvironmentTypeEntity entity = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "EnvironmentType not found with id = " + id
-                ));
-        return mapper.toDto(entity);
-    }
-
-
-    public EnvironmentTypeDTO create(EnvironmentTypeDTO dto) {
-        checkAdmin();
-
-
-        if (repository.existsByCode(dto.getCode())) {
-            throw new IllegalStateException("EnvironmentType code already exists: " + dto.getCode());
-        }
-
-        EnvironmentTypeEntity entity = mapper.toEntity(dto);
-        entity.setActif(true);
-
-        entity = repository.save(entity);
-        return mapper.toDto(entity);
-    }
-
-
-
-    public EnvironmentTypeDTO update(Long id, EnvironmentTypeDTO dto) {
-        checkAdmin();
-
-        EnvironmentTypeEntity entity = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "EnvironmentType not found with id = " + id
-                ));
-
-
-        if (!entity.getCode().equals(dto.getCode())
-                && repository.existsByCode(dto.getCode())) {
-            throw new IllegalStateException("EnvironmentType code already exists: " + dto.getCode());
-        }
-
-        mapper.updateEntityFromDto(dto, entity);
-
-        entity = repository.save(entity);
-        return mapper.toDto(entity);
-    }
-
-
-
-    public void delete(Long id) {
-        checkAdmin();
-
-        EnvironmentTypeEntity entity = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "EnvironmentType not found with id = " + id
-                ));
-
-        entity.setActif(false);
-        repository.save(entity);
-    }
-
-
-
-    public PaginatedResponse<EnvironmentTypeDTO> search(PaginationRequest req) {
-        checkAdmin();
-
-
-        Sort sort = req.getSortDirection().equalsIgnoreCase("desc")
-                ? Sort.by(req.getSortField()).descending()
-                : Sort.by(req.getSortField()).ascending();
-
-        Pageable pageable = PageRequest.of(req.getPage(), req.getSize(), sort);
-
-        EntitySpecification<EnvironmentTypeEntity> specBuilder = new EntitySpecification<>();
-
-
-        System.out.println("=== FILTERS DEBUG ===");
-        if (req.getFilters() != null) {
-            req.getFilters().forEach((k, v) ->
-                    System.out.println("Filter: " + k + " = " + v)
-            );
-        }
-
-        Page<EnvironmentTypeEntity> page = repository.findAll(
-                specBuilder.getSpecification(req.getFilters()),
-                pageable
-        );
-
-        return PaginatedResponse.fromPage(
-                page.map(mapper::toDto)
-        );
-    }
+    PaginatedResponse<EnvironmentTypeDTO> search(PaginationRequest req);
 }
