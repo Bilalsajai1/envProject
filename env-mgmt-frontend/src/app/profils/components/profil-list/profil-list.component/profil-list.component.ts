@@ -12,7 +12,13 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort, Sort } from '@angular/material/sort';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Subject, takeUntil, finalize } from 'rxjs';
+import {
+  Subject,
+  takeUntil,
+  finalize,
+  debounceTime,
+  distinctUntilChanged
+} from 'rxjs';
 
 import { ProfilDTO, ProfilService } from '../../../services/profil.service';
 import { PaginatedResponse } from '../../../../users/models/user.model';
@@ -59,6 +65,7 @@ export class ProfilListComponent implements OnInit, OnDestroy {
   sortDirection: SortDirection = 'asc';
 
   searchTerm = '';
+  private readonly searchSubject = new Subject<string>();
   private readonly destroy$ = new Subject<void>();
 
   loading = false;
@@ -71,12 +78,28 @@ export class ProfilListComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.initSearchListener();
     this.loadProfils();
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  // --- Recherche avec debounce ---
+  private initSearchListener(): void {
+    this.searchSubject
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(term => {
+        this.searchTerm = (term || '').trim();
+        this.page = 0;
+        this.loadProfils();
+      });
   }
 
   private buildFilters(): Record<string, any> {
@@ -122,15 +145,12 @@ export class ProfilListComponent implements OnInit, OnDestroy {
   }
 
   onSearchChange(value: string): void {
-    this.searchTerm = (value || '').trim();
-    this.page = 0;
-    this.loadProfils();
+    this.searchSubject.next(value ?? '');
   }
 
   clearSearch(): void {
     this.searchTerm = '';
-    this.page = 0;
-    this.loadProfils();
+    this.searchSubject.next('');
   }
 
   onPageChange(event: PageEvent): void {
@@ -161,7 +181,7 @@ export class ProfilListComponent implements OnInit, OnDestroy {
 
   private openProfilForm(mode: 'create' | 'edit', profilId?: number): void {
     const dialogRef = this.dialog.open(ProfilFormComponent, {
-      width: '600px',
+      width: '900px',
       maxWidth: '95vw',
       disableClose: true,
       panelClass: 'profil-form-dialog',
@@ -225,6 +245,10 @@ export class ProfilListComponent implements OnInit, OnDestroy {
     if (count === 0) return 'Aucun profil';
     if (count === 1) return '1 profil';
     return `${count} profils`;
+  }
+
+  trackByProfil(_: number, profil: ProfilDTO): number | undefined {
+    return profil.id;
   }
 
   private showSnackBar(message: string, panelClass: string): void {

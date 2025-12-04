@@ -189,6 +189,10 @@ export class UserFormComponent implements OnInit, OnDestroy {
       this.dialogRef.close(false);
     }
   }
+  setActif(value: boolean): void {
+    this.form.get('actif')?.setValue(value);
+  }
+
 
   private hasFormChanged(): boolean {
     if (!this.initialFormValue) return false;

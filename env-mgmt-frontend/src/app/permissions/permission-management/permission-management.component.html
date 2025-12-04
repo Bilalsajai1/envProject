@@ -15,7 +15,8 @@
       <mat-select
         [(value)]="selectedProfilId"
         (selectionChange)="onProfilChange($event.value)"
-        [disabled]="loading">
+        [disabled]="loading"
+        panelClass="profil-select-panel">
         @for (profil of profils; track profil.id) {
           <mat-option [value]="profil.id">
             {{ profil.libelle }} ({{ profil.code }})
@@ -23,6 +24,7 @@
         }
       </mat-select>
     </mat-form-field>
+
   </div>
 
   @if (loading && !permissions) {

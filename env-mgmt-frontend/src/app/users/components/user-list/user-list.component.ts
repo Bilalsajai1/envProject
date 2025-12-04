@@ -193,8 +193,9 @@ export class UserListComponent implements OnInit, OnDestroy {
   private openUserForm(mode: 'create' | 'edit', userId?: number): void {
     this.cdr.markForCheck();
     const dialogRef = this.dialog.open(UserFormComponent, {
-      width: '650px',
-      maxWidth: '95vw',
+      width: '900px',
+      maxWidth: '100vw',
+      maxHeight: '90vh',
       disableClose: true,
       panelClass: 'user-form-dialog',
       data: {

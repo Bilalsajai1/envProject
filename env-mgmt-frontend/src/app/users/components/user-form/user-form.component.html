@@ -1,21 +1,28 @@
-<div class="form-page">
+<div class="user-form-page">
 
-  <div class="page-header">
-    <div class="header-content">
-      <button mat-icon-button class="back-button" (click)="cancel()">
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-
-      <div class="header-info">
-        <h1 class="page-title">
-          <mat-icon class="title-icon">{{ isEdit ? 'edit' : 'person_add' }}</mat-icon>
-          {{ isEdit ? 'Modifier un utilisateur' : 'Nouvel utilisateur' }}
-        </h1>
-        <p class="page-subtitle">
-          {{ isEdit ? 'Mise à jour des informations de l\'utilisateur' : 'Création d\'un nouveau compte utilisateur' }}
+  <!-- HEADER -->
+  <div class="user-form-header">
+    <div class="title-block">
+      <div class="avatar" [ngClass]="{ 'edit': isEdit, 'create': !isEdit }">
+        <mat-icon>{{ isEdit ? 'person' : 'person_add_alt_1' }}</mat-icon>
+      </div>
+      <div class="title-text">
+        <h1>{{ isEdit ? 'Modifier un utilisateur' : 'Nouvel utilisateur' }}</h1>
+        <p>
+          {{ isEdit
+          ? 'Mettez à jour les informations et le profil de ce compte.'
+          : 'Créez un nouveau compte utilisateur avec profil et statut.' }}
         </p>
       </div>
     </div>
+
+    <button
+      mat-icon-button
+      class="close-button"
+      (click)="cancel()"
+      aria-label="Fermer">
+      <mat-icon>close</mat-icon>
+    </button>
   </div>
 
   @if (loading) {
@@ -26,151 +33,209 @@
     </mat-progress-bar>
   }
 
-  <div class="form-container">
+  <!-- CONTENU SCROLLABLE -->
+  <div class="user-form-content">
     <form [formGroup]="form" (ngSubmit)="submit()">
 
-      <div class="form-section">
-        <div class="section-header">
-          <mat-icon class="section-icon">badge</mat-icon>
-          <h2 class="section-title">Informations de base</h2>
-        </div>
+      <div class="sections-grid">
 
-        <div class="form-grid">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Code utilisateur</mat-label>
-            <mat-icon matPrefix>fingerprint</mat-icon>
-            <input matInput formControlName="code" placeholder="Ex: USR001" />
-            <mat-hint align="start">Code unique de l'utilisateur</mat-hint>
+        <!-- SECTION 1 : INFOS PERSO -->
+        <section class="form-section">
+          <div class="section-header">
+            <div class="section-icon">
+              <mat-icon>person_outline</mat-icon>
+            </div>
+            <div>
+              <h2>Informations personnelles</h2>
+              <p>Identité et coordonnées principales de l’utilisateur.</p>
+            </div>
+          </div>
 
-            @if (codeControl?.hasError('required')) {
-              <mat-error>
-                Le code est obligatoire
-              </mat-error>
-            } @if (codeControl?.hasError('minlength')) {
-            <mat-error>
-              Minimum 3 caractères requis
-            </mat-error>
-          } @if (codeControl?.hasError('maxlength')) {
-            <mat-error>
-              Maximum 50 caractères autorisés
-            </mat-error>
-          }
-          </mat-form-field>
+          <div class="section-body">
+            <div class="fields-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Code utilisateur</mat-label>
+                <mat-icon matPrefix>qr_code_2</mat-icon>
+                <input matInput formControlName="code" placeholder="Ex: USR001" />
+                <mat-hint align="start">Code unique de l'utilisateur</mat-hint>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Prénom</mat-label>
-            <mat-icon matPrefix>person</mat-icon>
-            <input matInput formControlName="firstName" placeholder="Prénom" />
-            <mat-error>{{ getErrorMessage('firstName') }}</mat-error>
-          </mat-form-field>
+                @if (codeControl?.hasError('required')) {
+                  <mat-error>Le code est obligatoire</mat-error>
+                }
+                @if (codeControl?.hasError('minlength')) {
+                  <mat-error>Minimum 3 caractères requis</mat-error>
+                }
+                @if (codeControl?.hasError('maxlength')) {
+                  <mat-error>Maximum 50 caractères autorisés</mat-error>
+                }
+              </mat-form-field>
+            </div>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Nom</mat-label>
-            <mat-icon matPrefix>person_outline</mat-icon>
-            <input matInput formControlName="lastName" placeholder="Nom de famille" />
-            <mat-error>{{ getErrorMessage('lastName') }}</mat-error>
-          </mat-form-field>
+            <div class="fields-row two-cols">
+              <mat-form-field appearance="outline">
+                <mat-label>Prénom</mat-label>
+                <mat-icon matPrefix>face</mat-icon>
+                <input matInput formControlName="firstName" placeholder="Prénom" />
+                <mat-error>{{ getErrorMessage('firstName') }}</mat-error>
+              </mat-form-field>
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Adresse email</mat-label>
-            <mat-icon matPrefix>email</mat-icon>
-            <input matInput
-                   type="email"
-                   formControlName="email"
-                   placeholder="utilisateur@example.com" />
-            <mat-hint align="start">Email professionnel de l'utilisateur</mat-hint>
-            <mat-error>{{ getErrorMessage('email') }}</mat-error>
-          </mat-form-field>
-        </div>
-      </div>
+              <mat-form-field appearance="outline">
+                <mat-label>Nom</mat-label>
+                <mat-icon matPrefix>badge</mat-icon>
+                <input matInput formControlName="lastName" placeholder="Nom de famille" />
+                <mat-error>{{ getErrorMessage('lastName') }}</mat-error>
+              </mat-form-field>
+            </div>
 
-      <div class="form-section">
-        <div class="section-header">
-          <mat-icon class="section-icon">settings</mat-icon>
-          <h2 class="section-title">Profil et statut</h2>
-        </div>
+            <div class="fields-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Adresse email</mat-label>
+                <mat-icon matPrefix>alternate_email</mat-icon>
+                <input
+                  matInput
+                  type="email"
+                  formControlName="email"
+                  placeholder="utilisateur@example.com" />
+                <mat-hint align="start">Email professionnel de l'utilisateur</mat-hint>
+                <mat-error>{{ getErrorMessage('email') }}</mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+        </section>
 
-        <div class="form-grid">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Profil</mat-label>
-            <mat-icon matPrefix>shield</mat-icon>
-            <mat-select formControlName="profilId" placeholder="Sélectionner un profil" panelClass="profil-panel">
-              @if (profilsLoading) {
-                <mat-option disabled>
-                  <mat-spinner diameter="20"></mat-spinner>
-                  Chargement...
-                </mat-option>
-              }
-              @for (p of profils; track p.id) {
-                <mat-option [value]="p.id">
-                  <div class="profil-option">
-                    <span class="profil-libelle">{{ p.libelle }}</span>
-                    <span class="profil-code">{{ p.code }}</span>
-                  </div>
-                </mat-option>
-              }
-            </mat-select>
-            <mat-hint align="start">Détermine les permissions de l'utilisateur</mat-hint>
+        <!-- SECTION 2 : COMPTE & PROFIL -->
+        <section class="form-section">
+          <div class="section-header">
+            <div class="section-icon section-icon-secondary">
+              <mat-icon>admin_panel_settings</mat-icon>
+            </div>
+            <div>
+              <h2>Compte & profil</h2>
+              <p>Rôle dans la plateforme et activation du compte.</p>
+            </div>
+          </div>
 
-            @if (profilIdControl?.hasError('required')) {
-              <mat-error>
-                Le profil est obligatoire
-              </mat-error>
-            }
-          </mat-form-field>
+          <div class="section-body">
 
-          <div class="status-toggle">
-            <div class="toggle-header">
-              <mat-icon class="toggle-icon">{{ actifControl?.value ? 'check_circle' : 'cancel' }}</mat-icon>
-              <div class="toggle-info">
-                <span class="toggle-label">Statut du compte</span>
-                <span class="toggle-description">
-                  {{ actifControl?.value ? 'Compte actif et accessible' : 'Compte désactivé' }}
-                </span>
+            <!-- PROFIL -->
+            <div class="fields-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Profil</mat-label>
+                <mat-icon matPrefix>workspace_premium</mat-icon>
+                <mat-select
+                  formControlName="profilId"
+                  placeholder="Sélectionner un profil"
+                  panelClass="profil-panel">
+
+                  @if (profilsLoading) {
+                    <mat-option disabled>
+                      <mat-spinner diameter="20"></mat-spinner>
+                      Chargement...
+                    </mat-option>
+                  }
+
+                  @for (p of profils; track p.id) {
+                    <mat-option [value]="p.id">
+                      <div class="profil-option">
+                        <span class="profil-libelle">{{ p.libelle }}</span>
+                        <span class="profil-code">{{ p.code }}</span>
+                      </div>
+                    </mat-option>
+                  }
+                </mat-select>
+                <mat-hint align="start">Le profil détermine les accès et permissions.</mat-hint>
+
+                @if (profilIdControl?.hasError('required')) {
+                  <mat-error>Le profil est obligatoire</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <!-- STATUT DU COMPTE -->
+            <div class="status-block">
+              <div class="status-header">
+                <div
+                  class="status-badge"
+                  [ngClass]="{ 'badge-active': actifControl?.value, 'badge-inactive': !actifControl?.value }">
+                  <mat-icon>
+                    {{ actifControl?.value ? 'verified_user' : 'lock_person' }}
+                  </mat-icon>
+                </div>
+                <div class="status-text">
+                  <span class="status-title">Statut du compte</span>
+                  <span class="status-sub">
+                    {{ actifControl?.value
+                    ? 'Compte actif : l’utilisateur peut se connecter à la plateforme.'
+                    : 'Compte désactivé : l’accès est temporairement bloqué.' }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Toggle custom -->
+              <div class="status-toggle-pill">
+                <button
+                  type="button"
+                  class="pill-button pill-active"
+                  [class.selected]="actifControl?.value"
+                  (click)="setActif(true)">
+                  <mat-icon>check_circle</mat-icon>
+                  <span>Actif</span>
+                </button>
+
+                <button
+                  type="button"
+                  class="pill-button pill-inactive"
+                  [class.selected]="!actifControl?.value"
+                  (click)="setActif(false)">
+                  <mat-icon>pause_circle</mat-icon>
+                  <span>Inactif</span>
+                </button>
               </div>
             </div>
-            <mat-slide-toggle
-              formControlName="actif"
-              color="#ff9800"
-              class="status-slide-toggle">
-              {{ actifControl?.value ? 'Actif' : 'Inactif' }}
-            </mat-slide-toggle>
+
           </div>
-        </div>
+        </section>
+
       </div>
 
-      <div class="form-actions">
-        <div class="actions-info">
+      <!-- FOOTER -->
+      <div class="form-footer">
+        <div class="footer-info">
           <mat-icon class="info-icon">info</mat-icon>
           <span class="info-text">
-            {{ isEdit ? 'Les modifications seront appliquées immédiatement' : 'L\'utilisateur recevra un email de bienvenue' }}
+            {{ isEdit
+            ? 'Les modifications seront appliquées immédiatement sur ce compte.'
+            : 'Le compte pourra être activé/désactivé à tout moment après la création.' }}
           </span>
         </div>
 
-        <div class="actions-buttons">
-          <button mat-stroked-button
-                  type="button"
-                  (click)="cancel()"
-                  [disabled]="saving"
-                  class="cancel-button">
+        <div class="footer-actions">
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="cancel()"
+            [disabled]="saving"
+            class="cancel-button">
             <mat-icon>close</mat-icon>
             <span>Annuler</span>
           </button>
 
-          <button mat-raised-button
-                  color="primary"
-                  type="submit"
-                  [disabled]="saving || form.invalid"
-                  class="submit-button">
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="saving || form.invalid"
+            class="submit-button">
             @if (saving) {
-              <mat-spinner diameter="20"
-                           strokeWidth="3"
-                           class="button-spinner">
+              <mat-spinner
+                diameter="20"
+                strokeWidth="3"
+                class="button-spinner">
               </mat-spinner>
               <span>Enregistrement...</span>
             } @else {
               <mat-icon>{{ isEdit ? 'save' : 'add' }}</mat-icon>
-              <span>{{ isEdit ? 'Enregistrer' : 'créer' }}</span>
+              <span>{{ isEdit ? 'Enregistrer' : 'Créer' }}</span>
             }
           </button>
         </div>
@@ -178,5 +243,4 @@
 
     </form>
   </div>
-
 </div>

@@ -1,58 +1,12 @@
 @import 'bootstrap/scss/bootstrap';
-@import 'assets/_variables.scss';
-@import 'assets/perenity-theme.scss';
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-// Couleur d'accent principale (optionnelle pour SASS)
-$accent-color: #152f56;
-
-// 🎨 Variables globales (ne forcent rien, juste dispo partout)
-:root {
-  --page-bg: #f5f8fb;
-  --surface: #ffffff;
-  --text-main: #0f172a;
-  --text-muted: #6b7280;
-  --accent: var(--perenity-primary, #152f56);
-  --accent-soft: #e1e8f5;
-  --border-soft: #e5e7eb;
-  --radius-lg: 16px;
-  --radius-md: 12px;
-  --radius-sm: 8px;
-  --shadow-soft: 0 12px 30px rgba(15, 23, 42, 0.08);
-  --shadow-faint: 0 6px 18px rgba(15, 23, 42, 0.05);
+/* Pour le dialog du formulaire user : on enlève le padding blanc autour */
+.user-form-dialog .mat-mdc-dialog-container {
+  padding: 0 !important;
+  border-radius: 24px !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
-// 🔧 Reset léger
-*, *::before, *::after {
-  box-sizing: border-box;
-}
 
-html, body {
-  margin: 0;
-  padding: 0;
-  min-height: 100%;
-}
 
-body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  color: var(--text-main);
-  background-color: var(--page-bg);
-  -webkit-font-smoothing: antialiased;
-}
 
-// Liens (simple, facilement surchargable par page)
-a {
-  color: var(--accent);
-  text-decoration: none;
-}
-
-// 🌙 Thème sombre : on change juste les variables globales + fond
-body.dark-theme {
-  --page-bg: #0f172a;
-  --surface: #0b1220;
-  --text-main: #e2e8f0;
-  --text-muted: #94a3b8;
-  --accent-soft: rgba(56, 189, 248, 0.12);
-  --border-soft: rgba(148, 163, 184, 0.35);
-  background-color: #0b1220;
-}
