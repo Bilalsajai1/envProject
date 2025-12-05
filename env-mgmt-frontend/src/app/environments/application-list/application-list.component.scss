@@ -8,49 +8,33 @@ $radius: 12px;
 
 .application-list-container {
   animation: fadeIn 0.3s ease-in;
-  padding: 0;
-  margin: 0;
-  max-width: none;
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .breadcrumb {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 12px;
-  font-size: 14px;
   color: $muted;
+  margin-bottom: 12px;
 
   mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
     color: $accent;
+    font-size: 18px;
   }
 
   .breadcrumb-link {
     cursor: pointer;
     color: $accent;
     text-decoration: none;
-    transition: text-decoration 0.2s;
-
-    &:hover {
-      text-decoration: underline;
-    }
+    &:hover { text-decoration: underline; }
   }
 
   .current {
@@ -63,7 +47,6 @@ $radius: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
 
   h2 {
     display: flex;
@@ -73,10 +56,6 @@ $radius: 12px;
     font-size: 22px;
     font-weight: 700;
     color: $accent;
-
-    mat-icon {
-      color: $accent;
-    }
   }
 
   .subtitle {
@@ -103,8 +82,8 @@ mat-card {
   border-radius: $radius;
   box-shadow: $shadow;
   border: 1px solid $border;
-  background: $surface;
   padding: 16px;
+  background: $surface;
 }
 
 .applications-table {
@@ -112,10 +91,9 @@ mat-card {
   border-collapse: collapse;
 
   th {
+    background: #f8f9fa;
     border: 1px solid $border-dark;
-    background-color: #f8f9fa;
     padding: 12px;
-    text-align: left;
     font-weight: 600;
   }
 
@@ -124,30 +102,28 @@ mat-card {
     padding: 12px;
   }
 
-  tr {
-    &:hover {
-      background-color: #f5f8fc;
-    }
-  }
-
-  .app-code {
-    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-    font-size: 12px;
-    background: #fff3e0;
-    padding: 4px 8px;
-    border-radius: 12px;
-    color: #e65100;
+  tr:hover {
+    background-color: #f5f8fc;
   }
 
   .app-main {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+  }
+
+  .app-code {
+    padding: 4px 8px;
+    background: #fff3e0;
+    border-radius: 12px;
+    font-size: 12px;
+    color: #d55400;
+    font-family: 'JetBrains Mono', monospace;
   }
 
   .app-libelle {
-    font-weight: 500;
     color: $accent;
+    font-weight: 600;
   }
 
   .protocol-chip {
@@ -157,52 +133,33 @@ mat-card {
     height: 24px;
   }
 
-  .host-text {
-    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-    font-size: 12px;
-    color: #666;
-  }
-
   .url-link {
     color: $accent;
     text-decoration: none;
-    word-break: break-all;
-    transition: text-decoration 0.2s;
-
-    &:hover {
-      text-decoration: underline;
-    }
+    &:hover { text-decoration: underline; }
   }
 
   .actions-cell {
     display: flex;
-    gap: 6px;
     justify-content: center;
+    gap: 8px;
   }
 }
 
 .empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  text-align: center;
   padding: 40px 16px;
   color: #94a3b8;
-  text-align: center;
 
   mat-icon {
     font-size: 48px;
     margin-bottom: 10px;
   }
 
-  p {
-    margin: 0;
-  }
-
   .hint {
+    margin-top: 8px;
     font-size: 14px;
     color: $muted;
-    margin-top: 8px;
   }
 }
 
@@ -210,7 +167,6 @@ mat-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 40px 16px;
 
   p {
     margin-top: 12px;

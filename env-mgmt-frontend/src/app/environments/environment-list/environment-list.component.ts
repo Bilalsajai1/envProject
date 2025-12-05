@@ -1,14 +1,27 @@
-// src/app/environments/components/environment-list/environment-list.component.ts
+// CODE COMPLET DE LA VERSION CORRIGÉE
 
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import {
+  Component, OnInit, ChangeDetectorRef, OnDestroy, ViewChild
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { EnvironmentDTO, ProjectDTO } from '../models/environment.model';
-import { EnvironmentService } from '../services/environment.service';
-import { ProjectService } from '../services/project.service';
+import {
+  debounceTime, distinctUntilChanged, Subject, takeUntil, finalize
+} from 'rxjs';
+
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatSort, Sort } from '@angular/material/sort';
+
+import {
+  EnvironmentDTO, ProjectDTO
+} from '../models/environment.model';
+
+
+import {PaginatedResponse, PaginationRequest, ProjectService, SortDirection} from '../services/project.service';
 import { EnvironmentDialogComponent } from '../components/dialogs/environment-dialog/environment-dialog.component';
 import { ConfirmDialogComponent } from '../../users/confirm-dialog/confirm-dialog.component';
+import {EnvironmentService} from '../services/environment.service';
 
 @Component({
   selector: 'app-environment-list',
@@ -16,20 +29,38 @@ import { ConfirmDialogComponent } from '../../users/confirm-dialog/confirm-dialo
   templateUrl: './environment-list.component.html',
   styleUrls: ['./environment-list.component.scss']
 })
-export class EnvironmentListComponent implements OnInit {
+export class EnvironmentListComponent implements OnInit, OnDestroy {
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
 
   typeCode: string = '';
   projectId!: number;
   project?: ProjectDTO;
-  environments: EnvironmentDTO[] = [];
-  loading = false;
 
+  environments: EnvironmentDTO[] = [];
   displayedColumns = ['code', 'libelle', 'description', 'actif', 'actions'];
+
+  // Pagination
+  page = 0;
+  size = 10;
+  pageSizeOptions = [5, 10, 20, 50];
+  totalElements = 0;
+
+  // Tri
+  sortField = 'id';
+  sortDirection: SortDirection = 'asc';
+
+  searchTerm = '';
+  private readonly searchSubject = new Subject<string>();
+  private readonly destroy$ = new Subject<void>();
+
+  loading = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private environmentService: EnvironmentService,
+    private envService: EnvironmentService,
     private projectService: ProjectService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
@@ -37,182 +68,165 @@ export class EnvironmentListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.initSearchListener();
+
     this.projectId = Number(this.route.snapshot.paramMap.get('projectId'));
 
-    // Récupérer typeCode depuis le parent
-    let parentRoute = this.route.parent;
-    console.log('🔍 Debug routes:', {
-      currentRoute: this.route.snapshot.url,
-      parentRoute: parentRoute?.snapshot.url,
-      hasParent: !!parentRoute
-    });
-
-    // Remonter jusqu'à trouver le typeCode
-    while (parentRoute) {
-      const typeCodeParam = parentRoute.snapshot.paramMap.get('typeCode');
-      console.log('🔍 Checking parent for typeCode:', {
-        url: parentRoute.snapshot.url,
-        typeCode: typeCodeParam
-      });
-
-      if (typeCodeParam) {
-        this.typeCode = typeCodeParam.toUpperCase();
+    // typeCode depuis route parent
+    let r = this.route.parent;
+    while (r) {
+      const tc = r.snapshot.paramMap.get('typeCode');
+      if (tc) {
+        this.typeCode = tc.toUpperCase();
         break;
       }
-      parentRoute = parentRoute.parent;
+      r = r.parent;
     }
 
-    console.log('✅ Final params:', {
-      projectId: this.projectId,
-      typeCode: this.typeCode
-    });
-
-    if (this.projectId && this.typeCode) {
-      // ✅ Charger les environnements en premier (permission garantie)
-      this.loadEnvironments();
-
-      // ✅ Essayer de charger le projet (peut échouer en 403, ce n'est pas grave)
-      this.loadProject();
-    } else {
-      console.error('❌ projectId ou typeCode manquant !', {
-        projectId: this.projectId,
-        typeCode: this.typeCode
-      });
-      this.snackBar.open('❌ Paramètres de route manquants', 'Fermer', { duration: 3000 });
-    }
+    this.loadProject();
+    this.loadEnvironments();
   }
 
-  loadProject(): void {
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  // -----------------------------
+  // SEARCH
+  // -----------------------------
+  private initSearchListener(): void {
+    this.searchSubject
+      .pipe(
+        debounceTime(0),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(value => {
+        this.searchTerm = value.trim();
+        this.page = 0;
+        this.loadEnvironments();
+      });
+  }
+
+  onSearchChange(value: string) {
+    this.searchSubject.next(value);
+  }
+
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.searchSubject.next('');
+  }
+
+  private buildFilters(): Record<string, any> {
+    const f: Record<string, any> = {};
+
+    if (this.searchTerm) f['search'] = this.searchTerm;
+    f['typeCode'] = this.typeCode;
+    f['projetId'] = this.projectId;
+
+    return f;
+  }
+
+  // -----------------------------
+  // LOAD
+  // -----------------------------
+  loadProject() {
     this.projectService.getById(this.projectId).subscribe({
-      next: (project) => {
-        this.project = project;
-        // ✅ Forcer la détection de changement
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.warn('⚠️ Impossible de charger les détails du projet (403 attendu pour non-admin):', err);
-        // ✅ Ne pas afficher d'erreur si 403 (permissions insuffisantes)
-        if (err.status !== 403) {
-          this.snackBar.open('❌ Projet introuvable', 'Fermer', { duration: 3000 });
-        }
-        // ✅ Créer un projet "minimal" avec juste l'ID pour l'affichage
-        this.project = {
-          id: this.projectId,
-          code: `PROJET_${this.projectId}`,
-          libelle: `Projet ${this.projectId}`,
-          actif: true
-        };
-        this.cdr.detectChanges();
-      }
+      next: p => (this.project = p),
+      error: () => (this.project = undefined)
     });
   }
 
   loadEnvironments(): void {
-    // ✅ Utiliser setTimeout pour éviter NG0100
-    setTimeout(() => {
-      this.loading = true;
-      this.cdr.detectChanges();
-    });
 
-    console.log('📡 Appel API getByProjectAndType:', {
-      projectId: this.projectId,
-      typeCode: this.typeCode
-    });
+    this.loading = true;
+    this.cdr.markForCheck();
 
-    this.environmentService.getByProjectAndType(this.projectId, this.typeCode).subscribe({
-      next: (environments) => {
-        console.log('✅ Environnements récupérés:', environments);
-        this.environments = environments;
-
-        // ✅ Utiliser setTimeout pour éviter NG0100
-        setTimeout(() => {
+    this.envService
+      .getByProjectAndType(this.projectId, this.typeCode, this.searchTerm)
+      .pipe(
+        finalize(() => {
           this.loading = false;
-          this.cdr.detectChanges();
-        });
-      },
-      error: (err) => {
-        console.error('❌ Erreur lors du chargement des environnements:', err);
-        this.snackBar.open('❌ Erreur lors du chargement des environnements', 'Fermer', { duration: 3000 });
-
-        // ✅ Utiliser setTimeout pour éviter NG0100
-        setTimeout(() => {
-          this.loading = false;
-          this.cdr.detectChanges();
-        });
-      }
-    });
+          this.cdr.markForCheck();
+        })
+      )
+      .subscribe({
+        next: (envs) => {
+          this.environments = envs;
+          this.totalElements = envs.length; // pas de pagination backend pour ce cas
+        },
+        error: () => {
+          this.snackBar.open('❌ Erreur lors du chargement des environnements', 'Fermer', {
+            duration: 3000
+          });
+        }
+      });
   }
 
-  openEnvironment(env: EnvironmentDTO): void {
-    this.router.navigate([env.id, 'applications'], {
-      relativeTo: this.route
-    });
+
+  onPageChange(e: PageEvent): void {
+    this.page = e.pageIndex;
+    this.size = e.pageSize;
+    this.loadEnvironments();
   }
 
-  addEnvironment(): void {
-    const dialogRef = this.dialog.open(EnvironmentDialogComponent, {
+  onSortChange(sort: Sort): void {
+    if (sort.active && sort.direction) {
+      this.sortField = sort.active;
+      this.sortDirection = sort.direction as SortDirection;
+    } else {
+      this.sortField = 'id';
+      this.sortDirection = 'asc';
+    }
+    this.loadEnvironments();
+  }
+
+  // -----------------------------
+  // ACTIONS
+  // -----------------------------
+  openEnvironment(env: EnvironmentDTO) {
+    this.router.navigate([env.id, 'applications'], { relativeTo: this.route });
+  }
+
+  addEnvironment() {
+    const ref = this.dialog.open(EnvironmentDialogComponent, {
       width: '600px',
-      data: {
-        projectId: this.projectId,
-        typeCode: this.typeCode
-      }
+      data: { projectId: this.projectId, typeCode: this.typeCode }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.loadEnvironments();
-      }
-    });
+    ref.afterClosed().subscribe(ok => ok && this.loadEnvironments());
   }
 
-  editEnvironment(event: Event, env: EnvironmentDTO): void {
-    event.stopPropagation();
-
-    const dialogRef = this.dialog.open(EnvironmentDialogComponent, {
+  editEnvironment(env: EnvironmentDTO) {
+    const ref = this.dialog.open(EnvironmentDialogComponent, {
       width: '600px',
-      data: {
-        environment: env,
-        projectId: this.projectId,
-        typeCode: this.typeCode
-      }
+      data: { environment: env, projectId: this.projectId, typeCode: this.typeCode }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.loadEnvironments();
-      }
-    });
+    ref.afterClosed().subscribe(ok => ok && this.loadEnvironments());
   }
 
-  deleteEnvironment(event: Event, env: EnvironmentDTO): void {
-    event.stopPropagation();
-
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+  deleteEnvironment(env: EnvironmentDTO) {
+    const ref = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
       data: {
         title: 'Confirmer la suppression',
-        message: `Voulez-vous vraiment supprimer l'environnement "${env.libelle}" ?`,
-        confirmText: 'Supprimer',
-        cancelText: 'Annuler'
+        message: `Supprimer l'environnement "${env.libelle}" ?`
       }
     });
 
-    dialogRef.afterClosed().subscribe(confirmed => {
-      if (confirmed) {
-        this.environmentService.delete(env.id).subscribe({
-          next: () => {
-            this.snackBar.open('✅ Environnement supprimé avec succès', 'Fermer', { duration: 3000 });
-            this.loadEnvironments();
-          },
-          error: () => {
-            this.snackBar.open('❌ Erreur lors de la suppression', 'Fermer', { duration: 3000 });
-          }
+    ref.afterClosed().subscribe(yes => {
+      if (yes) {
+        this.envService.delete(env.id).subscribe({
+          next: () => this.loadEnvironments(),
+          error: () => this.snackBar.open('❌ Erreur suppression', 'Fermer')
         });
       }
     });
   }
 
-  goBack(): void {
+  goBack() {
     this.router.navigate(['../../'], { relativeTo: this.route });
   }
 }

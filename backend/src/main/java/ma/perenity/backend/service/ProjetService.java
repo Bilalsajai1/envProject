@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface ProjetService {
 
-    List<ProjetDTO> getProjectsByEnvironmentType(String typeCode);
+    List<ProjetDTO> getProjectsByEnvironmentType(String typeCode, String search);
 
     List<ProjetDTO> getAll();
 

@@ -1,6 +1,7 @@
 // src/main/java/ma/perenity/backend/service/impl/EnvironnementServiceImpl.java
 package ma.perenity.backend.service.impl;
 
+import jakarta.persistence.criteria.JoinType;
 import lombok.RequiredArgsConstructor;
 import ma.perenity.backend.dto.EnvironnementDTO;
 import ma.perenity.backend.dto.PaginatedResponse;
@@ -18,11 +19,16 @@ import ma.perenity.backend.service.EnvironnementService;
 import ma.perenity.backend.service.PermissionService;
 import ma.perenity.backend.specification.EntitySpecification;
 import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static org.springframework.http.HttpStatus.FORBIDDEN;
 
 @Service
 @RequiredArgsConstructor
@@ -35,29 +41,34 @@ public class EnvironnementServiceImpl implements EnvironnementService {
     private final PermissionService permissionService;
 
     @Override
-    public List<EnvironnementDTO> getEnvironmentsByProjetAndType(Long projetId, String typeCode) {
+    public List<EnvironnementDTO> getEnvironmentsByProjetAndType(Long projetId, String typeCode, String search) {
 
         if (!permissionService.canAccessEnvType(typeCode, ActionType.CONSULT)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Vous n'avez pas le droit de consulter les environnements de type " + typeCode);
+            throw new ResponseStatusException(FORBIDDEN);
         }
 
         ProjetEntity projet = projetRepository.findById(projetId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Projet not found with id = " + projetId
-                ));
+                .orElseThrow(() -> new ResourceNotFoundException("Projet not found"));
 
         if (!permissionService.canAccessProject(projet, ActionType.CONSULT)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Vous n'avez pas le droit de consulter les environnements du projet " + projet.getCode());
+            throw new ResponseStatusException(FORBIDDEN);
         }
 
-        return environnementRepository
-                .findByProjet_IdAndType_CodeAndActifTrue(projetId, typeCode)
-                .stream()
-                .map(mapper::toDto)
-                .toList();
+        List<EnvironnementEntity> list =
+                environnementRepository.findByProjet_IdAndType_CodeAndActifTrue(projetId, typeCode);
+
+        if (search != null && !search.trim().isEmpty()) {
+            String term = search.trim().toLowerCase();
+            list = list.stream().filter(e ->
+                    (e.getCode() != null && e.getCode().toLowerCase().contains(term)) ||
+                            (e.getLibelle() != null && e.getLibelle().toLowerCase().contains(term)) ||
+                            (e.getDescription() != null && e.getDescription().toLowerCase().contains(term))
+            ).toList();
+        }
+
+        return list.stream().map(mapper::toDto).toList();
     }
+
 
     @Override
     public EnvironnementEntity getByIdOrThrow(Long id) {
@@ -82,7 +93,7 @@ public class EnvironnementServiceImpl implements EnvironnementService {
 
         if (!permissionService.canAccessEnvType(type.getCode(), ActionType.CREATE)
                 || !permissionService.canAccessProject(projet, ActionType.CREATE)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+            throw new ResponseStatusException(FORBIDDEN,
                     "Vous n'avez pas le droit de créer des environnements pour le projet " +
                             projet.getCode() + " et le type " + type.getCode());
         }
@@ -105,7 +116,7 @@ public class EnvironnementServiceImpl implements EnvironnementService {
         EnvironnementEntity env = getByIdOrThrow(id);
 
         if (!permissionService.canAccessEnv(env, ActionType.UPDATE)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+            throw new ResponseStatusException(FORBIDDEN,
                     "Vous n'avez pas le droit de modifier cet environnement");
         }
 
@@ -121,7 +132,7 @@ public class EnvironnementServiceImpl implements EnvironnementService {
         EnvironnementEntity entity = getByIdOrThrow(id);
 
         if (!permissionService.canAccessEnv(entity, ActionType.DELETE)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+            throw new ResponseStatusException(FORBIDDEN,
                     "Vous n'avez pas le droit de supprimer cet environnement");
         }
 
@@ -133,9 +144,8 @@ public class EnvironnementServiceImpl implements EnvironnementService {
     @Override
     public PaginatedResponse<EnvironnementDTO> search(PaginationRequest req) {
 
-        // Recherche globale réservée à l'admin
         if (!permissionService.isAdmin()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+            throw new ResponseStatusException(FORBIDDEN,
                     "La recherche globale des environnements est réservée à l'administrateur");
         }
 
@@ -145,15 +155,92 @@ public class EnvironnementServiceImpl implements EnvironnementService {
 
         Pageable pageable = PageRequest.of(req.getPage(), req.getSize(), sort);
 
+        Map<String, Object> rawFilters = req.getFilters() != null
+                ? new HashMap<>(req.getFilters())
+                : new HashMap<>();
+
+        // ---------------------
+        // EXTRAIRE SEARCH
+        // ---------------------
+        String search = null;
+        if (rawFilters.containsKey("search")) {
+            search = rawFilters.remove("search").toString().trim();
+            if (search.isEmpty()) search = null;
+        }
+
+        // ---------------------
+        // EXTRAIRE projetId
+        // ---------------------
+        Long projetId = null;
+        if (rawFilters.containsKey("projetId")) {
+            projetId = Long.valueOf(rawFilters.remove("projetId").toString());
+        }
+
+        // ---------------------
+        // EXTRAIRE typeCode
+        // ---------------------
+        String typeCode = null;
+        if (rawFilters.containsKey("typeCode")) {
+            typeCode = rawFilters.remove("typeCode").toString().trim().toUpperCase();
+        }
+
         EntitySpecification<EnvironnementEntity> specBuilder = new EntitySpecification<>();
+        Specification<EnvironnementEntity> spec = specBuilder.getSpecification(rawFilters);
 
-        Page<EnvironnementEntity> page = environnementRepository.findAll(
-                specBuilder.getSpecification(req.getFilters()),
-                pageable
+        // ---------------------
+        // FILTRE ACTIF
+        // ---------------------
+        spec = spec.and((root, query, cb) ->
+                cb.isTrue(root.get("actif"))
         );
 
-        return PaginatedResponse.fromPage(
-                page.map(mapper::toDto)
-        );
+        // ---------------------
+        // FILTRE PAR PROJET
+        // ---------------------
+        if (projetId != null) {
+            final Long pid = projetId;
+            spec = spec.and((root, query, cb) -> {
+                var projetJoin = root.join("projet", JoinType.LEFT);
+                return cb.equal(projetJoin.get("id"), pid);
+            });
+        }
+
+        // ---------------------
+        // FILTRE PAR TYPE D'ENVIRONNEMENT
+        // ---------------------
+        if (typeCode != null) {
+            final String tcode = typeCode;
+            spec = spec.and((root, query, cb) -> {
+                var typeJoin = root.join("type", JoinType.LEFT);
+                return cb.equal(typeJoin.get("code"), tcode);
+            });
+        }
+
+        // ---------------------
+        // SEARCH GLOBAL
+        // ---------------------
+        if (search != null) {
+            final String term = "%" + search.toLowerCase() + "%";
+            spec = spec.and((root, query, cb) -> {
+                var projetJoin = root.join("projet", JoinType.LEFT);
+                var typeJoin = root.join("type", JoinType.LEFT);
+
+                return cb.or(
+                        cb.like(cb.lower(root.get("code")), term),
+                        cb.like(cb.lower(root.get("libelle")), term),
+                        cb.like(cb.lower(root.get("description")), term),
+                        cb.like(cb.lower(projetJoin.get("code")), term),
+                        cb.like(cb.lower(projetJoin.get("libelle")), term),
+                        cb.like(cb.lower(typeJoin.get("code")), term),
+                        cb.like(cb.lower(typeJoin.get("libelle")), term)
+                );
+            });
+        }
+
+        Page<EnvironnementEntity> page = environnementRepository.findAll(spec, pageable);
+
+        return PaginatedResponse.fromPage(page.map(mapper::toDto));
     }
+
+
 }

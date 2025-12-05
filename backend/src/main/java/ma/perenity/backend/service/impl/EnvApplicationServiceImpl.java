@@ -34,7 +34,7 @@ public class EnvApplicationServiceImpl implements EnvApplicationService {
     private final PermissionService permissionService;
 
     @Override
-    public List<EnvApplicationDTO> getByEnvironnement(Long envId) {
+    public List<EnvApplicationDTO> getByEnvironnement(Long envId, String search) {
 
         EnvironnementEntity env = environnementRepository.findById(envId)
                 .orElseThrow(() -> new ResourceNotFoundException("Environnement not found with id = " + envId));
@@ -44,9 +44,26 @@ public class EnvApplicationServiceImpl implements EnvApplicationService {
                     "Vous n'avez pas le droit de consulter les applications de cet environnement");
         }
 
-        return repository.findByEnvironnementId(envId)
+        List<EnvApplicationEntity> apps = repository.findByEnvironnementId(envId)
                 .stream()
-                .filter(EnvApplicationEntity::getActif)   // on retourne seulement les actifs
+                .filter(EnvApplicationEntity::getActif)
+                .toList();
+
+        if (search != null && !search.trim().isEmpty()) {
+            String term = search.trim().toLowerCase();
+
+            apps = apps.stream()
+                    .filter(a ->
+                            (a.getApplication().getCode() != null && a.getApplication().getCode().toLowerCase().contains(term)) ||
+                                    (a.getApplication().getLibelle() != null && a.getApplication().getLibelle().toLowerCase().contains(term)) ||
+                                    (a.getHost() != null && a.getHost().toLowerCase().contains(term)) ||
+                                    (a.getUrl() != null && a.getUrl().toLowerCase().contains(term)) ||
+                                    (a.getProtocole() != null && a.getProtocole().toLowerCase().contains(term))
+                    )
+                    .toList();
+        }
+
+        return apps.stream()
                 .map(mapper::toDto)
                 .toList();
     }

@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface EnvironnementService {
 
-    List<EnvironnementDTO> getEnvironmentsByProjetAndType(Long projetId, String typeCode);
+    List<EnvironnementDTO> getEnvironmentsByProjetAndType(Long projetId, String typeCode , String search);
 
     EnvironnementEntity getByIdOrThrow(Long id);
 

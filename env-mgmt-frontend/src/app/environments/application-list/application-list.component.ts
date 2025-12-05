@@ -1,11 +1,18 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  OnDestroy
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { combineLatest } from 'rxjs';
+
+import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
+
 import { ApplicationService } from '../services/application.service';
-import { EnvironmentService } from '../services/environment.service';
-import { EnvApplicationDTO, EnvironmentDTO } from '../models/environment.model';
+import { EnvApplicationDTO } from '../models/environment.model';
+
 import { ConfirmDialogComponent } from '../../users/confirm-dialog/confirm-dialog.component';
 import { ApplicationDialogComponent } from '../components/dialogs/application-dialog/application-dialog.component';
 
@@ -15,12 +22,18 @@ import { ApplicationDialogComponent } from '../components/dialogs/application-di
   templateUrl: './application-list.component.html',
   styleUrls: ['./application-list.component.scss']
 })
-export class ApplicationListComponent implements OnInit {
+export class ApplicationListComponent implements OnInit, OnDestroy {
+
   typeCode: string = '';
   projectId!: number;
   environmentId!: number;
+
   applications: EnvApplicationDTO[] = [];
   loading = false;
+
+  searchTerm: string = '';
+  private readonly searchSubject = new Subject<string>();
+  private readonly destroy$ = new Subject<void>();
 
   displayedColumns = [
     'application',
@@ -38,46 +51,92 @@ export class ApplicationListComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private applicationService: ApplicationService,
-    private environmentService: EnvironmentService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
+    this.initSearchListener();
     this.initializeComponent();
   }
 
-  private initializeComponent(): void {
-    combineLatest([
-      this.route.paramMap,
-      this.route.parent?.parent?.parent?.paramMap ?? this.route.parent?.parent?.paramMap ?? this.route.paramMap
-    ]).subscribe(([params, parentParams]) => {
-      this.projectId = Number(params.get('projectId'));
-      this.environmentId = Number(params.get('environmentId'));
-      this.typeCode = (parentParams.get('typeCode') || '').toUpperCase();
-
-      if (this.environmentId) {
-        this.loadApplications();
-      }
-    });
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
+  // --------------------------------------------
+  // SEARCH LISTENER
+  // --------------------------------------------
+  private initSearchListener(): void {
+    this.searchSubject
+      .pipe(
+        debounceTime(200),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(term => {
+        this.searchTerm = term.trim();
+        this.loadApplications();
+      });
+  }
+
+  onSearchChange(value: string): void {
+    this.searchSubject.next(value);
+  }
+
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.searchSubject.next('');
+  }
+
+  // --------------------------------------------
+  // INIT ROUTE PARAMS
+  // --------------------------------------------
+  private initializeComponent(): void {
+    const typeParamRoute =
+      this.route.parent?.parent?.parent ||
+      this.route.parent?.parent ||
+      this.route.parent;
+
+    this.projectId = Number(this.route.snapshot.paramMap.get('projectId'));
+    this.environmentId = Number(this.route.snapshot.paramMap.get('environmentId'));
+    this.typeCode = (typeParamRoute?.snapshot.paramMap.get('typeCode') || '').toUpperCase();
+
+    if (!this.environmentId) {
+      this.snackBar.open('❌ Environnement introuvable', 'Fermer', { duration: 3000 });
+      return;
+    }
+
+    this.loadApplications();
+  }
+
+  // --------------------------------------------
+  // LOAD APPLICATIONS
+  // --------------------------------------------
   private loadApplications(): void {
     this.loading = true;
-    this.applicationService.getByEnvironment(this.environmentId).subscribe({
-      next: (applications) => {
-        this.applications = applications;
-        this.loading = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.snackBar.open('Erreur lors du chargement des applications', 'Fermer', { duration: 3000 });
-        this.loading = false;
-      }
-    });
+    this.cdr.markForCheck();
+
+    this.applicationService
+      .getByEnvironment(this.environmentId, this.searchTerm)
+      .subscribe({
+        next: (apps) => {
+          this.applications = apps;
+          this.loading = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.snackBar.open('❌ Erreur lors du chargement', 'Fermer', { duration: 3000 });
+          this.loading = false;
+        }
+      });
   }
 
+  // --------------------------------------------
+  // ACTIONS
+  // --------------------------------------------
   addApplication(): void {
     const dialogRef = this.dialog.open(ApplicationDialogComponent, {
       width: '700px',
@@ -87,9 +146,7 @@ export class ApplicationListComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.loadApplications();
-      }
+      if (result) this.loadApplications();
     });
   }
 
@@ -103,9 +160,7 @@ export class ApplicationListComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.loadApplications();
-      }
+      if (result) this.loadApplications();
     });
   }
 
@@ -113,10 +168,8 @@ export class ApplicationListComponent implements OnInit {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
       data: {
-        title: 'Confirmer la suppression',
-        message: `Voulez-vous vraiment supprimer l'application "${app.applicationLibelle}" ?`,
-        confirmText: 'Supprimer',
-        cancelText: 'Annuler'
+        title: 'Supprimer l\'application',
+        message: `Voulez-vous vraiment supprimer "${app.applicationLibelle}" ?`
       }
     });
 
@@ -124,11 +177,11 @@ export class ApplicationListComponent implements OnInit {
       if (confirmed) {
         this.applicationService.delete(app.id).subscribe({
           next: () => {
-            this.snackBar.open('Application supprimée avec succès', 'Fermer', { duration: 3000 });
+            this.snackBar.open('Application supprimée ✔', 'Fermer', { duration: 3000 });
             this.loadApplications();
           },
           error: () => {
-            this.snackBar.open('Erreur lors de la suppression', 'Fermer', { duration: 3000 });
+            this.snackBar.open('❌ Erreur lors de la suppression', 'Fermer', { duration: 3000 });
           }
         });
       }

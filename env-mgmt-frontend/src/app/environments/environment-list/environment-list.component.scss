@@ -1,19 +1,16 @@
 $accent: #152f56;
 $border: #e5e7eb;
-$border-dark: #1a1a1a;  // Ajouter cette variable
+$border-dark: #1a1a1a;
 $muted: #6b7280;
 $surface: #ffffff;
 $shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
 $radius: 12px;
 
-.application-list-container {
-  animation: fadeIn 0.3s ease-in;
-  padding: 0;
-  margin: 0;
-  max-width: none;
+.environment-list-container {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  animation: fadeIn 0.3s ease-in;
 }
 
 @keyframes fadeIn {
@@ -25,22 +22,17 @@ $radius: 12px;
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 12px;
   font-size: 14px;
   color: $muted;
 
   mat-icon {
     font-size: 18px;
-    width: 18px;
-    height: 18px;
     color: $accent;
   }
 
   .breadcrumb-link {
     cursor: pointer;
     color: $accent;
-    text-decoration: none;
-    transition: text-decoration 0.2s;
 
     &:hover {
       text-decoration: underline;
@@ -57,30 +49,18 @@ $radius: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
 
   h2 {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin: 0;
     font-size: 22px;
-    font-weight: 700;
     color: $accent;
-
-    mat-icon {
-      color: $accent;
-    }
   }
 
   .subtitle {
-    margin: 2px 0 0;
     font-size: 13px;
     color: $muted;
-
-    strong {
-      color: #111827;
-    }
   }
 
   .header-actions {
@@ -88,9 +68,6 @@ $radius: 12px;
     gap: 12px;
 
     button {
-      display: flex;
-      align-items: center;
-      gap: 8px;
       border-radius: 10px;
       box-shadow: $shadow;
     }
@@ -99,7 +76,6 @@ $radius: 12px;
 
 mat-card {
   border-radius: $radius;
-  box-shadow: $shadow;
   border: 1px solid $border;
   background: $surface;
   padding: 16px;
@@ -107,44 +83,22 @@ mat-card {
 
 .environments-table {
   width: 100%;
-  border-collapse: collapse;  // NOUVEAU
+  border-collapse: collapse;
 
-  // NOUVEAU - Styles pour les en-têtes
   th {
     border: 1px solid $border-dark;
-    background-color: #f8f9fa;
+    background: #f8f9fa;
     padding: 12px;
-    text-align: left;
     font-weight: 600;
   }
 
-  // NOUVEAU - Styles pour les cellules
   td {
     border: 1px solid $border-dark;
     padding: 12px;
   }
 
-  // NOUVEAU - Hover sur les lignes
-  tr {
-    &:hover {
-      background-color: #f5f8fc;
-    }
-  }
-
-  .clickable-row {
-    cursor: pointer;
-    transition: background 0.2s, transform 0.15s ease;
-
-    &:hover {
-      background: #f5f8fc;
-      transform: translateY(-1px);
-      box-shadow: inset 4px 0 0 $accent;
-    }
-  }
-
   .env-code {
-    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-    font-size: 12px;
+    font-family: monospace;
     background: #e8eaf6;
     padding: 4px 8px;
     border-radius: 12px;
@@ -164,43 +118,25 @@ mat-card {
   .actions-cell {
     display: flex;
     gap: 6px;
-    justify-content: center;  // NOUVEAU
+    justify-content: center;
   }
 }
 
 .empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 16px;
-  color: #94a3b8;
   text-align: center;
+  padding: 40px 16px;
+  color: $muted;
 
   mat-icon {
     font-size: 48px;
-    margin-bottom: 10px;
-  }
-
-  p {
-    margin: 0;  // NOUVEAU
-  }
-
-  .hint {
-    font-size: 14px;
-    color: $muted;
-    margin-top: 8px;  // NOUVEAU
   }
 }
 
 .loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  text-align: center;
   padding: 40px 16px;
 
   p {
-    margin-top: 12px;
     color: $muted;
   }
 }
