@@ -19,4 +19,5 @@ public interface UtilisateurService {
 
     void delete(Long id);
     PaginatedResponse<UserDTO> search(PaginationRequest req);
+    void updatePassword(Long userId, String newPassword);
 }

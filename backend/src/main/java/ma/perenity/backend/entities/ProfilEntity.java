@@ -37,7 +37,8 @@ public class ProfilEntity {
 
     @OneToMany(mappedBy = "profil")
     private List<UtilisateurEntity> utilisateurs;
-
+    @Column(name = "keycloak_group_id", length = 100)
+    private String keycloakGroupId;
     @OneToMany(mappedBy = "profil")
     private List<ProfilRoleEntity> profilRoles;
 }

@@ -8,6 +8,7 @@ import ma.perenity.backend.entities.enums.ActionType;
 import ma.perenity.backend.entities.enums.RoleScope;
 import ma.perenity.backend.mapper.ProfilMapper;
 import ma.perenity.backend.repository.*;
+import ma.perenity.backend.service.KeycloakService;
 import ma.perenity.backend.service.PermissionService;
 import ma.perenity.backend.service.ProfilService;
 import ma.perenity.backend.specification.EntitySpecification;
@@ -35,6 +36,7 @@ public class ProfilServiceImpl implements ProfilService {
     private final PermissionService permissionService;
     private final EnvironmentTypeRepository environmentTypeRepository;
     private final ProjetRepository projetRepository;
+    private final KeycloakService keycloakService;
 
     private void checkAdmin() {
         if (!permissionService.isAdmin()) {
@@ -66,16 +68,33 @@ public class ProfilServiceImpl implements ProfilService {
                     "Le code profil existe déjà : " + dto.getCode());
         }
 
+        ProfilKeycloakDTO keycloakDto = ProfilKeycloakDTO.builder()
+                .code(dto.getCode())
+                .libelle(dto.getLibelle())
+                .roles(Collections.emptyList())
+                .build();
+
+        String keycloakGroupId;
+        try {
+            keycloakGroupId = keycloakService.createGroup(keycloakDto);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Erreur lors de la création du groupe Keycloak: " + e.getMessage());
+        }
+
         ProfilEntity profil = ProfilEntity.builder()
                 .code(dto.getCode())
                 .libelle(dto.getLibelle())
                 .description(dto.getDescription())
                 .admin(dto.getAdmin() != null ? dto.getAdmin() : false)
                 .actif(dto.getActif() != null ? dto.getActif() : true)
+                .keycloakGroupId(keycloakGroupId)
                 .build();
 
-        return mapper.toDto(profilRepository.save(profil));
+        profil = profilRepository.save(profil);
+        return mapper.toDto(profil);
     }
+
 
     @Override
     public ProfilDTO update(Long id, ProfilCreateUpdateDTO dto) {
@@ -112,6 +131,9 @@ public class ProfilServiceImpl implements ProfilService {
         ProfilEntity profil = profilRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Profil introuvable"));
 
+        if (profil.getKeycloakGroupId() != null) {
+                keycloakService.deleteGroup(profil.getKeycloakGroupId());
+        }
         profil.setActif(false);
         profilRepository.save(profil);
     }
@@ -335,8 +357,19 @@ public class ProfilServiceImpl implements ProfilService {
                 pr.setRole(role);
                 profilRoleRepository.save(pr);
             }
-        }
+            if (profil.getKeycloakGroupId() != null) {
+                List<RoleKeycloakDTO> keycloakRoles = profilRoleRepository.findRolesByProfil(profilId)
+                        .stream()
+                        .filter(r -> r.getCode() != null)
+                        .map(r -> RoleKeycloakDTO.builder()
+                                .code(r.getCode())
+                                .libelle(r.getLibelle())
+                                .build())
+                        .toList();
 
+                    keycloakService.updateGroup(profil.getKeycloakGroupId(), keycloakRoles);
+            }
+        }
     }
 
     @Override

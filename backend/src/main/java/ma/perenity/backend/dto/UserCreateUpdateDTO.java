@@ -22,7 +22,7 @@ public class UserCreateUpdateDTO {
     private String email;
 
     private Boolean actif;
-
+    private String password;
     @NotNull
     private Long profilId;
 }

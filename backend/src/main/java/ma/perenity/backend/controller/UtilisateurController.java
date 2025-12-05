@@ -2,10 +2,7 @@ package ma.perenity.backend.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import ma.perenity.backend.dto.PaginatedResponse;
-import ma.perenity.backend.dto.PaginationRequest;
-import ma.perenity.backend.dto.UserCreateUpdateDTO;
-import ma.perenity.backend.dto.UserDTO;
+import ma.perenity.backend.dto.*;
 import ma.perenity.backend.service.UtilisateurService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +21,13 @@ public class UtilisateurController {
     public ResponseEntity<List<UserDTO>> getAll() {
         return ResponseEntity.ok(service.getAll());
     }
-
+    @PutMapping("/{id}/password")
+    public ResponseEntity<Void> updatePassword(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdatePasswordRequest request) {
+        service.updatePassword(id, request.getNewPassword());
+        return ResponseEntity.ok().build();
+    }
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getById(@PathVariable Long id) {
         return ResponseEntity.ok(service.getById(id));

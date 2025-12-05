@@ -75,11 +75,12 @@ export class UserFormComponent implements OnInit, OnDestroy {
   buildForm(): void {
     this.form = this.fb.group({
       code: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
-      firstName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-      lastName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-      email: ['', [Validators.required, Validators.email, Validators.maxLength(200)]],
+      firstName: ['', [Validators.required, Validators.minLength(2)]],
+      lastName: ['', [Validators.required, Validators.minLength(2)]],
+      email: ['', [Validators.required, Validators.email]],
       actif: [true],
-      profilId: [null, Validators.required]
+      profilId: [null, Validators.required],
+      password: [''] // ⬅ ajouté ici
     });
   }
 
