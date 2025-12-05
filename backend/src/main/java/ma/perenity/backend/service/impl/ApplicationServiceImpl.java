@@ -12,11 +12,14 @@ import ma.perenity.backend.service.ApplicationService;
 import ma.perenity.backend.service.PermissionService;
 import ma.perenity.backend.specification.EntitySpecification;
 import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -118,15 +121,39 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         Pageable pageable = PageRequest.of(req.getPage(), req.getSize(), sort);
 
-        EntitySpecification<ApplicationEntity> specBuilder = new EntitySpecification<>();
+        Map<String, Object> rawFilters = req.getFilters() != null
+                ? new HashMap<>(req.getFilters())
+                : new HashMap<>();
 
-        Page<ApplicationEntity> page = repository.findAll(
-                specBuilder.getSpecification(req.getFilters()),
-                pageable
-        );
+        String search = null;
+        Object searchObj = rawFilters.remove("search");
+        if (searchObj != null) {
+            search = searchObj.toString().trim();
+            if (search.isEmpty()) {
+                search = null;
+            }
+        }
+
+        EntitySpecification<ApplicationEntity> specBuilder = new EntitySpecification<>();
+        Specification<ApplicationEntity> spec = specBuilder.getSpecification(rawFilters);
+
+        if (search != null) {
+            final String term = "%" + search.toLowerCase() + "%";
+
+            Specification<ApplicationEntity> globalSearchSpec = (root, query, cb) -> cb.or(
+                    cb.like(cb.lower(root.get("code")), term),
+                    cb.like(cb.lower(root.get("libelle")), term),
+                    cb.like(cb.lower(root.get("description")), term)
+            );
+
+            spec = spec.and(globalSearchSpec);
+        }
+
+        Page<ApplicationEntity> page = repository.findAll(spec, pageable);
 
         return PaginatedResponse.fromPage(
                 page.map(mapper::toDto)
         );
     }
+
 }

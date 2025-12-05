@@ -20,8 +20,11 @@ public class ProjetController {
     private final ProjetService projetService;
 
     @GetMapping("/by-environment-type/{typeCode}")
-    public ResponseEntity<List<ProjetDTO>> getProjectsByEnvironmentType(@PathVariable String typeCode) {
-        return ResponseEntity.ok(projetService.getProjectsByEnvironmentType(typeCode));
+    public List<ProjetDTO> getByEnvironmentType(
+            @PathVariable String typeCode,
+            @RequestParam(required = false) String search
+    ) {
+        return projetService.getProjectsByEnvironmentType(typeCode, search);
     }
 
     @GetMapping
@@ -41,8 +44,8 @@ public class ProjetController {
     }
 
     @PostMapping("/search")
-    public ResponseEntity<PaginatedResponse<ProjetDTO>> search(@RequestBody PaginationRequest req) {
-        return ResponseEntity.ok(projetService.search(req));
+    public PaginatedResponse<ProjetDTO> search(@RequestBody PaginationRequest req) {
+        return projetService.search(req);
     }
 
     @PutMapping("/{id}")

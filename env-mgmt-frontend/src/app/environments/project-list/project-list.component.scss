@@ -1,6 +1,8 @@
+// src/app/environments/project-list/project-list.component.scss
+
 $accent: #152f56;
 $border: #e5e7eb;
-$border-dark: #1a1a1a;  // NOUVEAU
+$border-dark: #1a1a1a;
 $muted: #6b7280;
 $surface: #ffffff;
 $shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
@@ -13,12 +15,18 @@ $radius: 12px;
   padding: 0;
   margin: 0;
   max-width: none;
-  animation: fadeIn 0.3s ease-in;  // NOUVEAU
+  animation: fadeIn 0.3s ease-in;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .breadcrumb {
@@ -36,7 +44,7 @@ $radius: 12px;
     color: $accent;
   }
 
-  .breadcrumb-link {  // NOUVEAU
+  .breadcrumb-link {
     cursor: pointer;
     color: $accent;
     text-decoration: none;
@@ -79,12 +87,22 @@ $radius: 12px;
     color: $muted;
   }
 
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
   button {
     display: flex;
     align-items: center;
     gap: 8px;
     border-radius: 10px;
     box-shadow: $shadow;
+  }
+
+  .search-field {
+    min-width: 260px;
   }
 }
 
@@ -98,43 +116,30 @@ mat-card {
 
 .projects-table {
   width: 100%;
-  border-collapse: collapse;  // NOUVEAU
+  border-collapse: collapse;
 
-  // NOUVEAU - Styles pour les en-têtes
   th {
     border: 1px solid $border-dark;
     background-color: #f8f9fa;
     padding: 12px;
     text-align: left;
     font-weight: 600;
+    font-size: 13px;
   }
 
-  // NOUVEAU - Styles pour les cellules
   td {
     border: 1px solid $border-dark;
     padding: 12px;
+    font-size: 13px;
   }
 
-  // NOUVEAU - Hover sur les lignes
-  tr {
-    &:hover {
-      background-color: #f5f8fc;
-    }
-  }
-
-  .clickable-row {
-    cursor: pointer;
-    transition: background 0.2s, transform 0.15s ease;
-
-    &:hover {
-      background: #f5f8fc;
-      transform: translateY(-1px);
-      box-shadow: inset 4px 0 0 $accent;
-    }
+  tr:hover {
+    background-color: #f5f8fc;
   }
 
   .project-code {
-    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, 'Liberation Mono', 'Courier New', monospace;
     font-size: 12px;
     background: #e3f2fd;
     padding: 4px 8px;
@@ -155,7 +160,7 @@ mat-card {
   .actions-cell {
     display: flex;
     gap: 6px;
-    justify-content: center;  // NOUVEAU
+    justify-content: center;
   }
 }
 
@@ -174,13 +179,13 @@ mat-card {
   }
 
   p {
-    margin: 0;  // NOUVEAU
+    margin: 0;
   }
 
   .hint {
     font-size: 14px;
     color: $muted;
-    margin-top: 8px;  // NOUVEAU
+    margin-top: 8px;
   }
 }
 

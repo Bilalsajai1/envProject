@@ -1,3 +1,5 @@
+<!-- src/app/environments/project-list/project-list.component.html -->
+
 <div class="project-list-container">
 
   <nav class="breadcrumb">
@@ -16,13 +18,42 @@
       <p class="subtitle">Sélectionnez un projet pour gérer ses environnements</p>
     </div>
 
-    <button
-      mat-raised-button
-      color="primary"
-      (click)="addProject()">
-      <mat-icon>add</mat-icon>
-      Nouveau Projet
-    </button>
+    <div class="header-actions">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Rechercher un projet</mat-label>
+        <input
+          matInput
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearchChange($event)"
+          placeholder="Code, libellé, description..."
+        />
+
+        <button
+          *ngIf="searchTerm"
+          mat-icon-button
+          matSuffix
+          aria-label="Effacer la recherche"
+          (click)="clearSearch()">
+          <mat-icon>close</mat-icon>
+        </button>
+
+        <button
+          *ngIf="!searchTerm"
+          mat-icon-button
+          matSuffix
+          disabled>
+          <mat-icon>search</mat-icon>
+        </button>
+      </mat-form-field>
+
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="addProject()">
+        <mat-icon>add</mat-icon>
+        Nouveau Projet
+      </button>
+    </div>
   </div>
 
   @if (!loading) {
@@ -30,22 +61,27 @@
       <table
         mat-table
         [dataSource]="projects"
+        matSort
+        (matSortChange)="onSortChange($event)"
         class="projects-table">
 
+        <!-- Code -->
         <ng-container matColumnDef="code">
-          <th mat-header-cell *matHeaderCellDef>Code</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Code</th>
           <td mat-cell *matCellDef="let project">
             <span class="project-code">{{ project.code }}</span>
           </td>
         </ng-container>
 
+        <!-- Libellé -->
         <ng-container matColumnDef="libelle">
-          <th mat-header-cell *matHeaderCellDef>Libellé</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Libellé</th>
           <td mat-cell *matCellDef="let project">
             <strong>{{ project.libelle }}</strong>
           </td>
         </ng-container>
 
+        <!-- Description -->
         <ng-container matColumnDef="description">
           <th mat-header-cell *matHeaderCellDef>Description</th>
           <td mat-cell *matCellDef="let project">
@@ -53,8 +89,9 @@
           </td>
         </ng-container>
 
+        <!-- Statut -->
         <ng-container matColumnDef="actif">
-          <th mat-header-cell *matHeaderCellDef>Statut</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Statut</th>
           <td mat-cell *matCellDef="let project">
             <mat-chip
               [class.status-active]="project.actif"
@@ -64,21 +101,34 @@
           </td>
         </ng-container>
 
+        <!-- Actions -->
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef>Actions</th>
           <td mat-cell *matCellDef="let project" class="actions-cell">
+            <!-- 👉 Consulter environnements -->
             <button
               mat-icon-button
-              (click)="editProject($event, project)"
+              color="accent"
+              matTooltip="Consulter les environnements"
+              (click)="openProject(project)">
+              <mat-icon>open_in_new</mat-icon>
+            </button>
+
+            <!-- Modifier -->
+            <button
+              mat-icon-button
               matTooltip="Modifier"
-              color="primary">
+              color="primary"
+              (click)="editProject(project)">
               <mat-icon>edit</mat-icon>
             </button>
+
+            <!-- Supprimer -->
             <button
               mat-icon-button
-              (click)="deleteProject($event, project)"
               matTooltip="Supprimer"
-              color="warn">
+              color="warn"
+              (click)="deleteProject(project)">
               <mat-icon>delete</mat-icon>
             </button>
           </td>
@@ -87,19 +137,33 @@
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr
           mat-row
-          *matRowDef="let row; columns: displayedColumns;"
-          class="clickable-row"
-          (click)="openProject(row)"></tr>
+          *matRowDef="let row; columns: displayedColumns;">
+        </tr>
 
       </table>
 
-      @if (projects.length === 0) {
+      @if (!projects.length) {
         <div class="empty-state">
           <mat-icon>folder_off</mat-icon>
           <p>Aucun projet trouvé</p>
-          <p class="hint">Créez votre premier projet pour ce type d'environnement</p>
+          <p class="hint">
+            {{ searchTerm ? 'Essayez d\'autres critères de recherche' : 'Créez votre premier projet pour ce type d\'environnement' }}
+          </p>
         </div>
       }
+
+      <!-- Pagination comme UserList -->
+      @if (projects.length) {
+        <mat-paginator
+          [length]="totalElements"
+          [pageSize]="size"
+          [pageIndex]="page"
+          [pageSizeOptions]="pageSizeOptions"
+          (page)="onPageChange($event)"
+          showFirstLastButtons>
+        </mat-paginator>
+      }
+
     </mat-card>
   } @else {
     <div class="loading-state">

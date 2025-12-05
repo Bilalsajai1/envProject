@@ -22,12 +22,14 @@ public class EnvironnementController {
     @GetMapping
     public ResponseEntity<List<EnvironnementDTO>> getEnvironmentsByProjetAndType(
             @RequestParam Long projetId,
-            @RequestParam String typeCode
+            @RequestParam String typeCode,
+            @RequestParam(required = false) String search
     ) {
         return ResponseEntity.ok(
-                environnementService.getEnvironmentsByProjetAndType(projetId, typeCode)
+                environnementService.getEnvironmentsByProjetAndType(projetId, typeCode, search)
         );
     }
+
 
     @PostMapping
     public ResponseEntity<EnvironnementDTO> create(@Valid @RequestBody EnvironnementDTO dto) {

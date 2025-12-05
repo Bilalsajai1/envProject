@@ -20,9 +20,13 @@ public class EnvApplicationController {
     private final EnvApplicationService service;
 
     @GetMapping("/by-env/{envId}")
-    public ResponseEntity<List<EnvApplicationDTO>> getByEnv(@PathVariable Long envId) {
-        return ResponseEntity.ok(service.getByEnvironnement(envId));
+    public ResponseEntity<List<EnvApplicationDTO>> getByEnv(
+            @PathVariable Long envId,
+            @RequestParam(required = false) String search
+    ) {
+        return ResponseEntity.ok(service.getByEnvironnement(envId, search));
     }
+
 
     @PostMapping
     public ResponseEntity<EnvApplicationDTO> create(@Valid @RequestBody EnvApplicationDTO dto) {

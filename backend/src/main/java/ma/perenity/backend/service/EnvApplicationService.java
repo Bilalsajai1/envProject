@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface EnvApplicationService {
 
-    List<EnvApplicationDTO> getByEnvironnement(Long envId);
+    List<EnvApplicationDTO> getByEnvironnement(Long envId, String search);
 
     EnvApplicationDTO create(EnvApplicationDTO dto);
 

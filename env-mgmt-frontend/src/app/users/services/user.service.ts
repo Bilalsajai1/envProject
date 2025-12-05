@@ -23,10 +23,6 @@ export class UserService {
 
   search(req: PaginationRequest): Observable<PaginatedResponse<UserDTO>> {
     const url = `${this.baseUrl}/users/search`;
-    console.log('🌐 UserService.search()');
-    console.log('  URL:', url);
-    console.log('  Body:', req);
-
     return this.http.post<PaginatedResponse<UserDTO>>(url, req).pipe(
       tap(response => console.log('✅ Service: réponse reçue', response)),
       tap({
