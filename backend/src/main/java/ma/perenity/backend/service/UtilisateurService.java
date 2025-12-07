@@ -21,3 +21,4 @@ public interface UtilisateurService {
     PaginatedResponse<UserDTO> search(PaginationRequest req);
     void updatePassword(Long userId, String newPassword);
 }
+posfkspodfjjsdpgjpsogpijfd
