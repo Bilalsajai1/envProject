@@ -8,7 +8,8 @@ import java.util.List;
 
 public interface ProfilRepository extends JpaRepository<ProfilEntity, Long>,
         JpaSpecificationExecutor<ProfilEntity> {
-    List<ProfilEntity> findByActifTrue();
+    List<ProfilEntity> findByActifTrueAndIsDeletedFalse();
+
 
     boolean existsByCode(String code);
 }

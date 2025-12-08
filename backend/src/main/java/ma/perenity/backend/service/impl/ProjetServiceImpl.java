@@ -23,6 +23,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,32 +35,35 @@ public class ProjetServiceImpl implements ProjetService {
 
     @Override
     public List<ProjetDTO> getProjectsByEnvironmentType(String typeCode, String search) {
-
-        if (!permissionService.canAccessEnvType(typeCode, ActionType.CONSULT)) {
+        if (!permissionService.canViewEnvironmentType(typeCode)) {
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN,
                     "Vous n'avez pas le droit de consulter les projets pour le type " + typeCode
             );
         }
+
         List<ProjetEntity> projets = projetRepository.findByEnvironmentTypeCode(typeCode);
-        var stream = projets.stream();
 
         if (!permissionService.isAdmin()) {
-            stream = stream.filter(p -> permissionService.canAccessProject(p, ActionType.CONSULT));
+            projets = projets.stream()
+                    .filter(p -> permissionService.canConsultProject(p.getId()))
+                    .collect(Collectors.toList());
         }
+
         if (search != null && !search.trim().isEmpty()) {
             final String term = search.trim().toLowerCase();
-
-            stream = stream.filter(p ->
-                    (p.getCode() != null && p.getCode().toLowerCase().contains(term)) ||
-                            (p.getLibelle() != null && p.getLibelle().toLowerCase().contains(term)) ||
-                            (p.getDescription() != null && p.getDescription().toLowerCase().contains(term))
-            );
+            projets = projets.stream()
+                    .filter(p ->
+                            (p.getCode() != null && p.getCode().toLowerCase().contains(term)) ||
+                                    (p.getLibelle() != null && p.getLibelle().toLowerCase().contains(term)) ||
+                                    (p.getDescription() != null && p.getDescription().toLowerCase().contains(term))
+                    )
+                    .collect(Collectors.toList());
         }
 
-        return stream
+        return projets.stream()
                 .map(projetMapper::toDto)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override

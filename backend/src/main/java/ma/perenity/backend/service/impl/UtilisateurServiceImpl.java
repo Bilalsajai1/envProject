@@ -1,7 +1,8 @@
 package ma.perenity.backend.service.impl;
 
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import ma.perenity.backend.dto.*;
 import ma.perenity.backend.entities.ProfilEntity;
 import ma.perenity.backend.entities.UtilisateurEntity;
@@ -19,13 +20,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -37,64 +36,35 @@ public class UtilisateurServiceImpl implements UtilisateurService {
     private final PermissionService permissionService;
     private final KeycloakService keycloakService;
 
-    private void checkAdmin() {
-        if (!permissionService.isAdmin()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Administration des utilisateurs réservée à l'administrateur");
-        }
-    }
-
     @Override
     public List<UserDTO> getAll() {
-        checkAdmin();
-        return userMapper.toDtoList(utilisateurRepository.findByActifTrue());
+        checkAdminPermission();
+        return userMapper.toDtoList(utilisateurRepository.findByActifTrueAndIsDeletedFalse());
     }
 
     @Override
     public UserDTO getById(Long id) {
-        checkAdmin();
-        UtilisateurEntity entity = utilisateurRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
-        return userMapper.toDto(entity);
+        checkAdminPermission();
+        return userMapper.toDto(findUserById(id));
     }
 
     @Override
     public UserDTO create(UserCreateUpdateDTO dto) {
-        checkAdmin();
-        log.info("🔵 Création utilisateur: {}", dto.getCode());
+        checkAdminPermission();
+        validatePassword(dto.getPassword());
 
-        if (dto.getPassword() == null || dto.getPassword().length() < 8) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Le mot de passe est obligatoire et doit contenir au moins 8 caractères");
-        }
+        ProfilEntity profil = findProfilById(dto.getProfilId());
+        ensureKeycloakGroupExists(profil);
 
-        ProfilEntity profil = profilRepository.findById(dto.getProfilId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Profil introuvable"));
-
-        if (profil.getKeycloakGroupId() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Le profil n'a pas de groupe Keycloak associé");
-        }
-
-        // ✅ Utiliser le bon DTO pour Keycloak
-        UtilisateurKeycloakDTO keycloakDto = UtilisateurKeycloakDTO.builder()
-                .code(dto.getCode())
-                .firstname(dto.getFirstName())
-                .lastname(dto.getLastName())
-                .email(dto.getEmail())
-                .password(dto.getPassword())
-                .enabled(dto.getActif() != null ? dto.getActif() : true)
-                .build();
-
-        String keycloakUserId;
-        try {
-            keycloakUserId = keycloakService.createUser(keycloakDto, profil.getKeycloakGroupId());
-            log.info("✅ Utilisateur créé dans Keycloak avec ID: {}", keycloakUserId);
-        } catch (Exception e) {
-            log.error("❌ Erreur création Keycloak", e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Erreur lors de la création dans Keycloak: " + e.getMessage());
-        }
+        String keycloakUserId = keycloakService.createUser(
+                dto.getCode(),
+                dto.getFirstName(),
+                dto.getLastName(),
+                dto.getEmail(),
+                dto.getPassword(),
+                dto.getActif() != null ? dto.getActif() : true,
+                profil.getKeycloakGroupId()
+        );
 
         UtilisateurEntity entity = UtilisateurEntity.builder()
                 .code(dto.getCode())
@@ -106,46 +76,27 @@ public class UtilisateurServiceImpl implements UtilisateurService {
                 .profil(profil)
                 .build();
 
-        entity = utilisateurRepository.save(entity);
-        log.info("✅ Utilisateur sauvegardé en BDD avec ID: {}", entity.getId());
-
-        return userMapper.toDto(entity);
+        return userMapper.toDto(utilisateurRepository.save(entity));
     }
 
     @Override
     public UserDTO update(Long id, UserCreateUpdateDTO dto) {
-        checkAdmin();
-        log.info("🔵 Mise à jour utilisateur ID: {}", id);
+        checkAdminPermission();
 
-        UtilisateurEntity entity = utilisateurRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
-
-        ProfilEntity profil = profilRepository.findById(dto.getProfilId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Profil introuvable"));
-
-        if (profil.getKeycloakGroupId() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Le profil n'a pas de groupe Keycloak associé");
-        }
+        UtilisateurEntity entity = findUserById(id);
+        ProfilEntity profil = findProfilById(dto.getProfilId());
+        ensureKeycloakGroupExists(profil);
 
         if (entity.getKeycloakId() != null) {
-            UtilisateurKeycloakDTO keycloakDto = UtilisateurKeycloakDTO.builder()
-                    .keycloakId(entity.getKeycloakId())
-                    .code(dto.getCode())
-                    .firstname(dto.getFirstName())
-                    .lastname(dto.getLastName())
-                    .email(dto.getEmail())
-                    .enabled(dto.getActif() != null ? dto.getActif() : entity.getActif())
-                    .build();
-
-            try {
-                keycloakService.updateUser(keycloakDto, profil.getKeycloakGroupId());
-                log.info("✅ Utilisateur mis à jour dans Keycloak");
-            } catch (Exception e) {
-                log.error("❌ Erreur mise à jour Keycloak", e);
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                        "Erreur lors de la mise à jour dans Keycloak: " + e.getMessage());
-            }
+            keycloakService.updateUser(
+                    entity.getKeycloakId(),
+                    entity.getCode(),          // 🔥 Toujours garder le username original
+                    dto.getFirstName(),
+                    dto.getLastName(),
+                    dto.getEmail(),
+                    dto.getActif() != null ? dto.getActif() : true,
+                    profil.getKeycloakGroupId()
+            );
         }
 
         entity.setCode(dto.getCode());
@@ -155,37 +106,30 @@ public class UtilisateurServiceImpl implements UtilisateurService {
         entity.setActif(dto.getActif() != null ? dto.getActif() : entity.getActif());
         entity.setProfil(profil);
 
-        entity = utilisateurRepository.save(entity);
-        log.info("✅ Utilisateur mis à jour en BDD");
-
-        return userMapper.toDto(entity);
+        return userMapper.toDto(utilisateurRepository.save(entity));
     }
 
     @Override
     public void delete(Long id) {
-        checkAdmin();
-        log.info("🔵 Suppression utilisateur ID: {}", id);
+        checkAdminPermission();
 
-        UtilisateurEntity entity = utilisateurRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
+        UtilisateurEntity entity = findUserById(id);
 
         if (entity.getKeycloakId() != null) {
             try {
                 keycloakService.deleteUser(entity.getKeycloakId());
-                log.info("✅ Utilisateur supprimé de Keycloak");
-            } catch (Exception e) {
-                log.warn("⚠️ Impossible de supprimer de Keycloak", e);
-            }
+            } catch (Exception ignored) {}
         }
 
         entity.setActif(false);
+        entity.setIsDeleted(true); // <── AJOUT ICI
         utilisateurRepository.save(entity);
-        log.info("✅ Utilisateur désactivé en BDD");
     }
+
 
     @Override
     public PaginatedResponse<UserDTO> search(PaginationRequest req) {
-        checkAdmin();
+        checkAdminPermission();
 
         Sort sort = req.getSortDirection().equalsIgnoreCase("asc")
                 ? Sort.by(req.getSortField()).ascending()
@@ -210,6 +154,7 @@ public class UtilisateurServiceImpl implements UtilisateurService {
         Specification<UtilisateurEntity> spec = specBuilder.getSpecification(rawFilters);
 
         spec = spec.and((root, query, cb) -> cb.equal(root.get("actif"), true));
+        spec = spec.and((root, query, cb) -> cb.isFalse(root.get("isDeleted")));
 
         if (search != null) {
             final String term = "%" + search.toLowerCase() + "%";
@@ -234,21 +179,51 @@ public class UtilisateurServiceImpl implements UtilisateurService {
 
     @Override
     public void updatePassword(Long userId, String newPassword) {
-        checkAdmin();
-        log.info("🔵 Mise à jour mot de passe utilisateur ID: {}", userId);
+        checkAdminPermission();
+        validatePassword(newPassword);
 
-        UtilisateurEntity entity = utilisateurRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
+        UtilisateurEntity entity = findUserById(userId);
 
         if (entity.getKeycloakId() != null) {
-            try {
-                keycloakService.updatePassword(entity.getKeycloakId(), newPassword);
-                log.info("✅ Mot de passe mis à jour dans Keycloak");
-            } catch (Exception e) {
-                log.error("❌ Erreur mise à jour mot de passe Keycloak", e);
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                        "Erreur lors de la mise à jour du mot de passe");
-            }
+            keycloakService.setPassword(entity.getKeycloakId(), newPassword);
+        }
+    }
+
+    private void checkAdminPermission() {
+        if (!permissionService.isAdmin()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Administration des utilisateurs réservée à l'administrateur");
+        }
+    }
+
+    private UtilisateurEntity findUserById(Long id) {
+        return utilisateurRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
+    }
+
+    private ProfilEntity findProfilById(Long id) {
+        return profilRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Profil introuvable"));
+    }
+
+    private void validatePassword(String password) {
+        if (password == null || password.length() < 8) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Le mot de passe doit contenir au moins 8 caractères");
+        }
+    }
+
+    private void ensureKeycloakGroupExists(ProfilEntity profil) {
+        if (profil.getKeycloakGroupId() == null) {
+            ProfilKeycloakDTO keycloakGroupDto = ProfilKeycloakDTO.builder()
+                    .code(profil.getCode())
+                    .libelle(profil.getLibelle())
+                    .roles(Collections.emptyList())
+                    .build();
+
+            String keycloakGroupId = keycloakService.createGroup(keycloakGroupDto);
+            profil.setKeycloakGroupId(keycloakGroupId);
+            profilRepository.save(profil);
         }
     }
 }

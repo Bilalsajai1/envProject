@@ -1,0 +1,177 @@
+<mat-sidenav-container class="layout-container" autosize>
+
+  <!-- SIDEBAR -->
+  <mat-sidenav
+    mode="side"
+    opened
+    class="sidenav"
+    [class.collapsed]="isSidebarCollapsed"
+    role="navigation"
+    aria-label="Navigation principale">
+
+
+  <!-- HEADER -->
+    <div class="sidebar-header">
+      <div class="logo-container" [class.collapsed]="isSidebarCollapsed">
+        <img
+          src="/assets/images/icones/logo-perenity-software.svg"
+          alt="Logo Perenity Software"
+          class="logo-full" />
+
+        <img
+          src="/assets/images/perenity_software.png"
+          alt="Logo Perenity"
+          class="logo-compact" />
+      </div>
+
+      <button
+        mat-icon-button
+        class="toggle-btn"
+        (click)="toggleSidebar()"
+        [matTooltip]="isSidebarCollapsed ? 'Agrandir le menu' : 'Réduire le menu'"
+        matTooltipPosition="right">
+        <mat-icon>{{ isSidebarCollapsed ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+      </button>
+    </div>
+
+    <!-- USER BLOCK -->
+    @if (context?.user; as u) {
+      <div class="user-block">
+        <div class="user-avatar">{{ getUserInitials() }}</div>
+
+        @if (!isSidebarCollapsed) {
+          <div class="user-info">
+            <div class="user-name">{{ userDisplayName }}</div>
+            <div class="user-profil">{{ userProfilLabel || 'Profil non défini' }}</div>
+            <div class="user-email">{{ userEmail }}</div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- NAVIGATION -->
+    <nav class="nav-container" aria-label="Menu principal">
+      <mat-nav-list class="menu-list">
+
+        <!-- ADMIN -->
+        @if (hasAdminMenu) {
+          @if (!isSidebarCollapsed) {
+            <div class="nav-section-label">Administration</div>
+          }
+
+          @for (item of visibleAdminMenu; track item.label) {
+            <a
+              mat-list-item
+              [routerLink]="item.route"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: false }"
+              [matTooltip]="isSidebarCollapsed ? item.label : ''"
+              matTooltipPosition="right">
+
+              <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+
+              @if (!isSidebarCollapsed) {
+                <span class="nav-label">{{ item.label }}</span>
+              }
+            </a>
+          }
+        }
+
+        @if (hasAdminMenu && hasEnvMenu) {
+          <mat-divider></mat-divider>
+        }
+
+        <!-- ENVIRONMENTS -->
+        @if (hasEnvMenu) {
+          @if (!isSidebarCollapsed) {
+            <div class="nav-section-label">Environnements</div>
+          }
+
+          @for (envItem of envMenu; track envItem.code) {
+            <a
+              mat-list-item
+              [routerLink]="envItem.route"
+              routerLinkActive="active"
+              [matTooltip]="isSidebarCollapsed ? envItem.label : ''"
+              matTooltipPosition="right">
+
+              <mat-icon class="nav-icon">cloud</mat-icon>
+
+              @if (!isSidebarCollapsed) {
+                <span class="nav-label">{{ envItem.label }}</span>
+                <span class="project-count-badge">{{ envItem.projectCount }}</span>
+              }
+            </a>
+          }
+        }
+
+      </mat-nav-list>
+    </nav>
+
+    <!-- FOOTER -->
+    <div class="sidebar-footer">
+      <button mat-button class="logout-button" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        @if (!isSidebarCollapsed) { <span>Se déconnecter</span> }
+      </button>
+    </div>
+
+  </mat-sidenav>
+
+  <!-- MAIN CONTENT -->
+  <mat-sidenav-content>
+
+    <mat-toolbar class="top-toolbar">
+
+      <div class="toolbar-left">
+        <mat-icon class="toolbar-logo">space_dashboard</mat-icon>
+        <h1 class="app-title">Environment Management</h1>
+      </div>
+
+      <span class="toolbar-spacer"></span>
+
+      <!-- USER CARD -->
+      @if (context?.user; as u) {
+        <div class="user-card">
+          <div class="user-card-content">
+
+            <div class="user-avatar">{{ getUserInitials() }}</div>
+
+            <div class="user-details">
+              <div class="user-name">{{ userDisplayName }}</div>
+              <div class="user-role">{{ u.admin ? 'Administrateur' : 'Utilisateur' }}</div>
+            </div>
+
+            <mat-divider vertical></mat-divider>
+
+            <div
+              class="user-status"
+              [class.admin-status]="u.admin"
+              [class.user-status-badge]="!u.admin">
+
+              <mat-icon>{{ u.admin ? 'verified_user' : 'person' }}</mat-icon>
+              <span>{{ u.admin ? 'ADMIN' : 'USER' }}</span>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- DARK MODE TOGGLE -->
+      <button
+        mat-icon-button
+        (click)="toggleDarkMode()"
+        aria-label="Activer/désactiver le mode sombre">
+        <mat-icon>{{ isDarkMode ? 'dark_mode' : 'light_mode' }}</mat-icon>
+      </button>
+
+    </mat-toolbar>
+
+    <main class="content">
+      <div class="content-inner">
+        <router-outlet></router-outlet>
+      </div>
+    </main>
+
+  </mat-sidenav-content>
+
+</mat-sidenav-container>

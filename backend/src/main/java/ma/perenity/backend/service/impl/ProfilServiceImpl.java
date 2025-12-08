@@ -13,6 +13,7 @@ import ma.perenity.backend.service.PermissionService;
 import ma.perenity.backend.service.ProfilService;
 import ma.perenity.backend.specification.EntitySpecification;
 import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,7 +49,8 @@ public class ProfilServiceImpl implements ProfilService {
     @Override
     public List<ProfilDTO> getAll() {
         checkAdmin();
-        return mapper.toDtoList(profilRepository.findByActifTrue());
+        return mapper.toDtoList(profilRepository.findByActifTrueAndIsDeletedFalse());
+
     }
 
     @Override
@@ -68,27 +70,13 @@ public class ProfilServiceImpl implements ProfilService {
                     "Le code profil existe déjà : " + dto.getCode());
         }
 
-        ProfilKeycloakDTO keycloakDto = ProfilKeycloakDTO.builder()
-                .code(dto.getCode())
-                .libelle(dto.getLibelle())
-                .roles(Collections.emptyList())
-                .build();
-
-        String keycloakGroupId;
-        try {
-            keycloakGroupId = keycloakService.createGroup(keycloakDto);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Erreur lors de la création du groupe Keycloak: " + e.getMessage());
-        }
-
         ProfilEntity profil = ProfilEntity.builder()
                 .code(dto.getCode())
                 .libelle(dto.getLibelle())
                 .description(dto.getDescription())
                 .admin(dto.getAdmin() != null ? dto.getAdmin() : false)
                 .actif(dto.getActif() != null ? dto.getActif() : true)
-                .keycloakGroupId(keycloakGroupId)
+                .isDeleted(false)
                 .build();
 
         profil = profilRepository.save(profil);
@@ -132,11 +120,14 @@ public class ProfilServiceImpl implements ProfilService {
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Profil introuvable"));
 
         if (profil.getKeycloakGroupId() != null) {
-                keycloakService.deleteGroup(profil.getKeycloakGroupId());
+            keycloakService.deleteGroup(profil.getKeycloakGroupId());
         }
+
         profil.setActif(false);
+        profil.setIsDeleted(true); // <── AJOUT ICI
         profilRepository.save(profil);
     }
+
 
     @Override
     public List<Long> getRoleIds(Long profilId) {
@@ -177,15 +168,20 @@ public class ProfilServiceImpl implements ProfilService {
 
         EntitySpecification<ProfilEntity> specBuilder = new EntitySpecification<>();
 
-        Page<ProfilEntity> page = profilRepository.findAll(
-                specBuilder.getSpecification(req.getFilters()),
-                pageable
-        );
+        // Construire la spec à partir des filtres du front
+        Specification<ProfilEntity> spec = specBuilder.getSpecification(req.getFilters());
+
+        // 👉 Ajouter filtrage automatique
+        spec = spec.and((root, query, cb) -> cb.equal(root.get("actif"), true));
+        spec = spec.and((root, query, cb) -> cb.isFalse(root.get("isDeleted")));
+
+        Page<ProfilEntity> page = profilRepository.findAll(spec, pageable);
 
         return PaginatedResponse.fromPage(
                 page.map(mapper::toDto)
         );
     }
+
 
 
     @Override
@@ -198,10 +194,7 @@ public class ProfilServiceImpl implements ProfilService {
 
         List<RoleEntity> roles = profilRoleRepository.findRolesByProfil(profilId);
 
-
-
         Map<String, Set<ActionType>> envTypeActionsMap = new HashMap<>();
-
         Map<Long, Set<ActionType>> projectActionsMap = new HashMap<>();
 
         for (RoleEntity role : roles) {
@@ -215,35 +208,26 @@ public class ProfilServiceImpl implements ProfilService {
             if (code.startsWith("ENV_")) {
                 String[] parts = code.split("_");
                 if (parts.length >= 3) {
-                    String typeCode = parts[1]; // EDITION, CLIENT, INTEGRATION
+                    String typeCode = parts[1];
                     envTypeActionsMap
                             .computeIfAbsent(typeCode, k -> new HashSet<>())
                             .add(action);
-
-
                 }
             }
-
             else if (code.startsWith("PROJ_")) {
-
                 if (role.getProjet() != null) {
                     projectActionsMap
                             .computeIfAbsent(role.getProjet().getId(), k -> new HashSet<>())
                             .add(action);
-
-
                 } else {
-
                     String[] parts = code.split("_");
                     if (parts.length >= 3) {
-
                         StringBuilder projectCodeBuilder = new StringBuilder();
                         for (int i = 1; i < parts.length - 1; i++) {
                             if (i > 1) projectCodeBuilder.append("_");
                             projectCodeBuilder.append(parts[i]);
                         }
                         String projectCode = projectCodeBuilder.toString();
-
 
                         projetRepository.findAll().stream()
                                 .filter(p -> p.getCode().equalsIgnoreCase(projectCode))
@@ -252,22 +236,17 @@ public class ProfilServiceImpl implements ProfilService {
                                     projectActionsMap
                                             .computeIfAbsent(projet.getId(), k -> new HashSet<>())
                                             .add(action);
-
-
                                 });
                     }
                 }
             }
         }
 
-
-
         List<EnvironmentTypeEntity> allTypes = environmentTypeRepository.findByActifTrue();
         List<EnvironmentTypePermissionDTO> envPermissions = allTypes.stream()
                 .map(type -> {
                     Set<ActionType> actions = envTypeActionsMap.getOrDefault(
                             type.getCode().toUpperCase(), Collections.emptySet());
-
 
                     return EnvironmentTypePermissionDTO.builder()
                             .id(type.getId())
@@ -279,14 +258,19 @@ public class ProfilServiceImpl implements ProfilService {
                 })
                 .toList();
 
-
-
         List<ProjetEntity> allProjects = projetRepository.findByActifTrue();
         List<ProjectPermissionDTO> projPermissions = allProjects.stream()
                 .map(projet -> {
                     Set<ActionType> actions = projectActionsMap.getOrDefault(
                             projet.getId(), Collections.emptySet());
 
+                    // ✅ NOUVEAU: Récupérer les types d'environnement pour ce projet
+                    List<String> environmentTypeCodes = projet.getEnvironnements().stream()
+                            .filter(env -> env.getActif() && env.getType() != null)
+                            .map(env -> env.getType().getCode())
+                            .distinct()
+                            .sorted()
+                            .toList();
 
                     return ProjectPermissionDTO.builder()
                             .id(projet.getId())
@@ -294,6 +278,7 @@ public class ProfilServiceImpl implements ProfilService {
                             .libelle(projet.getLibelle())
                             .actif(projet.getActif())
                             .allowedActions(new ArrayList<>(actions))
+                            .environmentTypeCodes(environmentTypeCodes) // ✅ AJOUTÉ
                             .build();
                 })
                 .toList();
@@ -313,16 +298,13 @@ public class ProfilServiceImpl implements ProfilService {
         ProfilEntity profil = profilRepository.findById(profilId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Profil introuvable"));
 
-
-        Map<String, Set<ActionType>> requested = (envPermissions != null ? envPermissions : List.<EnvTypePermissionUpdateDTO>of())
+        Set<String> requestedTypes = (envPermissions != null ? envPermissions : List.<EnvTypePermissionUpdateDTO>of())
                 .stream()
-                .filter(dto -> dto.getEnvTypeCode() != null && dto.getActions() != null)
-                .collect(Collectors.toMap(
-                        dto -> dto.getEnvTypeCode().trim().toUpperCase(),
-                        dto -> new HashSet<>(dto.getActions()),
-                        (a, b) -> b
-                ));
-
+                .map(EnvTypePermissionUpdateDTO::getEnvTypeCode)
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .map(String::toUpperCase)
+                .collect(Collectors.toSet());
 
         profilRoleRepository.deleteByProfilIdAndRoleCodePrefix(profilId, "ENV_");
 
@@ -330,45 +312,42 @@ public class ProfilServiceImpl implements ProfilService {
 
         for (EnvironmentTypeEntity type : envTypes) {
             String typeCodeUpper = type.getCode().trim().toUpperCase();
-            Set<ActionType> actions = requested.get(typeCodeUpper);
 
-            if (actions == null || actions.isEmpty()) {
+            if (!requestedTypes.contains(typeCodeUpper)) {
                 continue;
             }
 
-            for (ActionType action : actions) {
-                String roleCode = "ENV_" + typeCodeUpper + "_" + action.name();
+            String roleCode = "ENV_" + typeCodeUpper + "_CONSULT";
 
+            RoleEntity role = roleRepository.findByCode(roleCode)
+                    .orElseGet(() -> {
+                        RoleEntity newRole = RoleEntity.builder()
+                                .code(roleCode)
+                                .libelle("Consultation type " + type.getCode())
+                                .action(ActionType.CONSULT)
+                                .scope(RoleScope.ENV_TYPE)
+                                .actif(true)
+                                .build();
+                        return roleRepository.save(newRole);
+                    });
 
-                RoleEntity role = roleRepository.findByCode(roleCode)
-                        .orElseGet(() -> {
-                            RoleEntity newRole = RoleEntity.builder()
-                                    .code(roleCode)
-                                    .libelle("Permission " + action.name() + " sur type " + type.getCode())
-                                    .action(action)
-                                    .scope(RoleScope.ENV_TYPE)
-                                    .actif(true)
-                                    .build();
-                            return roleRepository.save(newRole);
-                        });
+            ProfilRoleEntity pr = new ProfilRoleEntity();
+            pr.setProfil(profil);
+            pr.setRole(role);
+            profilRoleRepository.save(pr);
+        }
 
-                ProfilRoleEntity pr = new ProfilRoleEntity();
-                pr.setProfil(profil);
-                pr.setRole(role);
-                profilRoleRepository.save(pr);
-            }
-            if (profil.getKeycloakGroupId() != null) {
-                List<RoleKeycloakDTO> keycloakRoles = profilRoleRepository.findRolesByProfil(profilId)
-                        .stream()
-                        .filter(r -> r.getCode() != null)
-                        .map(r -> RoleKeycloakDTO.builder()
-                                .code(r.getCode())
-                                .libelle(r.getLibelle())
-                                .build())
-                        .toList();
+        if (profil.getKeycloakGroupId() != null) {
+            List<RoleKeycloakDTO> keycloakRoles = profilRoleRepository.findRolesByProfil(profilId)
+                    .stream()
+                    .filter(r -> r.getCode() != null)
+                    .map(r -> RoleKeycloakDTO.builder()
+                            .code(r.getCode())
+                            .libelle(r.getLibelle())
+                            .build())
+                    .toList();
 
-                    keycloakService.updateGroup(profil.getKeycloakGroupId(), keycloakRoles);
-            }
+            keycloakService.updateGroup(profil.getKeycloakGroupId(), keycloakRoles);
         }
     }
 

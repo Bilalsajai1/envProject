@@ -12,6 +12,7 @@ public interface UtilisateurRepository extends
         JpaSpecificationExecutor<UtilisateurEntity> {
 
     Optional<UtilisateurEntity> findByEmail(String email);
-    List<UtilisateurEntity> findByActifTrue();
+    List<UtilisateurEntity> findByActifTrueAndIsDeletedFalse();
+
 
 }

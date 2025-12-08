@@ -21,4 +21,5 @@ public class ProjectPermissionDTO {
     private Boolean actif;
 
     private List<ActionType> allowedActions;
+    private List<String> environmentTypeCodes;
 }

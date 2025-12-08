@@ -13,5 +13,5 @@ public class KeycloakProperties {
     private String realm;
     private String clientId;
     private String clientSecret;
-    private String clientAdminId;  // Pour les opérations admin
+    private String clientAdminId;
 }

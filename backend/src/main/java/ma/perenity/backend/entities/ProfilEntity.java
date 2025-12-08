@@ -41,4 +41,7 @@ public class ProfilEntity {
     private String keycloakGroupId;
     @OneToMany(mappedBy = "profil")
     private List<ProfilRoleEntity> profilRoles;
+    @Column(nullable = false)
+    private Boolean isDeleted = false;
+
 }
