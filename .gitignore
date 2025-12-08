@@ -80,3 +80,4 @@ app-example
 
 # Angular
 .angular/
+.idea
