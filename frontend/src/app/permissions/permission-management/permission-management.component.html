@@ -1,0 +1,178 @@
+<!-- src/app/permissions/components/permission-management/permission-management.component.html -->
+
+<div class="permission-page">
+
+  <div class="page-header">
+    <div>
+      <h1>Gestion des Permissions</h1>
+      <p class="subtitle">
+        Configuration en 2 étapes : types d'environnement puis actions par projet
+      </p>
+    </div>
+  </div>
+
+  <!-- Sélecteur de profil -->
+  <div class="card profil-selector">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Sélectionnez un profil</mat-label>
+      <mat-select
+        [(value)]="selectedProfilId"
+        (selectionChange)="onProfilChange($event.value)"
+        [disabled]="loading"
+        panelClass="profil-select-panel">
+        @for (profil of profils; track profil.id) {
+          <mat-option [value]="profil.id">
+            {{ profil.libelle }} ({{ profil.code }})
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <!-- Loading -->
+  @if (loading && !permissions) {
+    <div class="loading-zone">
+      <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+      <p>Chargement des permissions...</p>
+    </div>
+  }
+
+  <!-- ✅ STEPPER 2 ÉTAPES -->
+  @if (permissions && !loading) {
+    <mat-stepper #stepper [selectedIndex]="currentStep" [linear]="false">
+
+      <!-- ÉTAPE 1: Types d'Environnement -->
+      <mat-step>
+        <ng-template matStepLabel>Types d'Environnement</ng-template>
+
+        <mat-card class="permission-module">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>dns</mat-icon>
+              Étape 1 : Quels types d'environnement peut-il consulter ?
+            </mat-card-title>
+            <mat-card-subtitle>
+              Cochez les types d'environnement dont l'utilisateur pourra voir les projets
+            </mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div class="env-type-grid">
+              @for (envType of permissions.envTypePermissions; track envType.typeCode) {
+                <div class="env-type-row simple">
+
+                  <mat-checkbox
+                    [checked]="isEnvTypeChecked(envType.typeCode)"
+                    (change)="toggleEnvType(envType.typeCode)"
+                    [color]="'primary'"
+                    class="env-type-checkbox">
+                    <div class="env-type-label">
+                      <strong>{{ envType.typeLibelle }}</strong>
+                      <span class="env-type-code">{{ envType.typeCode }}</span>
+                    </div>
+                  </mat-checkbox>
+
+                </div>
+              }
+            </div>
+          </mat-card-content>
+
+          <mat-card-actions>
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="nextStep()"
+              [disabled]="!canProceedToStep2()">
+              Suivant : Configurer les actions par projet
+              <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      </mat-step>
+
+      <!-- ÉTAPE 2: Actions par Projet -->
+      <mat-step>
+        <ng-template matStepLabel>Actions par Projet</ng-template>
+
+        <mat-card class="permission-module">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>folder</mat-icon>
+              Étape 2 : Quelles actions peut-il faire sur chaque projet ?
+            </mat-card-title>
+            <mat-card-subtitle>
+              Pour chaque projet des types sélectionnés, définissez les actions autorisées
+            </mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            @if (filteredProjects.length === 0) {
+              <div class="empty-state">
+                <mat-icon>info</mat-icon>
+                <p>Aucun projet disponible pour les types d'environnement sélectionnés.</p>
+                <button mat-stroked-button (click)="previousStep()">
+                  <mat-icon>arrow_back</mat-icon>
+                  Retour aux types
+                </button>
+              </div>
+            } @else {
+              <div class="env-type-grid">
+                @for (proj of filteredProjects; track proj.projectId) {
+                  <div class="env-type-row">
+
+                    <div class="env-type-label">
+                      <strong>{{ proj.projectLibelle }}</strong>
+                      <span class="env-type-code">{{ proj.projectCode }}</span>
+                    </div>
+
+                    <div class="actions-checkboxes">
+                      @for (action of allActions; track action) {
+                        <mat-checkbox
+                          [checked]="isProjectActionChecked(proj.projectId, action)"
+                          (change)="toggleProjectAction(proj.projectId, action)"
+                          [color]="'primary'">
+                          {{ action }}
+                        </mat-checkbox>
+                      }
+                    </div>
+
+                  </div>
+                }
+              </div>
+            }
+          </mat-card-content>
+
+          <mat-card-actions class="step-actions">
+            <button mat-stroked-button (click)="previousStep()">
+              <mat-icon>arrow_back</mat-icon>
+              Précédent
+            </button>
+
+            <button mat-stroked-button (click)="cancel()" [disabled]="saving">
+              Annuler
+            </button>
+
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="save()"
+              [disabled]="saving">
+              @if (saving) {
+                <mat-progress-spinner
+                  mode="indeterminate"
+                  diameter="16"
+                  strokeWidth="2">
+                </mat-progress-spinner>
+                <span>Enregistrement...</span>
+              } @else {
+                <mat-icon>save</mat-icon>
+                <span>Enregistrer les permissions</span>
+              }
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      </mat-step>
+
+    </mat-stepper>
+  }
+</div>

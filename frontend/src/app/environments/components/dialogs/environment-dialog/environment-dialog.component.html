@@ -1,0 +1,109 @@
+<div class="dialog-wrapper">
+  <div class="dialog-header">
+    <div class="header-content">
+      <mat-icon class="header-icon">{{ isEdit ? 'edit' : 'add_circle' }}</mat-icon>
+      <div class="header-text">
+        <h2 mat-dialog-title>
+          {{ isEdit ? 'Modifier l\'environnement' : 'Nouvel environnement' }}
+        </h2>
+        <p class="header-subtitle">
+          {{ isEdit ? 'Mettez à jour les informations' : 'Créez un nouvel environnement' }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <mat-dialog-content>
+    <form [formGroup]="form" class="dialog-form">
+
+      <div class="form-section">
+        <div class="section-header">
+          <mat-icon class="section-icon">layers</mat-icon>
+          <div class="section-title-text">
+            <h3>Informations de l'environnement</h3>
+            <p class="section-subtitle">Identifiants et description</p>
+          </div>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>
+            <mat-icon class="label-icon">qr_code_2</mat-icon>
+            Code
+          </mat-label>
+          <input matInput formControlName="code" placeholder="Ex: DEV, PROD, STAGING" />
+          @if (form.get('code')?.hasError('required')) {
+            <mat-error>Code obligatoire</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>
+            <mat-icon class="label-icon">label</mat-icon>
+            Libellé
+          </mat-label>
+          <input matInput formControlName="libelle" placeholder="Ex: Environnement de développement" />
+          @if (form.get('libelle')?.hasError('required')) {
+            <mat-error>Libellé obligatoire</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>
+            <mat-icon class="label-icon">description</mat-icon>
+            Description
+          </mat-label>
+          <textarea
+            matInput
+            rows="3"
+            formControlName="description"
+            placeholder="Ajoutez une description..."></textarea>
+        </mat-form-field>
+
+        <div class="toggle-section">
+          <div class="toggle-container">
+            <div class="toggle-info">
+              <mat-icon class="toggle-icon">{{ form.get('actif')?.value ? 'check_circle' : 'cancel' }}</mat-icon>
+              <div class="toggle-text">
+                <p class="toggle-label">État de l'environnement</p>
+                <p class="toggle-sublabel">
+                  {{ form.get('actif')?.value ? 'Environnement actif' : 'Environnement inactif' }}
+                </p>
+              </div>
+            </div>
+            <mat-slide-toggle
+              formControlName="actif"
+              color="primary"
+              class="custom-toggle">
+            </mat-slide-toggle>
+          </div>
+        </div>
+      </div>
+
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="cancel()" [disabled]="saving" class="cancel-btn">
+      <mat-icon>close</mat-icon>
+      Annuler
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="save()"
+      [disabled]="saving || form.invalid"
+      class="save-btn">
+      @if (saving) {
+        <mat-progress-spinner
+          mode="indeterminate"
+          diameter="16"
+          strokeWidth="2">
+        </mat-progress-spinner>
+        <span>Sauvegarde...</span>
+      } @else {
+        <mat-icon>{{ isEdit ? 'save' : 'add' }}</mat-icon>
+        <span>{{ isEdit ? 'Enregistrer' : 'Créer' }}</span>
+      }
+    </button>
+  </mat-dialog-actions>
+</div>

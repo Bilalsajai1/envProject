@@ -1,0 +1,258 @@
+// ============================================================================
+// ✅ CONFIRM DIALOG - SIMPLE & CLEAN
+// ============================================================================
+
+.confirm-dialog {
+  display: flex;
+  flex-direction: column;
+  min-width: 400px;
+  max-width: 500px;
+
+  @media (max-width: 768px) {
+    min-width: 280px;
+    max-width: 100%;
+  }
+}
+
+// ============================================================================
+// 🎯 HEADER
+// ============================================================================
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  border-bottom: 1px solid var(--divider-color);
+  position: relative;
+}
+
+.dialog-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  .dialog-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+  }
+}
+
+.dialog-title {
+  flex: 1;
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.close-button {
+  flex-shrink: 0;
+  transition: background-color var(--transition-fast);
+
+  &:hover {
+    background: var(--bg-tertiary);
+  }
+
+  .mat-icon {
+    color: var(--text-secondary);
+  }
+}
+
+// ============================================================================
+// 📝 CONTENT
+// ============================================================================
+
+.dialog-content {
+  padding: var(--space-6);
+  max-height: 400px;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--neutral-400);
+    border-radius: var(--radius-full);
+  }
+}
+
+.dialog-message {
+  font-size: var(--text-base);
+  color: var(--text-primary);
+  line-height: var(--leading-relaxed);
+  margin: 0;
+}
+
+// ============================================================================
+// 🎬 ACTIONS
+// ============================================================================
+
+.dialog-actions {
+  padding: var(--space-6);
+  border-top: 1px solid var(--divider-color);
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-end;
+
+  @media (max-width: 768px) {
+    flex-direction: column-reverse;
+
+    button {
+      width: 100%;
+    }
+  }
+}
+
+.cancel-button {
+  height: var(--button-height);
+  font-weight: var(--font-medium);
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+
+  &:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--text-secondary);
+  }
+
+  .mat-icon {
+    margin-right: var(--space-2);
+  }
+}
+
+.confirm-button {
+  height: var(--button-height);
+  font-weight: var(--font-medium);
+  min-width: 120px;
+
+  .mat-icon {
+    margin-right: var(--space-2);
+  }
+}
+
+// ============================================================================
+// 🎨 DIALOG TYPES
+// ============================================================================
+
+// Type: CONFIRM (par défaut)
+.dialog-confirm {
+  .dialog-icon-wrapper {
+    background: var(--color-info-bg);
+
+    .dialog-icon {
+      color: var(--color-info);
+    }
+  }
+
+  .confirm-button {
+    background: var(--brand-primary);
+    color: var(--text-inverse);
+
+    &:hover {
+      background: var(--brand-primary-dark);
+    }
+  }
+}
+
+// Type: WARNING
+.dialog-warning {
+  .dialog-icon-wrapper {
+    background: var(--color-warning-bg);
+
+    .dialog-icon {
+      color: var(--color-warning);
+    }
+  }
+
+  .confirm-button.confirm-warning {
+    background: var(--color-warning);
+    color: var(--text-inverse);
+
+    &:hover {
+      background: var(--color-warning-dark);
+    }
+  }
+}
+
+// Type: DANGER
+.dialog-danger {
+  .dialog-icon-wrapper {
+    background: var(--color-error-bg);
+
+    .dialog-icon {
+      color: var(--color-error);
+    }
+  }
+
+  .confirm-button.confirm-danger {
+    background: var(--color-error);
+    color: var(--text-inverse);
+
+    &:hover {
+      background: var(--color-error-dark);
+    }
+  }
+}
+
+// Type: INFO
+.dialog-info {
+  .dialog-icon-wrapper {
+    background: var(--color-info-bg);
+
+    .dialog-icon {
+      color: var(--color-info);
+    }
+  }
+
+  .confirm-button.confirm-info {
+    background: var(--color-info);
+    color: var(--text-inverse);
+
+    &:hover {
+      background: var(--color-info-dark);
+    }
+  }
+}
+
+// ============================================================================
+// ♿ ACCESSIBILITY
+// ============================================================================
+
+.close-button:focus-visible,
+.cancel-button:focus-visible,
+.confirm-button:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+// ============================================================================
+// 🎨 MATERIAL DIALOG OVERRIDES
+// ============================================================================
+
+::ng-deep {
+  .mat-mdc-dialog-container {
+    --mdc-dialog-container-color: var(--bg-elevated);
+    --mdc-dialog-container-shape: var(--radius-xl);
+
+    .mat-mdc-dialog-surface {
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-xl);
+      border: 1px solid var(--border-color);
+    }
+  }
+
+  // Dialog backdrop
+  .cdk-overlay-dark-backdrop {
+    background: var(--bg-overlay);
+  }
+}

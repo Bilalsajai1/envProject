@@ -1,0 +1,568 @@
+// ============================================================================
+// 📁 PROJECT LIST - SIMPLE & CLEAN
+// ============================================================================
+
+.project-list-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+// ============================================================================
+// 🍞 BREADCRUMB
+// ============================================================================
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-6);
+  background: var(--bg-elevated);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-color);
+  margin-bottom: var(--space-6);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+
+  .mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--text-tertiary);
+  }
+
+  span {
+    color: var(--text-secondary);
+  }
+
+  .current {
+    color: var(--text-primary);
+    font-weight: var(--font-semibold);
+  }
+
+  @media (max-width: 768px) {
+    padding: var(--space-3) var(--space-4);
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+
+// ============================================================================
+// 📋 LIST HEADER
+// ============================================================================
+
+.list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding: var(--space-6);
+  background: var(--bg-elevated);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-color);
+  margin-bottom: var(--space-6);
+
+  @media (max-width: 1024px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-4);
+  }
+
+  @media (max-width: 768px) {
+    padding: var(--space-4);
+  }
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--text-2xl);
+    font-weight: var(--font-bold);
+    color: var(--text-primary);
+    margin: 0 0 var(--space-1) 0;
+
+    .mat-icon {
+      color: var(--brand-primary);
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+    }
+
+    @media (max-width: 768px) {
+      font-size: var(--text-xl);
+
+      .mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+      }
+    }
+  }
+
+  .subtitle {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin: 0;
+  }
+}
+
+// ============================================================================
+// 🎬 HEADER ACTIONS
+// ============================================================================
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+
+  @media (max-width: 1024px) {
+    width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.search-field {
+  min-width: 300px;
+
+  @media (max-width: 1024px) {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  ::ng-deep {
+    .mat-mdc-text-field-wrapper {
+      background: var(--bg-primary);
+    }
+
+    input {
+      color: var(--text-primary);
+    }
+
+    .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
+  }
+}
+
+button[mat-raised-button] {
+  height: var(--button-height);
+  font-weight: var(--font-medium);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  .mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+// ============================================================================
+// 🎴 MAT CARD
+// ============================================================================
+
+mat-card {
+  background: var(--bg-elevated);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  padding: 0;
+
+  ::ng-deep .mat-mdc-card-content {
+    padding: 0;
+  }
+}
+
+// ============================================================================
+// 📋 TABLE AVEC BORDURES
+// ============================================================================
+
+.projects-table {
+  width: 100%;
+  background: transparent;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  ::ng-deep {
+    .mat-mdc-header-row {
+      background: var(--bg-secondary);
+    }
+
+    .mat-mdc-header-cell {
+      font-size: var(--text-xs);
+      font-weight: var(--font-bold);
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      padding: var(--space-4);
+      border-bottom: 2px solid var(--divider-color);
+      border-right: 1px solid var(--divider-color);
+
+      &:first-child {
+        padding-left: var(--space-6);
+        border-left: none;
+      }
+
+      &:last-child {
+        padding-right: var(--space-6);
+        border-right: none;
+      }
+    }
+
+    .mat-mdc-row {
+      transition: background-color var(--transition-fast);
+
+      &:hover {
+        background: var(--bg-secondary);
+      }
+    }
+
+    .mat-mdc-cell {
+      padding: var(--space-4);
+      font-size: var(--text-sm);
+      color: var(--text-primary);
+      border-bottom: 1px solid var(--divider-color);
+      border-right: 1px solid var(--divider-color);
+
+      &:first-child {
+        padding-left: var(--space-6);
+        border-left: none;
+      }
+
+      &:last-child {
+        padding-right: var(--space-6);
+        border-right: none;
+      }
+
+      strong {
+        font-weight: var(--font-semibold);
+      }
+    }
+  }
+
+  @media (max-width: 1200px) {
+    min-width: 900px;
+  }
+}
+
+// ============================================================================
+// 🏷️ PROJECT CODE BADGE
+// ============================================================================
+
+.project-code {
+  display: inline-flex;
+  padding: var(--space-1) var(--space-3);
+  background: var(--neutral-200);
+  color: var(--neutral-800);
+  border-radius: var(--radius-md);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  font-family: var(--font-mono);
+  border: 1px solid var(--neutral-300);
+}
+
+[data-theme="dark"] .project-code {
+  background: var(--neutral-800);
+  color: var(--neutral-200);
+  border-color: var(--neutral-700);
+}
+
+// ============================================================================
+// 🏷️ STATUS CHIPS
+// ============================================================================
+
+.status-active {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 var(--space-3);
+  background: var(--color-success-bg);
+  color: var(--color-success-dark);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-xs);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-success);
+
+  ::ng-deep .mat-mdc-chip-action-label {
+    color: var(--color-success-dark);
+    padding: 0;
+  }
+
+  &::before {
+    content: '●';
+    margin-right: var(--space-1);
+    color: var(--color-success);
+  }
+}
+
+.status-inactive {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 var(--space-3);
+  background: var(--color-error-bg);
+  color: var(--color-error-dark);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-xs);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-error);
+
+  ::ng-deep .mat-mdc-chip-action-label {
+    color: var(--color-error-dark);
+    padding: 0;
+  }
+
+  &::before {
+    content: '●';
+    margin-right: var(--space-1);
+    color: var(--color-error);
+  }
+}
+
+// ============================================================================
+// 🎬 ACTIONS CELL
+// ============================================================================
+
+.actions-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  justify-content: flex-end;
+}
+
+button[mat-icon-button] {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+
+  .mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  // Consulter - TURQUOISE/ACCENT
+  &[color="accent"] {
+    color: var(--brand-accent);
+
+    &:hover {
+      background: rgba(20, 184, 166, 0.1);
+      color: var(--brand-accent-dark);
+    }
+
+    .mat-icon {
+      color: var(--brand-accent);
+    }
+
+    &:hover .mat-icon {
+      color: var(--brand-accent-dark);
+    }
+  }
+
+  // Modifier - VERT
+  &[color="primary"] {
+    color: var(--color-success);
+
+    &:hover {
+      background: var(--color-success-bg);
+      color: var(--color-success-dark);
+    }
+
+    .mat-icon {
+      color: var(--color-success);
+    }
+
+    &:hover .mat-icon {
+      color: var(--color-success-dark);
+    }
+  }
+
+  // Supprimer - ROUGE
+  &[color="warn"] {
+    color: var(--color-error);
+
+    &:hover {
+      background: var(--color-error-bg);
+      color: var(--color-error-dark);
+    }
+
+    .mat-icon {
+      color: var(--color-error);
+    }
+
+    &:hover .mat-icon {
+      color: var(--color-error-dark);
+    }
+  }
+}
+
+// ============================================================================
+// 🚫 EMPTY STATE
+// ============================================================================
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-16) var(--space-8);
+  text-align: center;
+
+  .mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: var(--text-disabled);
+    margin-bottom: var(--space-4);
+  }
+
+  p {
+    font-size: var(--text-lg);
+    font-weight: var(--font-semibold);
+    color: var(--text-secondary);
+    margin: 0 0 var(--space-1) 0;
+  }
+
+  .hint {
+    font-size: var(--text-sm);
+    color: var(--text-tertiary);
+    margin: 0;
+  }
+}
+
+// ============================================================================
+// ⏳ LOADING STATE
+// ============================================================================
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-16) var(--space-8);
+  gap: var(--space-4);
+  background: var(--bg-elevated);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-color);
+
+  ::ng-deep .mat-mdc-progress-spinner {
+    --mdc-circular-progress-active-indicator-color: var(--brand-primary);
+  }
+
+  p {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin: 0;
+  }
+}
+
+// ============================================================================
+// 📄 PAGINATION
+// ============================================================================
+
+::ng-deep .mat-mdc-paginator {
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--divider-color);
+  padding: var(--space-4) var(--space-6);
+
+  .mat-mdc-paginator-page-size-label,
+  .mat-mdc-paginator-range-label {
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+  }
+
+  button:hover:not([disabled]) {
+    background: var(--bg-tertiary);
+  }
+
+  .mat-icon {
+    color: var(--text-secondary);
+  }
+}
+
+// ============================================================================
+// 📱 RESPONSIVE
+// ============================================================================
+
+@media (max-width: 768px) {
+  .project-list-container {
+    padding: 0;
+  }
+
+  .breadcrumb {
+    margin-bottom: var(--space-4);
+  }
+
+  .list-header {
+    margin-bottom: var(--space-4);
+  }
+
+  mat-card {
+    border-radius: var(--radius-lg);
+  }
+
+  .projects-table {
+    ::ng-deep {
+      .mat-mdc-header-cell,
+      .mat-mdc-cell {
+        padding: var(--space-3);
+
+        &:first-child {
+          padding-left: var(--space-4);
+        }
+
+        &:last-child {
+          padding-right: var(--space-4);
+        }
+      }
+    }
+  }
+
+  ::ng-deep .mat-mdc-paginator {
+    padding: var(--space-3) var(--space-4);
+
+    .mat-mdc-paginator-container {
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+  }
+}
+
+// ============================================================================
+// ♿ ACCESSIBILITY
+// ============================================================================
+
+button:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .project-code,
+  .status-active,
+  .status-inactive {
+    border-width: 2px;
+  }
+
+  .breadcrumb,
+  .list-header,
+  mat-card {
+    border-width: 2px;
+  }
+}

@@ -1,0 +1,43 @@
+// src/app/auth/services/password-reset.service.ts
+
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import {environment} from '../../config/environment';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class PasswordResetService {
+
+  private readonly baseUrl = environment.apiUrl;
+
+  constructor(private http: HttpClient) {}
+
+  /**
+   * Demande de réinitialisation de mot de passe
+   * Envoie un email avec un lien de réinitialisation
+   */
+  requestReset(email: string): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/auth/forgot-password`, { email });
+  }
+
+  /**
+   * Réinitialisation du mot de passe avec le token
+   */
+  resetPassword(token: string, newPassword: string): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/auth/reset-password`, {
+      token,
+      newPassword
+    });
+  }
+
+  /**
+   * Vérifier si un token est valide
+   */
+  verifyToken(token: string): Observable<{ valid: boolean }> {
+    return this.http.get<{ valid: boolean }>(`${this.baseUrl}/auth/verify-reset-token`, {
+      params: { token }
+    });
+  }
+}

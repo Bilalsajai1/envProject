@@ -1,0 +1,28 @@
+// src/app/environments/components/environment-type-layout/environment-type-layout.component.scss
+
+.env-type-layout {
+  padding: 24px;
+
+  margin: 0 auto;
+}
+
+.type-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+
+  .type-icon {
+    font-size: 36px;
+    width: 36px;
+    height: 36px;
+    color: #1976d2;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 500;
+    color: #333;
+  }
+}
