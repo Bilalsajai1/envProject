@@ -9,8 +9,8 @@ public class UtilisateurKeycloakDTO {
 
     private Long id;
     private String code;
-    private String firstname;  // ⚠️ Attention : minuscule pour Keycloak
-    private String lastname;   // ⚠️ Attention : minuscule pour Keycloak
+    private String firstname;
+    private String lastname;
     private String email;
     private String password;
     private Boolean enabled;

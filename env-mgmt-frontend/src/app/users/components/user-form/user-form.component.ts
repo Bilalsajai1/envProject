@@ -33,6 +33,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
   form!: FormGroup;
   isEdit = false;
   userId?: number;
+  hidePassword = true;
 
   profils: ProfilDTO[] = [];
   loading = false;
@@ -58,12 +59,22 @@ export class UserFormComponent implements OnInit, OnDestroy {
 
     this.isEdit = this.data.mode === 'edit' && !!this.data.userId;
 
+    // Ajouter la validation conditionnelle pour le password
+    if (!this.isEdit) {
+      // En mode création, le password est obligatoire
+      this.form.get('password')?.setValidators([
+        Validators.required,
+        Validators.minLength(8)
+      ]);
+      this.form.get('password')?.updateValueAndValidity();
+    }
+
     if (this.isEdit && this.data.userId) {
       this.userId = this.data.userId;
       this.loadUser(this.userId);
     } else {
       this.initialFormValue = this.form.value;
-      this.loading = false; // ✅ Mettre false dès le départ en création
+      this.loading = false;
     }
   }
 
@@ -80,7 +91,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
       email: ['', [Validators.required, Validators.email]],
       actif: [true],
       profilId: [null, Validators.required],
-      password: [''] // ⬅ ajouté ici
+      password: [''] // Validators ajoutés dynamiquement dans ngOnInit
     });
   }
 
@@ -117,7 +128,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
           });
 
           this.initialFormValue = this.form.value;
-          this.loading = false; // ✅ Important: mettre false APRÈS patchValue
+          this.loading = false;
         },
         error: (error) => {
           console.error('Erreur lors du chargement de l\'utilisateur:', error);
@@ -136,7 +147,12 @@ export class UserFormComponent implements OnInit, OnDestroy {
     }
 
     this.saving = true;
-    const payload = this.form.value;
+    const payload = { ...this.form.value };
+
+    // En mode édition, ne pas envoyer le password s'il est vide
+    if (this.isEdit && !payload.password) {
+      delete payload.password;
+    }
 
     const obs = this.isEdit && this.userId
       ? this.userService.update(this.userId, payload)
@@ -152,7 +168,6 @@ export class UserFormComponent implements OnInit, OnDestroy {
             : '✅ Utilisateur créé avec succès';
           this.showSuccess(message);
 
-          // ✅ Fermer et indiquer au parent de recharger
           setTimeout(() => {
             this.dialogRef.close(true);
           }, 500);
@@ -190,10 +205,10 @@ export class UserFormComponent implements OnInit, OnDestroy {
       this.dialogRef.close(false);
     }
   }
+
   setActif(value: boolean): void {
     this.form.get('actif')?.setValue(value);
   }
-
 
   private hasFormChanged(): boolean {
     if (!this.initialFormValue) return false;
@@ -226,6 +241,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
   get emailControl() { return this.form.get('email'); }
   get profilIdControl() { return this.form.get('profilId'); }
   get actifControl() { return this.form.get('actif'); }
+  get passwordControl() { return this.form.get('password'); }
 
   getErrorMessage(controlName: string): string {
     const control = this.form.get(controlName);

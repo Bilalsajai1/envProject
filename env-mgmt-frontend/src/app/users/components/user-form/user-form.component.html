@@ -47,16 +47,21 @@
             </div>
             <div>
               <h2>Informations personnelles</h2>
-              <p>Identité et coordonnées principales de l’utilisateur.</p>
+              <p>Identité et coordonnées principales de l'utilisateur.</p>
             </div>
           </div>
 
           <div class="section-body">
+            <!-- CODE UTILISATEUR -->
             <div class="fields-row">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Code utilisateur</mat-label>
                 <mat-icon matPrefix>qr_code_2</mat-icon>
-                <input matInput formControlName="code" placeholder="Ex: USR001" />
+                <input
+                  matInput
+                  formControlName="code"
+                  placeholder="Ex: USR001"
+                  [attr.aria-label]="'Code utilisateur'" />
                 <mat-hint align="start">Code unique de l'utilisateur</mat-hint>
 
                 @if (codeControl?.hasError('required')) {
@@ -71,22 +76,32 @@
               </mat-form-field>
             </div>
 
+            <!-- PRÉNOM & NOM -->
             <div class="fields-row two-cols">
               <mat-form-field appearance="outline">
                 <mat-label>Prénom</mat-label>
                 <mat-icon matPrefix>face</mat-icon>
-                <input matInput formControlName="firstName" placeholder="Prénom" />
+                <input
+                  matInput
+                  formControlName="firstName"
+                  placeholder="Prénom"
+                  [attr.aria-label]="'Prénom'" />
                 <mat-error>{{ getErrorMessage('firstName') }}</mat-error>
               </mat-form-field>
 
               <mat-form-field appearance="outline">
                 <mat-label>Nom</mat-label>
                 <mat-icon matPrefix>badge</mat-icon>
-                <input matInput formControlName="lastName" placeholder="Nom de famille" />
+                <input
+                  matInput
+                  formControlName="lastName"
+                  placeholder="Nom de famille"
+                  [attr.aria-label]="'Nom de famille'" />
                 <mat-error>{{ getErrorMessage('lastName') }}</mat-error>
               </mat-form-field>
             </div>
 
+            <!-- EMAIL -->
             <div class="fields-row">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Adresse email</mat-label>
@@ -95,7 +110,9 @@
                   matInput
                   type="email"
                   formControlName="email"
-                  placeholder="utilisateur@example.com" />
+                  placeholder="utilisateur@example.com"
+                  autocomplete="email"
+                  [attr.aria-label]="'Adresse email'" />
                 <mat-hint align="start">Email professionnel de l'utilisateur</mat-hint>
                 <mat-error>{{ getErrorMessage('email') }}</mat-error>
               </mat-form-field>
@@ -125,12 +142,13 @@
                 <mat-select
                   formControlName="profilId"
                   placeholder="Sélectionner un profil"
-                  panelClass="profil-panel">
+                  panelClass="profil-panel"
+                  [attr.aria-label]="'Profil utilisateur'">
 
                   @if (profilsLoading) {
                     <mat-option disabled>
                       <mat-spinner diameter="20"></mat-spinner>
-                      Chargement...
+                      <span style="margin-left: 8px;">Chargement...</span>
                     </mat-option>
                   }
 
@@ -151,6 +169,41 @@
               </mat-form-field>
             </div>
 
+            <!-- MOT DE PASSE (uniquement en création) -->
+            @if (!isEdit) {
+              <div class="fields-row password-field">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Mot de passe</mat-label>
+                  <mat-icon matPrefix>lock</mat-icon>
+                  <input
+                    matInput
+                    [type]="hidePassword ? 'password' : 'text'"
+                    formControlName="password"
+                    placeholder="Minimum 8 caractères"
+                    autocomplete="new-password"
+                    [attr.aria-label]="'Mot de passe'" />
+                  <button
+                    mat-icon-button
+                    matSuffix
+                    type="button"
+                    (click)="hidePassword = !hidePassword"
+                    [attr.aria-label]="hidePassword ? 'Afficher le mot de passe' : 'Masquer le mot de passe'"
+                    [attr.aria-pressed]="!hidePassword"
+                    tabindex="-1">
+                    <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                  </button>
+                  <mat-hint align="start">Mot de passe initial pour l'utilisateur</mat-hint>
+
+                  @if (passwordControl?.hasError('required')) {
+                    <mat-error>Le mot de passe est obligatoire</mat-error>
+                  }
+                  @if (passwordControl?.hasError('minlength')) {
+                    <mat-error>Le mot de passe doit contenir au moins 8 caractères</mat-error>
+                  }
+                </mat-form-field>
+              </div>
+            }
+
             <!-- STATUT DU COMPTE -->
             <div class="status-block">
               <div class="status-header">
@@ -164,20 +217,20 @@
                 <div class="status-text">
                   <span class="status-title">Statut du compte</span>
                   <span class="status-sub">
-                    {{ actifControl?.value
-                    ? 'Compte actif : l’utilisateur peut se connecter à la plateforme.'
-                    : 'Compte désactivé : l’accès est temporairement bloqué.' }}
+                    {{ actifControl?.value }}
                   </span>
                 </div>
               </div>
 
               <!-- Toggle custom -->
-              <div class="status-toggle-pill">
+              <div class="status-toggle-pill" role="group" aria-label="Statut du compte">
                 <button
                   type="button"
                   class="pill-button pill-active"
                   [class.selected]="actifControl?.value"
-                  (click)="setActif(true)">
+                  (click)="setActif(true)"
+                  [attr.aria-pressed]="actifControl?.value"
+                  aria-label="Activer le compte">
                   <mat-icon>check_circle</mat-icon>
                   <span>Actif</span>
                 </button>
@@ -186,7 +239,9 @@
                   type="button"
                   class="pill-button pill-inactive"
                   [class.selected]="!actifControl?.value"
-                  (click)="setActif(false)">
+                  (click)="setActif(false)"
+                  [attr.aria-pressed]="!actifControl?.value"
+                  aria-label="Désactiver le compte">
                   <mat-icon>pause_circle</mat-icon>
                   <span>Inactif</span>
                 </button>
@@ -215,7 +270,8 @@
             type="button"
             (click)="cancel()"
             [disabled]="saving"
-            class="cancel-button">
+            class="cancel-button"
+            aria-label="Annuler">
             <mat-icon>close</mat-icon>
             <span>Annuler</span>
           </button>
@@ -225,7 +281,8 @@
             color="primary"
             type="submit"
             [disabled]="saving || form.invalid"
-            class="submit-button">
+            class="submit-button"
+            [attr.aria-label]="isEdit ? 'Enregistrer les modifications' : 'Créer l\'utilisateur'">
             @if (saving) {
               <mat-spinner
                 diameter="20"

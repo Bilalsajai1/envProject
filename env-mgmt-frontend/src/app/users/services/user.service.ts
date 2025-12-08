@@ -1,16 +1,15 @@
-// src/app/users/services/user.service.ts
-
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
   UserDTO,
+  UserCreateUpdateDTO,
   ProfilDTO,
   PaginationRequest,
   PaginatedResponse
 } from '../models/user.model';
 import { environment } from '../../config/environment';
-import {tap} from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -30,29 +29,16 @@ export class UserService {
       })
     );
   }
+
   getById(id: number): Observable<UserDTO> {
     return this.http.get<UserDTO>(`${this.baseUrl}/users/${id}`);
   }
 
-  create(payload: {
-    code: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    actif?: boolean;
-    profilId: number;
-  }): Observable<UserDTO> {
+  create(payload: UserCreateUpdateDTO): Observable<UserDTO> {
     return this.http.post<UserDTO>(`${this.baseUrl}/users`, payload);
   }
 
-  update(id: number, payload: {
-    code: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    actif?: boolean;
-    profilId: number;
-  }): Observable<UserDTO> {
+  update(id: number, payload: UserCreateUpdateDTO): Observable<UserDTO> {
     return this.http.put<UserDTO>(`${this.baseUrl}/users/${id}`, payload);
   }
 
