@@ -24,7 +24,6 @@ interface EnvNavItem {
   label: string;
   route: string;
   code: string;
-  projectCount: number;
 }
 
 @Component({
@@ -130,10 +129,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
       .map(env => ({
         label: env.libelle,
         route: `/env/${env.code.toLowerCase()}`,
-        code: env.code,
-        projectCount: isAdmin
-          ? (env.projects ?? []).length
-          : (env.projects ?? []).filter(p => p.allowedActions?.includes('CONSULT')).length
+        code: env.code
       }));
 
     this.envMenu = mapped.sort((a, b) => {

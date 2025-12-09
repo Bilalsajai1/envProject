@@ -156,13 +156,6 @@ public class ProjetServiceImpl implements ProjetService {
     @Override
     public PaginatedResponse<ProjetDTO> search(PaginationRequest req) {
 
-        if (!permissionService.isAdmin()) {
-            throw new ResponseStatusException(
-                    HttpStatus.FORBIDDEN,
-                    "La recherche globale des projets est réservée à l'administrateur"
-            );
-        }
-
         Sort sort = req.getSortDirection().equalsIgnoreCase("desc")
                 ? Sort.by(req.getSortField()).descending()
                 : Sort.by(req.getSortField()).ascending();
@@ -188,6 +181,14 @@ public class ProjetServiceImpl implements ProjetService {
             typeCode = typeObj.toString().trim().toUpperCase();
         }
 
+        // 🔐 Vérifier les permissions pour le type d'environnement
+        if (typeCode != null && !permissionService.canViewEnvironmentType(typeCode)) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Vous n'avez pas le droit de consulter les projets pour le type " + typeCode
+            );
+        }
+
         EntitySpecification<ProjetEntity> specBuilder = new EntitySpecification<>();
         Specification<ProjetEntity> spec = specBuilder.getSpecification(rawFilters);
 
@@ -196,7 +197,7 @@ public class ProjetServiceImpl implements ProjetService {
                 cb.isTrue(root.get("actif"))
         );
 
-        // 🔥 FILTRE PAR TYPE D’ENVIRONNEMENT (LE PLUS IMPORTANT)
+        // 🔥 FILTRE PAR TYPE D'ENVIRONNEMENT
         if (typeCode != null) {
             final String finalType = typeCode;
             spec = spec.and((root, query, cb) -> {
@@ -220,6 +221,20 @@ public class ProjetServiceImpl implements ProjetService {
         }
 
         Page<ProjetEntity> page = projetRepository.findAll(spec, pageable);
+
+        // 🔐 FILTRAGE PAR PERMISSIONS (pour les non-admins)
+        if (!permissionService.isAdmin()) {
+            List<ProjetEntity> filteredProjects = page.getContent().stream()
+                    .filter(p -> permissionService.canConsultProject(p.getId()))
+                    .collect(Collectors.toList());
+
+            // Recréer une Page avec les projets filtrés
+            page = new PageImpl<>(
+                    filteredProjects,
+                    pageable,
+                    filteredProjects.size()
+            );
+        }
 
         return PaginatedResponse.fromPage(
                 page.map(projetMapper::toDto)

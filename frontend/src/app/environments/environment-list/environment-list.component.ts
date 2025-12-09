@@ -22,6 +22,7 @@ import {PaginatedResponse, PaginationRequest, ProjectService, SortDirection} fro
 import { EnvironmentDialogComponent } from '../components/dialogs/environment-dialog/environment-dialog.component';
 import { ConfirmDialogComponent } from '../../users/confirm-dialog/confirm-dialog.component';
 import {EnvironmentService} from '../services/environment.service';
+import {AuthContextService} from '../../auth/services/auth-context.service';
 
 @Component({
   selector: 'app-environment-list',
@@ -64,9 +65,24 @@ export class EnvironmentListComponent implements OnInit, OnDestroy {
     private projectService: ProjectService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private authContext: AuthContextService
   ) {}
+  canCreateEnvironment(): boolean {
+    return this.authContext.canAccessProject(this.projectId, 'CREATE');
+  }
 
+  canUpdateEnvironment(): boolean {
+    return this.authContext.canAccessProject(this.projectId, 'UPDATE');
+  }
+
+  canDeleteEnvironment(): boolean {
+    return this.authContext.canAccessProject(this.projectId, 'DELETE');
+  }
+
+  canConsultEnvironment(): boolean {
+    return this.authContext.canAccessProject(this.projectId, 'CONSULT');
+  }
   ngOnInit(): void {
     this.initSearchListener();
 

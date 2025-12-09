@@ -23,6 +23,7 @@ export interface ProfilPermissions {
   profilId: number;
   profilCode: string;
   profilLibelle: string;
+  isAdmin?: boolean;
   envTypePermissions: EnvTypePermission[];
   projectPermissions: ProjectPermission[];
 }

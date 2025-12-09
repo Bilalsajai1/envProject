@@ -79,6 +79,16 @@ public class ProfilServiceImpl implements ProfilService {
                 .isDeleted(false)
                 .build();
 
+        // ✅ AMÉLIORATION: Créer le groupe Keycloak immédiatement
+        ProfilKeycloakDTO keycloakGroupDto = ProfilKeycloakDTO.builder()
+                .code(profil.getCode())
+                .libelle(profil.getLibelle())
+                .roles(Collections.emptyList())
+                .build();
+
+        String keycloakGroupId = keycloakService.getOrCreateGroup(keycloakGroupDto);
+        profil.setKeycloakGroupId(keycloakGroupId);
+
         profil = profilRepository.save(profil);
         return mapper.toDto(profil);
     }
@@ -192,6 +202,73 @@ public class ProfilServiceImpl implements ProfilService {
         ProfilEntity profil = profilRepository.findById(profilId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Profil introuvable"));
 
+        // ✅ SI ADMIN → Retourner TOUTES les permissions automatiquement
+        if (Boolean.TRUE.equals(profil.getAdmin())) {
+            return buildAdminPermissions(profil);
+        }
+
+        // ✅ Sinon, logique normale pour les non-admins
+        return buildNormalUserPermissions(profil, profilId);
+    }
+
+    /**
+     * ✅ Construire les permissions complètes pour un profil administrateur
+     */
+    private ProfilPermissionsDTO buildAdminPermissions(ProfilEntity profil) {
+        // Toutes les actions disponibles
+        List<ActionType> allActions = Arrays.asList(ActionType.values());
+
+        // Récupérer TOUS les types d'environnement actifs
+        List<EnvironmentTypeEntity> allTypes = environmentTypeRepository.findByActifTrue();
+
+        List<EnvironmentTypePermissionDTO> envPermissions = allTypes.stream()
+                .map(type -> EnvironmentTypePermissionDTO.builder()
+                        .id(type.getId())
+                        .code(type.getCode())
+                        .libelle(type.getLibelle())
+                        .actif(type.getActif())
+                        .allowedActions(new ArrayList<>(allActions)) // ✅ Toutes les actions
+                        .build())
+                .toList();
+
+        // Récupérer TOUS les projets actifs
+        List<ProjetEntity> allProjects = projetRepository.findByActifTrue();
+
+        List<ProjectPermissionDTO> projPermissions = allProjects.stream()
+                .map(projet -> {
+                    // Récupérer les types d'environnement pour ce projet
+                    List<String> environmentTypeCodes = projet.getEnvironnements().stream()
+                            .filter(env -> env.getActif() && env.getType() != null)
+                            .map(env -> env.getType().getCode())
+                            .distinct()
+                            .sorted()
+                            .toList();
+
+                    return ProjectPermissionDTO.builder()
+                            .id(projet.getId())
+                            .code(projet.getCode())
+                            .libelle(projet.getLibelle())
+                            .actif(projet.getActif())
+                            .allowedActions(new ArrayList<>(allActions)) // ✅ Toutes les actions
+                            .environmentTypeCodes(environmentTypeCodes)
+                            .build();
+                })
+                .toList();
+
+        return ProfilPermissionsDTO.builder()
+                .profilId(profil.getId())
+                .profilCode(profil.getCode())
+                .profilLibelle(profil.getLibelle())
+                .isAdmin(true) // ✅ Flag admin
+                .environmentTypes(envPermissions)
+                .projects(projPermissions)
+                .build();
+    }
+
+    /**
+     * ✅ Construire les permissions pour un utilisateur normal (non-admin)
+     */
+    private ProfilPermissionsDTO buildNormalUserPermissions(ProfilEntity profil, Long profilId) {
         List<RoleEntity> roles = profilRoleRepository.findRolesByProfil(profilId);
 
         Map<String, Set<ActionType>> envTypeActionsMap = new HashMap<>();
@@ -264,7 +341,6 @@ public class ProfilServiceImpl implements ProfilService {
                     Set<ActionType> actions = projectActionsMap.getOrDefault(
                             projet.getId(), Collections.emptySet());
 
-                    // ✅ NOUVEAU: Récupérer les types d'environnement pour ce projet
                     List<String> environmentTypeCodes = projet.getEnvironnements().stream()
                             .filter(env -> env.getActif() && env.getType() != null)
                             .map(env -> env.getType().getCode())
@@ -278,7 +354,7 @@ public class ProfilServiceImpl implements ProfilService {
                             .libelle(projet.getLibelle())
                             .actif(projet.getActif())
                             .allowedActions(new ArrayList<>(actions))
-                            .environmentTypeCodes(environmentTypeCodes) // ✅ AJOUTÉ
+                            .environmentTypeCodes(environmentTypeCodes)
                             .build();
                 })
                 .toList();
@@ -287,6 +363,7 @@ public class ProfilServiceImpl implements ProfilService {
                 .profilId(profil.getId())
                 .profilCode(profil.getCode())
                 .profilLibelle(profil.getLibelle())
+                .isAdmin(false) // ✅ Flag non-admin
                 .environmentTypes(envPermissions)
                 .projects(projPermissions)
                 .build();
@@ -419,7 +496,19 @@ public class ProfilServiceImpl implements ProfilService {
     public void updateAllPermissions(Long profilId, UpdateProfilPermissionsRequest request) {
         checkAdmin();
 
+        // ✅ Vérifier si le profil est admin
+        ProfilEntity profil = profilRepository.findById(profilId)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Profil introuvable"));
 
+        if (Boolean.TRUE.equals(profil.getAdmin())) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Impossible de modifier les permissions d'un profil administrateur. " +
+                            "Les administrateurs ont automatiquement tous les droits."
+            );
+        }
+
+        // ✅ Logique normale pour les non-admins
         if (request.getEnvTypePermissions() != null) {
             updateEnvTypePermissions(profilId, request.getEnvTypePermissions());
         }
@@ -427,6 +516,5 @@ public class ProfilServiceImpl implements ProfilService {
         if (request.getProjectPermissions() != null) {
             updateProjectPermissions(profilId, request.getProjectPermissions());
         }
-
     }
 }

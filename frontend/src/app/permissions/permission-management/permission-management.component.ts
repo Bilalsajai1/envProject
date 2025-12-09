@@ -51,7 +51,9 @@ export class PermissionManagementComponent implements OnInit {
     private route: ActivatedRoute,
     private cdr: ChangeDetectorRef
   ) {}
-
+  get isAdminProfile(): boolean {
+    return this.permissions?.isAdmin ?? false;
+  }
   ngOnInit(): void {
     this.loadProfils();
 
@@ -154,6 +156,15 @@ export class PermissionManagementComponent implements OnInit {
   }
 
   toggleEnvType(typeCode: string): void {
+    if (this.isAdminProfile) {
+      this.snackBar.open(
+        '⚠️ Les administrateurs ont automatiquement tous les droits',
+        'Fermer',
+        { duration: 3000 }
+      );
+      return;
+    }
+
     const current = this.envTypeCheckedMap.get(typeCode) ?? false;
     this.envTypeCheckedMap.set(typeCode, !current);
     console.log(`🔄 Type ${typeCode} → ${!current ? 'coché ✅' : 'décoché ❌'}`);
@@ -204,6 +215,15 @@ export class PermissionManagementComponent implements OnInit {
   }
 
   toggleProjectAction(projectId: number, action: ActionType): void {
+    if (this.isAdminProfile) {
+      this.snackBar.open(
+        '⚠️ Les administrateurs ont automatiquement tous les droits',
+        'Fermer',
+        { duration: 3000 }
+      );
+      return;
+    }
+
     if (!this.projectActionsMap.has(projectId)) {
       this.projectActionsMap.set(projectId, new Set<ActionType>());
     }
@@ -242,6 +262,15 @@ export class PermissionManagementComponent implements OnInit {
    * ✅ SAUVEGARDE FINALE
    */
   save(): void {
+    if (this.isAdminProfile) {
+      this.snackBar.open(
+        '⚠️ Impossible de modifier les permissions d\'un profil administrateur',
+        'Fermer',
+        { duration: 3000 }
+      );
+      return;
+    }
+
     if (!this.selectedProfilId || !this.permissions) {
       return;
     }
@@ -305,7 +334,6 @@ export class PermissionManagementComponent implements OnInit {
       this.onProfilChange(this.selectedProfilId);
     }
   }
-
   /**
    * ✅ Validation Step 1
    */

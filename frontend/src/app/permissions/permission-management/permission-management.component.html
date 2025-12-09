@@ -29,6 +29,21 @@
     </mat-form-field>
   </div>
 
+  <!-- ✅ Bannière Admin (déplacée en dehors du sélecteur) -->
+  @if (isAdminProfile && permissions) {
+    <mat-card class="admin-notice">
+      <mat-card-content>
+        <div class="notice-content">
+          <mat-icon class="notice-icon">admin_panel_settings</mat-icon>
+          <div class="notice-text">
+            <strong>Profil Administrateur</strong>
+            <p>Ce profil dispose automatiquement de tous les droits sur tous les environnements et projets. Les permissions ne peuvent pas être modifiées.</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+
   <!-- Loading -->
   @if (loading && !permissions) {
     <div class="loading-zone">
@@ -61,8 +76,10 @@
               @for (envType of permissions.envTypePermissions; track envType.typeCode) {
                 <div class="env-type-row simple">
 
+                  <!-- ✅ Ajout de [disabled]="isAdminProfile" -->
                   <mat-checkbox
                     [checked]="isEnvTypeChecked(envType.typeCode)"
+                    [disabled]="isAdminProfile"
                     (change)="toggleEnvType(envType.typeCode)"
                     [color]="'primary'"
                     class="env-type-checkbox">
@@ -78,14 +95,23 @@
           </mat-card-content>
 
           <mat-card-actions>
+            <!-- ✅ Désactiver le bouton "Suivant" si admin (ils n'ont pas besoin de configurer) -->
             <button
               mat-raised-button
               color="primary"
               (click)="nextStep()"
-              [disabled]="!canProceedToStep2()">
+              [disabled]="!canProceedToStep2() || isAdminProfile">
               Suivant : Configurer les actions par projet
               <mat-icon>arrow_forward</mat-icon>
             </button>
+
+            <!-- ✅ AJOUTER: Message info pour les admins -->
+            @if (isAdminProfile) {
+              <span class="admin-hint">
+                <mat-icon>info</mat-icon>
+                Les administrateurs ont tous les droits automatiquement
+              </span>
+            }
           </mat-card-actions>
         </mat-card>
       </mat-step>
@@ -127,8 +153,10 @@
 
                     <div class="actions-checkboxes">
                       @for (action of allActions; track action) {
+                        <!-- ✅ Ajout de [disabled]="isAdminProfile" -->
                         <mat-checkbox
                           [checked]="isProjectActionChecked(proj.projectId, action)"
+                          [disabled]="isAdminProfile"
                           (change)="toggleProjectAction(proj.projectId, action)"
                           [color]="'primary'">
                           {{ action }}
@@ -143,20 +171,27 @@
           </mat-card-content>
 
           <mat-card-actions class="step-actions">
-            <button mat-stroked-button (click)="previousStep()">
+            <button
+              mat-stroked-button
+              (click)="previousStep()"
+              [disabled]="isAdminProfile">
               <mat-icon>arrow_back</mat-icon>
               Précédent
             </button>
 
-            <button mat-stroked-button (click)="cancel()" [disabled]="saving">
+            <button
+              mat-stroked-button
+              (click)="cancel()"
+              [disabled]="saving">
               Annuler
             </button>
 
+            <!-- ✅ Désactiver le bouton Enregistrer pour les admins -->
             <button
               mat-raised-button
               color="primary"
               (click)="save()"
-              [disabled]="saving">
+              [disabled]="saving || isAdminProfile">
               @if (saving) {
                 <mat-progress-spinner
                   mode="indeterminate"

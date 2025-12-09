@@ -31,6 +31,7 @@ import {
 } from '../services/project.service';
 import { ProjectDialogComponent } from '../components/dialogs/project-dialog/project-dialog.component';
 import { ConfirmDialogComponent } from '../../users/confirm-dialog/confirm-dialog.component';
+import { AuthContextService } from '../../auth/services/auth-context.service'; // ✅ AJOUTER
 
 @Component({
   selector: 'app-project-list',
@@ -49,17 +50,14 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   projects: ProjectDTO[] = [];
   displayedColumns: string[] = ['code', 'libelle', 'description', 'actif', 'actions'];
 
-  // Pagination
   page = 0;
   size = 10;
   readonly pageSizeOptions: number[] = [5, 10, 20, 50];
   totalElements = 0;
 
-  // Tri
   sortField = 'id';
   sortDirection: SortDirection = 'asc';
 
-  // Recherche
   searchTerm = '';
   private readonly searchSubject = new Subject<string>();
 
@@ -72,18 +70,18 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     private readonly projectService: ProjectService,
     private readonly dialog: MatDialog,
     private readonly snackBar: MatSnackBar,
-    private readonly cdr: ChangeDetectorRef
+    private readonly cdr: ChangeDetectorRef,
+    private readonly authContext: AuthContextService // ✅ AJOUTER
   ) {}
 
   ngOnInit(): void {
     this.initSearchListener();
 
-    // Récupérer le typeCode depuis la route parent (edition / integration / client)
     this.route.parent?.paramMap
       .pipe(takeUntil(this.destroy$))
       .subscribe(params => {
         this.typeCode = params.get('typeCode')?.toUpperCase() || '';
-        this.page = 0; // on repart de la première page si le type change
+        this.page = 0;
         this.loadProjects();
       });
   }
@@ -93,19 +91,34 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // ----------------------------------------------------
-  // Recherche (même pattern que UserList)
-  // ----------------------------------------------------
+  // ✅ AJOUTER : Méthodes de vérification des permissions
+  canCreateProject(): boolean {
+    const ctx = this.authContext.getCurrentContext();
+    return ctx?.user?.admin ?? false;
+  }
+
+  canUpdateProject(projectId: number): boolean {
+    return this.authContext.canAccessProject(projectId, 'UPDATE');
+  }
+
+  canDeleteProject(projectId: number): boolean {
+    return this.authContext.canAccessProject(projectId, 'DELETE');
+  }
+
+  canConsultProject(projectId: number): boolean {
+    return this.authContext.canAccessProject(projectId, 'CONSULT');
+  }
+
   private initSearchListener(): void {
     this.searchSubject
       .pipe(
-        debounceTime(0),         // tu peux mettre 300ms si tu veux
+        debounceTime(0),
         distinctUntilChanged(),
         takeUntil(this.destroy$)
       )
       .subscribe(term => {
         this.searchTerm = term.trim();
-        this.page = 0;           // reset page à chaque nouvelle recherche
+        this.page = 0;
         this.loadProjects();
       });
   }
@@ -126,8 +139,6 @@ export class ProjectListComponent implements OnInit, OnDestroy {
       filters['search'] = this.searchTerm.trim();
     }
 
-    // 🔐 Filtrer par type d'environnement si le backend a un champ correspondant
-    // Si ProjetEntity contient `typeCode`, ça sera pris en compte par EntitySpecification
     if (this.typeCode) {
       filters['typeCode'] = this.typeCode;
     }
@@ -135,9 +146,6 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     return filters;
   }
 
-  // ----------------------------------------------------
-  // Chargement des projets
-  // ----------------------------------------------------
   loadProjects(): void {
     if (!this.typeCode) {
       return;
@@ -195,11 +203,6 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     this.loadProjects();
   }
 
-  // ----------------------------------------------------
-  // Actions
-  // ----------------------------------------------------
-  // 👉 NE NAVIGUE PLUS SUR LE CLICK DE LA LIGNE
-  // Seule l'action "Consulter" amène vers les environnements
   openProject(project: ProjectDTO): void {
     this.router.navigate([project.id, 'environments'], {
       relativeTo: this.route

@@ -10,7 +10,82 @@
 // ============================================================================
 // 📋 PAGE HEADER
 // ============================================================================
+// Bannière admin
+.admin-notice {
+  margin-bottom: var(--spacing-lg);
+  background: linear-gradient(135deg, rgba(255, 152, 0, 0.1), rgba(255, 193, 7, 0.05));
+  border-left: 4px solid #ff9800;
 
+  .notice-content {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+    padding: var(--spacing-sm);
+
+    .notice-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      color: #f57c00;
+      flex-shrink: 0;
+    }
+
+    .notice-text {
+      flex: 1;
+
+      strong {
+        display: block;
+        font-size: 1.1rem;
+        color: #e65100;
+        margin-bottom: var(--spacing-xs);
+        font-weight: 600;
+      }
+
+      p {
+        margin: 0;
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+    }
+  }
+}
+
+// Message info dans les actions
+.admin-hint {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  color: var(--color-warning);
+  font-size: 0.9rem;
+  margin-left: var(--spacing-md);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+// Checkboxes désactivées avec style spécial pour admin
+.env-type-checkbox,
+.actions-checkboxes mat-checkbox {
+  &.mat-mdc-checkbox-disabled {
+    opacity: 0.8;
+
+    // Si coché ET désactivé (cas admin)
+    &.mat-mdc-checkbox-checked {
+      .mdc-checkbox__background {
+        border-color: var(--color-primary) !important;
+        background-color: var(--color-primary) !important;
+      }
+    }
+
+    .mdc-label {
+      color: var(--text-primary) !important;
+    }
+  }
+}
 .page-header {
   padding: var(--space-6);
   background: var(--bg-elevated);
