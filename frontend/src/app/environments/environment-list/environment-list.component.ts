@@ -1,4 +1,4 @@
-// CODE COMPLET DE LA VERSION CORRIGÉE
+// src/app/environments/environment-list/environment-list.component.ts
 
 import {
   Component, OnInit, ChangeDetectorRef, OnDestroy, ViewChild
@@ -17,12 +17,11 @@ import {
   EnvironmentDTO, ProjectDTO
 } from '../models/environment.model';
 
-
-import {PaginatedResponse, PaginationRequest, ProjectService, SortDirection} from '../services/project.service';
+import { ProjectService, SortDirection } from '../services/project.service';
 import { EnvironmentDialogComponent } from '../components/dialogs/environment-dialog/environment-dialog.component';
 import { ConfirmDialogComponent } from '../../users/confirm-dialog/confirm-dialog.component';
-import {EnvironmentService} from '../services/environment.service';
-import {AuthContextService} from '../../auth/services/auth-context.service';
+import { EnvironmentService } from '../services/environment.service';
+import { AuthContextService } from '../../auth/services/auth-context.service';
 
 @Component({
   selector: 'app-environment-list',
@@ -68,21 +67,7 @@ export class EnvironmentListComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private authContext: AuthContextService
   ) {}
-  canCreateEnvironment(): boolean {
-    return this.authContext.canAccessProject(this.projectId, 'CREATE');
-  }
 
-  canUpdateEnvironment(): boolean {
-    return this.authContext.canAccessProject(this.projectId, 'UPDATE');
-  }
-
-  canDeleteEnvironment(): boolean {
-    return this.authContext.canAccessProject(this.projectId, 'DELETE');
-  }
-
-  canConsultEnvironment(): boolean {
-    return this.authContext.canAccessProject(this.projectId, 'CONSULT');
-  }
   ngOnInit(): void {
     this.initSearchListener();
 
@@ -108,13 +93,32 @@ export class EnvironmentListComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // -----------------------------
+  // ============================================
+  // PERMISSION CHECKS
+  // ============================================
+  canCreateEnvironment(): boolean {
+    return this.authContext.canAccessProject(this.projectId, 'CREATE');
+  }
+
+  canUpdateEnvironment(): boolean {
+    return this.authContext.canAccessProject(this.projectId, 'UPDATE');
+  }
+
+  canDeleteEnvironment(): boolean {
+    return this.authContext.canAccessProject(this.projectId, 'DELETE');
+  }
+
+  canConsultEnvironment(): boolean {
+    return this.authContext.canAccessProject(this.projectId, 'CONSULT');
+  }
+
+  // ============================================
   // SEARCH
-  // -----------------------------
+  // ============================================
   private initSearchListener(): void {
     this.searchSubject
       .pipe(
-        debounceTime(0),
+        debounceTime(300),
         distinctUntilChanged(),
         takeUntil(this.destroy$)
       )
@@ -134,28 +138,20 @@ export class EnvironmentListComponent implements OnInit, OnDestroy {
     this.searchSubject.next('');
   }
 
-  private buildFilters(): Record<string, any> {
-    const f: Record<string, any> = {};
-
-    if (this.searchTerm) f['search'] = this.searchTerm;
-    f['typeCode'] = this.typeCode;
-    f['projetId'] = this.projectId;
-
-    return f;
-  }
-
-  // -----------------------------
+  // ============================================
   // LOAD
-  // -----------------------------
+  // ============================================
   loadProject() {
     this.projectService.getById(this.projectId).subscribe({
-      next: p => (this.project = p),
+      next: p => {
+        this.project = p;
+        this.cdr.markForCheck();
+      },
       error: () => (this.project = undefined)
     });
   }
 
   loadEnvironments(): void {
-
     this.loading = true;
     this.cdr.markForCheck();
 
@@ -170,7 +166,7 @@ export class EnvironmentListComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (envs) => {
           this.environments = envs;
-          this.totalElements = envs.length; // pas de pagination backend pour ce cas
+          this.totalElements = envs.length;
         },
         error: () => {
           this.snackBar.open('❌ Erreur lors du chargement des environnements', 'Fermer', {
@@ -179,7 +175,6 @@ export class EnvironmentListComponent implements OnInit, OnDestroy {
         }
       });
   }
-
 
   onPageChange(e: PageEvent): void {
     this.page = e.pageIndex;
@@ -198,9 +193,9 @@ export class EnvironmentListComponent implements OnInit, OnDestroy {
     this.loadEnvironments();
   }
 
-  // -----------------------------
+  // ============================================
   // ACTIONS
-  // -----------------------------
+  // ============================================
   openEnvironment(env: EnvironmentDTO) {
     this.router.navigate([env.id, 'applications'], { relativeTo: this.route });
   }
@@ -228,15 +223,24 @@ export class EnvironmentListComponent implements OnInit, OnDestroy {
       width: '400px',
       data: {
         title: 'Confirmer la suppression',
-        message: `Supprimer l'environnement "${env.libelle}" ?`
+        message: `Supprimer l'environnement "${env.libelle}" ?`,
+        confirmText: 'Supprimer',
+        cancelText: 'Annuler'
       }
     });
 
     ref.afterClosed().subscribe(yes => {
       if (yes) {
         this.envService.delete(env.id).subscribe({
-          next: () => this.loadEnvironments(),
-          error: () => this.snackBar.open('❌ Erreur suppression', 'Fermer')
+          next: () => {
+            this.snackBar.open('✅ Environnement supprimé avec succès', 'Fermer', {
+              duration: 3000
+            });
+            this.loadEnvironments();
+          },
+          error: () => this.snackBar.open('❌ Erreur suppression', 'Fermer', {
+            duration: 3000
+          })
         });
       }
     });

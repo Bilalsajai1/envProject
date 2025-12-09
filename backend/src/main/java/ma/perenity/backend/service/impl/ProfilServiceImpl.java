@@ -1,7 +1,6 @@
 package ma.perenity.backend.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import ma.perenity.backend.dto.*;
 import ma.perenity.backend.entities.*;
 import ma.perenity.backend.entities.enums.ActionType;

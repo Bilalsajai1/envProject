@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="manar-tools@10.20.20.7" uuid="826aa75d-6c96-4c5c-8960-6ab4ec898720">
+    <data-source source="LOCAL" name="manar-tools@10.20.20.7" uuid="0ea442fd-4a91-459d-8537-9230c7a9da13">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>

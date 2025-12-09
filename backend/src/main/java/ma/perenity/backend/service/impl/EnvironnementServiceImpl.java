@@ -20,7 +20,6 @@ import ma.perenity.backend.service.PermissionService;
 import ma.perenity.backend.specification.EntitySpecification;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 

@@ -1,3 +1,5 @@
+// src/app/environments/application-list/application-list.component.ts
+
 import {
   ChangeDetectorRef,
   Component,
@@ -15,6 +17,7 @@ import { EnvApplicationDTO } from '../models/environment.model';
 
 import { ConfirmDialogComponent } from '../../users/confirm-dialog/confirm-dialog.component';
 import { ApplicationDialogComponent } from '../components/dialogs/application-dialog/application-dialog.component';
+import { AuthContextService } from '../../auth/services/auth-context.service';
 
 @Component({
   selector: 'app-application-list',
@@ -53,7 +56,8 @@ export class ApplicationListComponent implements OnInit, OnDestroy {
     private applicationService: ApplicationService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private authContext: AuthContextService
   ) {}
 
   ngOnInit(): void {
@@ -66,13 +70,28 @@ export class ApplicationListComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // --------------------------------------------
-  // SEARCH LISTENER
-  // --------------------------------------------
+  // ============================================
+  // PERMISSION CHECKS
+  // ============================================
+  canCreateApplication(): boolean {
+    return this.authContext.canAccessProject(this.projectId, 'CREATE');
+  }
+
+  canUpdateApplication(): boolean {
+    return this.authContext.canAccessProject(this.projectId, 'UPDATE');
+  }
+
+  canDeleteApplication(): boolean {
+    return this.authContext.canAccessProject(this.projectId, 'DELETE');
+  }
+
+  // ============================================
+  // SEARCH
+  // ============================================
   private initSearchListener(): void {
     this.searchSubject
       .pipe(
-        debounceTime(200),
+        debounceTime(300),
         distinctUntilChanged(),
         takeUntil(this.destroy$)
       )
@@ -91,9 +110,9 @@ export class ApplicationListComponent implements OnInit, OnDestroy {
     this.searchSubject.next('');
   }
 
-  // --------------------------------------------
-  // INIT ROUTE PARAMS
-  // --------------------------------------------
+  // ============================================
+  // INIT
+  // ============================================
   private initializeComponent(): void {
     const typeParamRoute =
       this.route.parent?.parent?.parent ||
@@ -112,9 +131,9 @@ export class ApplicationListComponent implements OnInit, OnDestroy {
     this.loadApplications();
   }
 
-  // --------------------------------------------
-  // LOAD APPLICATIONS
-  // --------------------------------------------
+  // ============================================
+  // LOAD
+  // ============================================
   private loadApplications(): void {
     this.loading = true;
     this.cdr.markForCheck();
@@ -130,13 +149,14 @@ export class ApplicationListComponent implements OnInit, OnDestroy {
         error: () => {
           this.snackBar.open('❌ Erreur lors du chargement', 'Fermer', { duration: 3000 });
           this.loading = false;
+          this.cdr.markForCheck();
         }
       });
   }
 
-  // --------------------------------------------
+  // ============================================
   // ACTIONS
-  // --------------------------------------------
+  // ============================================
   addApplication(): void {
     const dialogRef = this.dialog.open(ApplicationDialogComponent, {
       width: '700px',
@@ -169,7 +189,9 @@ export class ApplicationListComponent implements OnInit, OnDestroy {
       width: '400px',
       data: {
         title: 'Supprimer l\'application',
-        message: `Voulez-vous vraiment supprimer "${app.applicationLibelle}" ?`
+        message: `Voulez-vous vraiment supprimer "${app.applicationLibelle}" ?`,
+        confirmText: 'Supprimer',
+        cancelText: 'Annuler'
       }
     });
 
@@ -177,11 +199,15 @@ export class ApplicationListComponent implements OnInit, OnDestroy {
       if (confirmed) {
         this.applicationService.delete(app.id).subscribe({
           next: () => {
-            this.snackBar.open('Application supprimée ✔', 'Fermer', { duration: 3000 });
+            this.snackBar.open('✅ Application supprimée avec succès', 'Fermer', {
+              duration: 3000
+            });
             this.loadApplications();
           },
           error: () => {
-            this.snackBar.open('❌ Erreur lors de la suppression', 'Fermer', { duration: 3000 });
+            this.snackBar.open('❌ Erreur lors de la suppression', 'Fermer', {
+              duration: 3000
+            });
           }
         });
       }

@@ -3,8 +3,17 @@
 // ============================================================================
 
 .profil-list-page {
-  max-width: 1400px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 20px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 64px - 32px);
 }
 
 // ============================================================================
@@ -15,57 +24,40 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--space-6);
-  gap: var(--space-4);
-  padding: var(--space-6);
-  background: var(--bg-elevated);
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--border-color);
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    padding: var(--space-4);
-  }
+  gap: 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-strong);
 }
 
 .page-title-block {
-  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
 
-  h1 {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    font-size: var(--text-2xl);
-    font-weight: var(--font-bold);
-    color: var(--text-primary);
-    margin: 0 0 var(--space-1) 0;
-  }
+.page-title-block h1 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
 
-  .subtitle {
-    font-size: var(--text-sm);
-    color: var(--text-secondary);
-    margin: 0;
-  }
+.subtitle {
+  margin: 0;
+  color: var(--text-muted);
 }
 
 .header-icon {
-  color: var(--brand-primary);
-  font-size: 28px;
-  width: 28px;
-  height: 28px;
+  color: var(--accent-strong);
 }
 
 .add-button {
-  height: var(--button-height-lg);
-  font-weight: var(--font-medium);
-
-  ::ng-deep .mat-icon {
-    margin-right: var(--space-2);
-  }
-
-  @media (max-width: 768px) {
-    width: 100%;
-  }
+  box-shadow: var(--shadow-soft);
 }
 
 // ============================================================================
@@ -73,14 +65,10 @@
 // ============================================================================
 
 .data-card {
-  background: var(--bg-elevated);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--border-color);
-
-  ::ng-deep .mat-mdc-card-content {
-    padding: 0;
-  }
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
 }
 
 // ============================================================================
@@ -88,77 +76,24 @@
 // ============================================================================
 
 .search-toolbar {
-  padding: var(--space-6);
-  border-bottom: 1px solid var(--divider-color);
   display: flex;
-  align-items: center;
-  gap: var(--space-4);
   flex-wrap: wrap;
-
-  @media (max-width: 768px) {
-    padding: var(--space-4);
-    flex-direction: column;
-    align-items: stretch;
-  }
+  gap: 12px;
+  padding: 12px 0 16px;
+  border-bottom: 1px solid var(--border);
 }
 
 .search-field {
   flex: 1;
-  min-width: 300px;
-
-  @media (max-width: 768px) {
-    min-width: 100%;
-  }
-
-  ::ng-deep {
-    .mat-mdc-text-field-wrapper {
-      background: var(--bg-primary);
-    }
-
-    input {
-      color: var(--text-primary);
-    }
-  }
+  min-width: 260px;
 }
 
 .results-info {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  background: var(--bg-tertiary);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-color);
-
-  @media (max-width: 768px) {
-    width: 100%;
-  }
-
-  .mat-icon {
-    color: var(--brand-primary);
-    flex-shrink: 0;
-  }
-}
-
-.results-text {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-
-.results-label {
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  color: var(--text-primary);
-}
-
-.results-sub {
-  font-size: var(--text-xs);
-  color: var(--text-secondary);
-
-  strong {
-    color: var(--brand-primary);
-  }
+  gap: 8px;
+  color: var(--text-muted);
+  font-weight: 600;
 }
 
 // ============================================================================
@@ -168,82 +103,35 @@
 .table-container {
   overflow-x: auto;
   min-height: 400px;
-
-  &::-webkit-scrollbar {
-    height: 8px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: var(--bg-secondary);
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: var(--neutral-400);
-    border-radius: var(--radius-full);
-  }
+  border: 1px solid #111;
+  border-radius: 6px;
+  background: var(--surface-strong);
 }
 
 .profils-table {
   width: 100%;
-  background: transparent;
-  border-collapse: separate;
-  border-spacing: 0;
+  border-collapse: collapse;
+}
 
-  ::ng-deep {
-    .mat-mdc-header-row {
-      background: var(--bg-secondary);
-    }
+::ng-deep .profils-table .mat-mdc-header-row {
+  background: linear-gradient(180deg, var(--surface-strong), var(--surface));
+}
 
-    .mat-mdc-header-cell {
-      font-size: var(--text-xs);
-      font-weight: var(--font-bold);
-      text-transform: uppercase;
-      color: var(--text-secondary);
-      padding: var(--space-4);
-      border-bottom: 2px solid var(--divider-color);
-      border-right: 1px solid var(--divider-color);
+::ng-deep .profils-table .mat-mdc-header-cell {
+  color: var(--text-main);
+  font-weight: 700;
+  padding: 10px 12px;
+  border: 1px solid #111;
+}
 
-      &:first-child {
-        padding-left: var(--space-6);
-        border-left: none;
-      }
+::ng-deep .profils-table .mat-mdc-cell {
+  color: var(--text-main);
+  padding: 12px 12px;
+  border: 1px solid #111;
+}
 
-      &:last-child {
-        padding-right: var(--space-6);
-        border-right: none;
-      }
-    }
-
-    .mat-mdc-row {
-      transition: background-color var(--transition-fast);
-
-      &:hover {
-        background: var(--bg-secondary);
-      }
-    }
-
-    .mat-mdc-cell {
-      padding: var(--space-4);
-      font-size: var(--text-sm);
-      color: var(--text-primary);
-      border-bottom: 1px solid var(--divider-color);
-      border-right: 1px solid var(--divider-color);
-
-      &:first-child {
-        padding-left: var(--space-6);
-        border-left: none;
-      }
-
-      &:last-child {
-        padding-right: var(--space-6);
-        border-right: none;
-      }
-
-      strong {
-        font-weight: var(--font-semibold);
-      }
-    }
-  }
+::ng-deep .profils-table .mat-mdc-row:hover .mat-mdc-cell {
+  background: var(--surface-strong);
 }
 
 // ============================================================================
@@ -252,14 +140,14 @@
 
 .profil-code {
   display: inline-flex;
-  padding: var(--space-1) var(--space-3);
-  background: var(--neutral-200);
-  color: var(--neutral-800);
-  border-radius: var(--radius-md);
-  font-size: var(--text-xs);
-  font-weight: var(--font-semibold);
-  font-family: var(--font-mono);
-  border: 1px solid var(--neutral-300);
+  padding: 4px 10px;
+  background: rgba(29, 164, 255, 0.14);
+  color: var(--text-main);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  border: 1px solid rgba(29, 164, 255, 0.28);
 }
 
 [data-theme="dark"] .profil-code {
@@ -278,12 +166,12 @@
   gap: var(--space-1);
   height: 24px;
   padding: 0 var(--space-3);
-  background: linear-gradient(135deg, var(--color-warning), var(--color-warning-dark));
-  color: var(--text-inverse);
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #fff;
   font-size: var(--text-xs);
   font-weight: var(--font-bold);
   border-radius: var(--radius-full);
-  box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+  box-shadow: 0 4px 10px rgba(245, 158, 11, 0.35);
 
   ::ng-deep .mat-mdc-chip-action-label {
     color: var(--text-inverse);
@@ -309,12 +197,12 @@
   gap: var(--space-1);
   height: 24px;
   padding: 0 var(--space-3);
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
+  background: rgba(29, 164, 255, 0.1);
+  color: var(--text-main);
   font-size: var(--text-xs);
   font-weight: var(--font-semibold);
   border-radius: var(--radius-full);
-  border: 1px solid var(--border-color);
+  border: 1px solid rgba(29, 164, 255, 0.25);
 
   ::ng-deep .mat-mdc-chip-action-label {
     color: var(--text-primary);
@@ -339,12 +227,12 @@
   gap: var(--space-1);
   height: 24px;
   padding: 0 var(--space-3);
-  background: var(--color-success-bg);
-  color: var(--color-success-dark);
+  background: rgba(16, 185, 129, 0.16);
+  color: #0f766e;
   font-weight: var(--font-semibold);
   font-size: var(--text-xs);
   border-radius: var(--radius-full);
-  border: 1px solid var(--color-success);
+  border: 1px solid rgba(16, 185, 129, 0.32);
 
   ::ng-deep .mat-mdc-chip-action-label {
     color: var(--color-success-dark);
@@ -365,12 +253,12 @@
   gap: var(--space-1);
   height: 24px;
   padding: 0 var(--space-3);
-  background: var(--color-error-bg);
-  color: var(--color-error-dark);
+  background: rgba(239, 68, 68, 0.16);
+  color: #b91c1c;
   font-weight: var(--font-semibold);
   font-size: var(--text-xs);
   border-radius: var(--radius-full);
-  border: 1px solid var(--color-error);
+  border: 1px solid rgba(239, 68, 68, 0.32);
 
   ::ng-deep .mat-mdc-chip-action-label {
     color: var(--color-error-dark);
@@ -401,6 +289,7 @@
   height: 36px;
   border-radius: var(--radius-md);
   transition: all var(--transition-fast);
+  color: var(--text-main);
 
   ::ng-deep .mat-icon {
     font-size: 20px;
@@ -410,11 +299,11 @@
 
   // Bouton PERMISSIONS - VIOLET
   &.permissions {
-    color: var(--brand-secondary);
+    color: #8b5cf6;
 
     &:hover {
-      background: rgba(236, 72, 153, 0.1);
-      color: var(--brand-secondary-dark);
+      background: rgba(139, 92, 246, 0.12);
+      color: #6d28d9;
     }
 
     ::ng-deep .mat-icon {
@@ -428,11 +317,11 @@
 
   // Bouton MODIFIER - VERT
   &.edit {
-    color: var(--color-success);
+    color: #16a34a;
 
     &:hover {
-      background: var(--color-success-bg);
-      color: var(--color-success-dark);
+      background: rgba(22, 163, 74, 0.12);
+      color: #15803d;
     }
 
     ::ng-deep .mat-icon {
@@ -446,11 +335,11 @@
 
   // Bouton SUPPRIMER - ROUGE
   &.delete {
-    color: var(--color-error);
+    color: #dc2626;
 
     &:hover {
-      background: var(--color-error-bg);
-      color: var(--color-error-dark);
+      background: rgba(220, 38, 38, 0.12);
+      color: #b91c1c;
     }
 
     ::ng-deep .mat-icon {

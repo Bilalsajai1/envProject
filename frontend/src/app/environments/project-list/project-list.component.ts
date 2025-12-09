@@ -31,7 +31,7 @@ import {
 } from '../services/project.service';
 import { ProjectDialogComponent } from '../components/dialogs/project-dialog/project-dialog.component';
 import { ConfirmDialogComponent } from '../../users/confirm-dialog/confirm-dialog.component';
-import { AuthContextService } from '../../auth/services/auth-context.service'; // ✅ AJOUTER
+import { AuthContextService } from '../../auth/services/auth-context.service';
 
 @Component({
   selector: 'app-project-list',
@@ -50,14 +50,17 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   projects: ProjectDTO[] = [];
   displayedColumns: string[] = ['code', 'libelle', 'description', 'actif', 'actions'];
 
+  // Pagination
   page = 0;
   size = 10;
   readonly pageSizeOptions: number[] = [5, 10, 20, 50];
   totalElements = 0;
 
+  // Tri
   sortField = 'id';
   sortDirection: SortDirection = 'asc';
 
+  // Recherche
   searchTerm = '';
   private readonly searchSubject = new Subject<string>();
 
@@ -71,7 +74,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     private readonly dialog: MatDialog,
     private readonly snackBar: MatSnackBar,
     private readonly cdr: ChangeDetectorRef,
-    private readonly authContext: AuthContextService // ✅ AJOUTER
+    private readonly authContext: AuthContextService
   ) {}
 
   ngOnInit(): void {
@@ -91,7 +94,9 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // ✅ AJOUTER : Méthodes de vérification des permissions
+  // ============================================
+  // PERMISSION CHECKS
+  // ============================================
   canCreateProject(): boolean {
     const ctx = this.authContext.getCurrentContext();
     return ctx?.user?.admin ?? false;
@@ -109,10 +114,13 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     return this.authContext.canAccessProject(projectId, 'CONSULT');
   }
 
+  // ============================================
+  // SEARCH
+  // ============================================
   private initSearchListener(): void {
     this.searchSubject
       .pipe(
-        debounceTime(0),
+        debounceTime(300),
         distinctUntilChanged(),
         takeUntil(this.destroy$)
       )
@@ -146,6 +154,9 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     return filters;
   }
 
+  // ============================================
+  // LOAD PROJECTS
+  // ============================================
   loadProjects(): void {
     if (!this.typeCode) {
       return;
@@ -186,6 +197,9 @@ export class ProjectListComponent implements OnInit, OnDestroy {
       });
   }
 
+  // ============================================
+  // PAGINATION & SORTING
+  // ============================================
   onPageChange(event: PageEvent): void {
     this.page = event.pageIndex;
     this.size = event.pageSize;
@@ -203,6 +217,9 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     this.loadProjects();
   }
 
+  // ============================================
+  // ACTIONS
+  // ============================================
   openProject(project: ProjectDTO): void {
     this.router.navigate([project.id, 'environments'], {
       relativeTo: this.route
