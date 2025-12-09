@@ -74,6 +74,7 @@ public class UtilisateurServiceImpl implements UtilisateurService {
                 .keycloakId(keycloakUserId)
                 .actif(dto.getActif() != null ? dto.getActif() : true)
                 .profil(profil)
+                .isDeleted(false)
                 .build();
 
         return userMapper.toDto(utilisateurRepository.save(entity));
@@ -90,7 +91,7 @@ public class UtilisateurServiceImpl implements UtilisateurService {
         if (entity.getKeycloakId() != null) {
             keycloakService.updateUser(
                     entity.getKeycloakId(),
-                    entity.getCode(),          // 🔥 Toujours garder le username original
+                    entity.getCode(),
                     dto.getFirstName(),
                     dto.getLastName(),
                     dto.getEmail(),
@@ -122,7 +123,7 @@ public class UtilisateurServiceImpl implements UtilisateurService {
         }
 
         entity.setActif(false);
-        entity.setIsDeleted(true); // <── AJOUT ICI
+        entity.setIsDeleted(true);
         utilisateurRepository.save(entity);
     }
 
