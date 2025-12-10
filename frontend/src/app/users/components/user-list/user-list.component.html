@@ -8,10 +8,12 @@
       </div>
     </div>
     <div class="head-actions">
-      <button mat-stroked-button class="ghost-btn" (click)="clearSearch()" *ngIf="searchTerm">
-        <mat-icon>refresh</mat-icon>
-        Réinitialiser
-      </button>
+      @if (searchTerm) {
+        <button mat-stroked-button class="ghost-btn" (click)="clearSearch()">
+          <mat-icon>refresh</mat-icon>
+          Réinitialiser
+        </button>
+      }
       <button mat-raised-button color="primary" class="add-btn" (click)="addUser()">
         <mat-icon>person_add</mat-icon>
         Nouvel utilisateur
@@ -27,14 +29,18 @@
         [value]="searchTerm"
         (input)="onSearchChange($any($event.target).value)"
         placeholder="Rechercher par code, nom, email ou profil" />
-      <button *ngIf="searchTerm" (click)="clearSearch()" aria-label="Effacer">
-        <mat-icon>close</mat-icon>
-      </button>
+      @if (searchTerm) {
+        <button (click)="clearSearch()" aria-label="Effacer">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
     </div>
-    <div class="stat-line" *ngIf="!loading">
-      <mat-icon>insights</mat-icon>
-      <span>{{ resultsLabel }}</span>
-    </div>
+    @if (!loading) {
+      <div class="stat-line">
+        <mat-icon>insights</mat-icon>
+        <span>{{ resultsLabel }}</span>
+      </div>
+    }
   </section>
 
   <section class="panel table-panel">
@@ -66,26 +72,29 @@
         <ng-container matColumnDef="email">
           <th mat-header-cell *matHeaderCellDef>Email</th>
           <td mat-cell *matCellDef="let user">
-            <a *ngIf="user.email"
-               [href]="'mailto:' + user.email"
-               class="email-link"
-               matTooltip="{{ user.email }}">
-              {{ user.email }}
-            </a>
-            <span *ngIf="!user.email" class="email-missing">—</span>
+            @if (user.email) {
+              <a [href]="'mailto:' + user.email"
+                 class="email-link"
+                 matTooltip="{{ user.email }}">
+                {{ user.email }}
+              </a>
+            } @else {
+              <span class="email-missing">—</span>
+            }
           </td>
         </ng-container>
 
         <ng-container matColumnDef="profilLibelle">
           <th mat-header-cell *matHeaderCellDef>Profil</th>
           <td mat-cell *matCellDef="let user">
-            <mat-chip class="profil-chip" *ngIf="user.profilLibelle; else noProfil">
-              <mat-icon>workspace_premium</mat-icon>
-              {{ user.profilLibelle }}
-            </mat-chip>
-            <ng-template #noProfil>
+            @if (user.profilLibelle) {
+              <mat-chip class="profil-chip">
+                <mat-icon>workspace_premium</mat-icon>
+                {{ user.profilLibelle }}
+              </mat-chip>
+            } @else {
               <span class="profil-missing">Aucun profil</span>
-            </ng-template>
+            }
           </td>
         </ng-container>
 
@@ -119,28 +128,33 @@
         </tr>
       </table>
 
-      <div class="empty-state" *ngIf="isEmpty">
-        <mat-icon>person_off</mat-icon>
-        <p>Aucun utilisateur trouvé</p>
-        <p class="empty-hint">
-          {{ searchTerm ? 'Essayez d’autres mots-clés' : 'Ajoutez votre premier utilisateur' }}
-        </p>
-      </div>
+      @if (isEmpty) {
+        <div class="empty-state">
+          <mat-icon>person_off</mat-icon>
+          <p>Aucun utilisateur trouvé</p>
+          <p class="empty-hint">
+            {{ searchTerm ? 'Essayez d'autres mots-clés' : 'Ajoutez votre premier utilisateur' }}
+          </p>
+        </div>
+      }
 
-      <div class="loading-overlay" *ngIf="loading">
-        <mat-progress-spinner mode="indeterminate" diameter="48"></mat-progress-spinner>
-        <p>Chargement des utilisateurs...</p>
-      </div>
+      @if (loading) {
+        <div class="loading-overlay">
+          <mat-progress-spinner mode="indeterminate" diameter="48"></mat-progress-spinner>
+          <p>Chargement des utilisateurs...</p>
+        </div>
+      }
     </div>
 
-    <mat-paginator
-      *ngIf="!isEmpty"
-      [length]="totalElements"
-      [pageSize]="size"
-      [pageIndex]="page"
-      [pageSizeOptions]="pageSizeOptions"
-      showFirstLastButtons
-      (page)="onPageChange($event)">
-    </mat-paginator>
+    @if (!isEmpty) {
+      <mat-paginator
+        [length]="totalElements"
+        [pageSize]="size"
+        [pageIndex]="page"
+        [pageSizeOptions]="pageSizeOptions"
+        showFirstLastButtons
+        (page)="onPageChange($event)">
+      </mat-paginator>
+    }
   </section>
 </div>

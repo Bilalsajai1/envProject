@@ -4,6 +4,7 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 import { AuthGuard } from './auth/guards/auth-guard';
+import { EnvironmentAccessGuard } from './environments/guards/environment-access.guard';
 
 // === Administration ===
 import { UserListComponent } from './users/components/user-list/user-list.component';
@@ -100,11 +101,11 @@ const routes: Routes = [
       // ==========================
       // ENVIRONNEMENTS
       // ==========================
-      {
-        path: 'env/:typeCode',
-        component: EnvironmentTypeLayoutComponent,
-        canActivate: [AuthGuard],
-        children: [
+  {
+    path: 'env/:typeCode',
+    component: EnvironmentTypeLayoutComponent,
+    canActivate: [AuthGuard, EnvironmentAccessGuard],
+    children: [
           // Liste des projets
           {
             path: '',

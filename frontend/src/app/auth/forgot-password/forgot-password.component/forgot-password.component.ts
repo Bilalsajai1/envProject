@@ -1,5 +1,5 @@
 // src/app/auth/forgot-password/forgot-password.component.ts
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -12,10 +12,11 @@ import {PasswordResetService} from '../../services/password-reset.service';
   styleUrls: ['./forgot-password.component.scss'],
   standalone: false
 })
-export class ForgotPasswordComponent implements OnDestroy {
+export class ForgotPasswordComponent implements OnInit, OnDestroy {
   form: FormGroup;
   loading = false;
   success = false;
+  currentTheme: 'light' | 'dark' = 'light';
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -29,9 +30,30 @@ export class ForgotPasswordComponent implements OnDestroy {
     });
   }
 
+  ngOnInit(): void {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark' || savedTheme === 'light') {
+      this.applyTheme(savedTheme as 'dark' | 'light');
+    } else {
+      this.applyTheme('light');
+    }
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  toggleTheme(): void {
+    const next = this.currentTheme === 'light' ? 'dark' : 'light';
+    this.applyTheme(next);
+  }
+
+  private applyTheme(theme: 'light' | 'dark') {
+    this.currentTheme = theme;
+    document.documentElement.setAttribute('data-theme', theme);
+    document.body.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
   }
 
   submit(): void {

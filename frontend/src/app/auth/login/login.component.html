@@ -1,119 +1,131 @@
-﻿<div class="login-screen">
-  <img src="assets/images/image.jpg" alt="Perenity background" class="login-bg" />
-  <div class="login-overlay"></div>
+<div class="auth-container">
+  <!-- Background Image -->
+  <div class="background-image"></div>
 
-  <div class="login-card-wrapper">
-    <button class="theme-toggle" type="button" (click)="toggleTheme()">
+  <!-- Background Overlay -->
+  <div class="background-overlay"></div>
+
+  <!-- Theme Toggle -->
+  <button class="theme-toggle-btn" (click)="toggleTheme()" type="button">
+    <div class="toggle-icon-wrapper">
       @if (currentTheme === 'light') {
-        <mat-icon>dark_mode</mat-icon>
+        <mat-icon class="icon-sun">wb_sunny</mat-icon>
       } @else {
-        <mat-icon>light_mode</mat-icon>
+        <mat-icon class="icon-moon">nights_stay</mat-icon>
       }
-    </button>
+    </div>
+  </button>
 
-    <div class="login-card">
-      <div class="card-header text-center border-0 bg-transparent">
-        <div class="brand solo-logo">
-          <img
-            src="assets/images/icones/logo-perenity-software.svg"
-            class="login-logo"
-            alt="Perenity Software"
-          />
+  <!-- Main Auth Card (Right Aligned) -->
+  <div class="auth-card">
+    <div class="auth-form-section">
+      <div class="logo-header">
+        <img src="assets/images/icones/logo-perenity-software.svg" alt="Perenity Software" class="company-logo" />
+      </div>
+
+      <div class="form-header">
+        <h2 class="form-title">Connexion</h2>
+        <p class="form-subtitle">Entrez vos identifiants</p>
+      </div>
+
+      @if (error) {
+        <div class="alert alert-error">
+          <mat-icon>error_outline</mat-icon>
+          <div class="alert-content">
+            <strong>Erreur</strong>
+            <p>{{ error }}</p>
+          </div>
+          <button class="alert-close" type="button" (click)="error = undefined">
+            <mat-icon>close</mat-icon>
+          </button>
         </div>
-      </div>
+      }
 
-      <div class="card-body">
-
-        @if (error) {
-          <div class="alert alert-danger mb-3">
-            <mat-icon>error_outline</mat-icon>
-            <span>{{ error }}</span>
+      <form [formGroup]="form" (ngSubmit)="submit()" class="login-form">
+        <!-- Username Field -->
+        <div class="form-group">
+          <label class="form-label">
+            <mat-icon class="label-icon">person</mat-icon>
+            Nom d'utilisateur
+          </label>
+          <div class="input-wrapper">
+            <input
+              type="text"
+              formControlName="username"
+              class="form-input"
+              placeholder="votre@email.com"
+              autocomplete="username"
+            />
+            <div class="input-border"></div>
           </div>
-        }
+          @if (form.get('username')?.touched && form.get('username')?.hasError('required')) {
+            <span class="field-error">Ce champ est obligatoire</span>
+          }
+        </div>
 
-        <form [formGroup]="form" (ngSubmit)="submit()">
-
-          <div class="mb-3">
-            <label class="form-label">Utilisateur</label>
-            <mat-form-field appearance="outline" class="w-100">
-              <mat-icon matPrefix>person</mat-icon>
-              <input
-                matInput
-                formControlName="username"
-                autocomplete="username"
-                placeholder="email@domaine.com"
-              />
-              @if (form.get('username')?.touched && form.get('username')?.hasError('required')) {
-                <mat-error>Obligatoire</mat-error>
-              }
-            </mat-form-field>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Mot de passe</label>
-            <mat-form-field appearance="outline" class="w-100">
-              <mat-icon matPrefix>lock</mat-icon>
-              <input
-                matInput
-                [type]="hidePassword ? 'password' : 'text'"
-                formControlName="password"
-                autocomplete="current-password"
-              />
-              <button
-                mat-icon-button
-                matSuffix
-                type="button"
-                (click)="hidePassword = !hidePassword"
-                [attr.aria-label]="'Masquer le mot de passe'"
-                tabindex="-1"
-              >
-                <mat-icon>
-                  {{ hidePassword ? 'visibility_off' : 'visibility' }}
-                </mat-icon>
-              </button>
-              @if (form.get('password')?.touched && form.get('password')?.hasError('required')) {
-                <mat-error>Obligatoire</mat-error>
-              }
-            </mat-form-field>
-          </div>
-
-          <div class="mb-3 text-center remember-block">
-            <mat-checkbox formControlName="rememberMe">
-              Se souvenir de moi
-            </mat-checkbox>
-            <a class="forgot-password-link" (click)="goToForgotPassword()">
-              <mat-icon>lock</mat-icon>
-              <span>Mot de passe oublié ?</span>
-            </a>
-          </div>
-
-          <div class="mb-3">
+        <!-- Password Field -->
+        <div class="form-group">
+          <label class="form-label">
+            <mat-icon class="label-icon">lock</mat-icon>
+            Mot de passe
+          </label>
+          <div class="input-wrapper">
+            <input
+              [type]="hidePassword ? 'password' : 'text'"
+              formControlName="password"
+              class="form-input"
+              placeholder="••••••••"
+              autocomplete="current-password"
+            />
             <button
-              mat-raised-button
-              color="primary"
-              class="w-100 login-button"
-              type="submit"
-              [disabled]="loading || form.invalid"
+              type="button"
+              class="input-action-btn"
+              (click)="hidePassword = !hidePassword"
+              tabindex="-1"
             >
-              @if (loading) {
-                <mat-progress-spinner
-                  diameter="20"
-                  mode="indeterminate"
-                  strokeWidth="2"
-                  class="spinner"
-                >
-                </mat-progress-spinner>
-                <span>Connexion...</span>
-              } @else {
-                <span>Connexion</span>
-              }
+              <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
             </button>
+            <div class="input-border"></div>
           </div>
-        </form>
-      </div>
+          @if (form.get('password')?.touched && form.get('password')?.hasError('required')) {
+            <span class="field-error">Ce champ est obligatoire</span>
+          }
+        </div>
 
-      <div class="card-footer text-center bg-transparent border-0">
-        <p class="mb-0">© 2025 Perenity</p>
+        <!-- Remember & Forgot -->
+        <div class="form-options">
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="rememberMe" />
+            <span class="checkbox-custom"></span>
+            <span class="checkbox-text">Se souvenir de moi</span>
+          </label>
+          <a class="link-forgot" (click)="goToForgotPassword()">
+            Mot de passe oublié ?
+          </a>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          class="btn-submit"
+          [class.loading]="loading"
+          [disabled]="loading || form.invalid"
+        >
+          @if (loading) {
+            <div class="btn-loader">
+              <div class="loader-spinner"></div>
+              <span>Connexion en cours...</span>
+            </div>
+          } @else {
+            <span class="btn-text">Se connecter</span>
+            <mat-icon class="btn-icon">arrow_forward</mat-icon>
+          }
+        </button>
+      </form>
+
+      <!-- Footer -->
+      <div class="form-footer">
+        <p class="copyright">© 2025 Perenity Software</p>
       </div>
     </div>
   </div>

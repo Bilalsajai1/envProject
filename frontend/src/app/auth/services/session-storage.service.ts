@@ -7,8 +7,9 @@ export interface StoredUser {
   refreshToken?: string;
   tokenType?: string;  // ex: "Bearer"
   expiresIn?: number;
+  expiresAt?: number;  // timestamp in ms
   username: string;
-  roles: string[];     // tu peux les laisser [] si tu préfères les récupérer via /auth/me
+  roles: string[];     // can stay empty if fetched via /auth/me
 }
 
 @Injectable({
@@ -36,7 +37,12 @@ export class SessionStorageService {
   }
 
   isAuthenticated(): boolean {
-    return !!this.userDetail?.accessToken;
+    const u = this.userDetail;
+    if (!u?.accessToken) return false;
+    if (u.expiresAt && Date.now() > u.expiresAt) {
+      return false;
+    }
+    return true;
   }
 
   get roles(): string[] {
@@ -44,6 +50,7 @@ export class SessionStorageService {
   }
 
   getAccessToken(): string | null {
+    if (!this.isAuthenticated()) return null;
     return this.userDetail?.accessToken ?? null;
   }
 }

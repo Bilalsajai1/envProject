@@ -1,8 +1,9 @@
 // src/app/auth/login/login.component.ts
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Subject, catchError, finalize, of, switchMap, takeUntil } from 'rxjs';
 import { AuthenticationService } from '../services/authentication.service';
 import { AuthContextService } from '../services/auth-context.service';
 import { SessionStorageService } from '../services/session-storage.service';
@@ -14,13 +15,14 @@ import { AuthContext } from '../models/auth-context.model';
   styleUrls: ['./login.component.scss'],
   standalone: false
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
 
   form: FormGroup;
   loading = false;
   error?: string;
   hidePassword = true;
   currentTheme: 'light' | 'dark' = 'light';
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
@@ -37,6 +39,8 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    document.body.classList.add('auth-login-page');
+
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark' || savedTheme === 'light') {
       this.applyTheme(savedTheme as 'dark' | 'light');
@@ -51,6 +55,12 @@ export class LoginComponent implements OnInit {
         rememberMe: true
       });
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    document.body.classList.remove('auth-login-page');
   }
 
   submit(): void {
@@ -70,31 +80,25 @@ export class LoginComponent implements OnInit {
       localStorage.removeItem('remembered_username');
     }
 
-    this.auth.login({ username, password }).subscribe({
-      next: () => {
-        this.authCtx.loadAuthContext().subscribe({
-          next: (ctx) => {
-            this.loading = false;
-            const target = this.getDefaultRoute(ctx);
-            console.log('🚀 Redirection vers:', target);
-            this.router.navigate([target]);
-          },
-          error: (err) => {
-            this.loading = false;
-            this.error = 'Impossible de charger le contexte utilisateur';
-            console.error('❌ Erreur chargement contexte:', err);
-          }
-        });
-      },
-      error: err => {
+    this.auth.login({ username, password }).pipe(
+      switchMap(() => this.authCtx.loadAuthContext()),
+      takeUntil(this.destroy$),
+      finalize(() => {
         this.loading = false;
-        if (err.status === 401) {
-          this.error = 'Identifiants invalides. Veuillez réessayer.';
+      }),
+      catchError(err => {
+        if (err?.status === 401) {
+          this.error = 'Identifiants invalides. Veuillez reessayer.';
         } else {
-          this.error = 'Une erreur est survenue. Veuillez réessayer plus tard.';
+          this.error = 'Une erreur est survenue. Veuillez reessayer plus tard.';
         }
-        console.error('❌ Erreur login:', err);
-      }
+        console.error('Erreur login/contexte:', err);
+        return of(null);
+      })
+    ).subscribe(ctx => {
+      if (!ctx) return;
+      const target = this.getDefaultRoute(ctx);
+      this.router.navigate([target]);
     });
   }
 
@@ -110,46 +114,33 @@ export class LoginComponent implements OnInit {
   private applyTheme(theme: 'light' | 'dark') {
     this.currentTheme = theme;
     document.documentElement.setAttribute('data-theme', theme);
+    document.body.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
   }
 
-  /**
-   * ✅ NOUVELLE LOGIQUE avec EnvironmentTypeWithProjects
-   */
   private getDefaultRoute(ctx: AuthContext | null): string {
     if (!ctx || !ctx.user) {
-      console.warn('⚠️ Pas de contexte utilisateur, retour au login');
       return '/auth/login';
     }
 
     const roles = ctx.user.roles ?? [];
 
-    // 1️⃣ Admin ou rôle d'accès aux utilisateurs → vue admin
     if (ctx.user.admin || roles.includes('ROLE_USERS_ACCESS')) {
-      console.log('✅ Utilisateur admin, redirection vers /admin/users');
       return '/admin/users';
     }
 
-    // 2️⃣ User normal → chercher le premier type d'environnement accessible
     const envTypes = ctx.environmentTypes ?? [];
-
     for (const envType of envTypes) {
       const projects = envType.projects ?? [];
-
-      // Vérifier si l'utilisateur a au moins un projet avec CONSULT
       const hasAccessibleProject = projects.some(p =>
         p.allowedActions && p.allowedActions.includes('CONSULT')
       );
 
       if (hasAccessibleProject) {
-        const route = `/env/${envType.code.toLowerCase()}`;
-        console.log(`✅ Accès trouvé au type ${envType.code}, redirection vers ${route}`);
-        return route;
+        return `/env/${envType.code.toLowerCase()}`;
       }
     }
 
-    // 3️⃣ Aucun accès trouvé
-    console.warn('⚠️ Aucun environnement accessible trouvé');
     return '/auth/access-denied';
   }
 }

@@ -19,6 +19,7 @@ import {
   debounceTime,
   distinctUntilChanged
 } from 'rxjs';
+import { Router } from '@angular/router';
 
 import { ProfilDTO, ProfilService } from '../../../services/profil.service';
 import { PaginatedResponse } from '../../../../users/models/user.model';
@@ -74,7 +75,8 @@ export class ProfilListComponent implements OnInit, OnDestroy {
     private readonly profilService: ProfilService,
     private readonly dialog: MatDialog,
     private readonly snackBar: MatSnackBar,
-    private readonly cdr: ChangeDetectorRef
+    private readonly cdr: ChangeDetectorRef,
+    private readonly router: Router
   ) {}
 
   ngOnInit(): void {
@@ -205,7 +207,11 @@ export class ProfilListComponent implements OnInit, OnDestroy {
   }
 
   configurePermissions(profil: ProfilDTO): void {
-    window.location.href = `/admin/permissions?profilId=${profil.id}`;
+    if (!profil.id) return;
+    this.router.navigate(
+      ['/admin/permissions'],
+      { queryParams: { profilId: profil.id } }
+    );
   }
 
   deleteProfil(profil: ProfilDTO): void {
@@ -226,7 +232,7 @@ export class ProfilListComponent implements OnInit, OnDestroy {
 
         this.profilService.delete(profil.id).subscribe({
           next: () => {
-            this.showSnackBar('Profil supprimé avec succès', 'success-snackbar');
+            this.showSnackBar('Profil supprime avec succes', 'success-snackbar');
             this.loadProfils();
           },
           error: () => {

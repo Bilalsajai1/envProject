@@ -72,12 +72,9 @@
       <ng-container matColumnDef="password">
         <th mat-header-cell *matHeaderCellDef>Password</th>
         <td mat-cell *matCellDef="let app">
-          <div class="password-cell" *ngIf="app.password; else noPass">
-            <span>{{ isPasswordVisible(app.id) ? app.password : '******' }}</span>
-            <button mat-icon-button type="button" (click)="togglePassword(app.id)" [matTooltip]="isPasswordVisible(app.id) ? 'Masquer' : 'Afficher'">
-              <mat-icon>{{ isPasswordVisible(app.id) ? 'visibility_off' : 'visibility' }}</mat-icon>
-            </button>
-          </div>
+          <span *ngIf="app.passwordMasked; else noPass">
+            {{ app.passwordMasked }}
+          </span>
           <ng-template #noPass>-</ng-template>
         </td>
       </ng-container>
@@ -93,7 +90,7 @@
       </ng-container>
 
       <ng-container matColumnDef="dateDerniereLivraison">
-        <th mat-header-cell *matHeaderCellDef>Dernière livraison</th>
+        <th mat-header-cell *matHeaderCellDef>Derniere livraison</th>
         <td mat-cell *matCellDef="let app">
           {{ app.dateDerniereLivraison ? (app.dateDerniereLivraison | date:'dd/MM/yyyy') : '-' }}
         </td>
@@ -133,6 +130,6 @@
 
   <div *ngIf="!loading && applications.length === 0" class="no-data">
     <mat-icon>inbox</mat-icon>
-    <p>Aucune application trouvée</p>
+    <p>Aucune application trouvee</p>
   </div>
 </div>

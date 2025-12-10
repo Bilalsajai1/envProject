@@ -1,5 +1,6 @@
 <mat-sidenav-container class="layout-container" autosize>
 
+  <!-- SIDEBAR -->
   <mat-sidenav
     mode="side"
     opened
@@ -8,106 +9,157 @@
     role="navigation"
     aria-label="Navigation principale">
 
+    <!-- Sidebar Header with Logo -->
     <div class="sidebar-header">
-      <div class="logo-container">
-        <img src="/assets/images/icones/logo-perenity-software.svg" alt="Logo Perenity" class="logo-full" />
-        <img src="/assets/images/perenity_software.png" alt="Logo Perenity" class="logo-compact" />
+      <div class="logo-wrapper">
+        @if (!isSidebarCollapsed) {
+          <img src="/assets/images/icones/logo-perenity-software.svg" alt="Logo Perenity" class="logo-full" />
+        } @else {
+          <img src="/assets/images/perenity_software.png" alt="Logo" class="logo-compact" />
+        }
       </div>
-      <button mat-icon-button class="toggle-btn" (click)="toggleSidebar()" aria-label="Basculer le menu">
-        <mat-icon>{{ isSidebarCollapsed ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+      <button
+        mat-icon-button
+        class="toggle-btn"
+        (click)="toggleSidebar()"
+        [matTooltip]="isSidebarCollapsed ? 'Ouvrir le menu' : 'Fermer le menu'"
+        matTooltipPosition="right">
+        <mat-icon>{{ isSidebarCollapsed ? 'menu_open' : 'menu' }}</mat-icon>
       </button>
     </div>
 
+    <!-- User Block -->
     @if (context?.user; as u) {
       <div class="user-block">
-        <div class="user-avatar">{{ getUserInitials() }}</div>
-        <div class="user-info">
-          <div class="user-name">{{ userDisplayName }}</div>
-          <div class="user-profil">{{ userProfilLabel || 'Profil non défini' }}</div>
-          <div class="user-email">{{ userEmail }}</div>
+        <div class="user-avatar">
+          <span>{{ getUserInitials() }}</span>
         </div>
+        @if (!isSidebarCollapsed) {
+          <div class="user-info">
+            <div class="user-name">{{ userDisplayName }}</div>
+            <div class="user-role">
+              <mat-icon class="role-icon">{{ u.admin ? 'verified_user' : 'person' }}</mat-icon>
+              <span>{{ u.admin ? 'Administrateur' : userProfilLabel }}</span>
+            </div>
+          </div>
+        }
       </div>
     }
 
+    <!-- Navigation Menu -->
     <nav class="nav-container" aria-label="Menu principal">
       <mat-nav-list class="menu-list">
 
         @if (hasAdminMenu) {
-          <div class="nav-section-label">Administration</div>
-          @for (item of visibleAdminMenu; track item.label) {
-            <a
-              mat-list-item
-              [routerLink]="item.route"
-              routerLinkActive="active"
-              [routerLinkActiveOptions]="{ exact: false }"
-              [matTooltip]="isSidebarCollapsed ? item.label : ''"
-              matTooltipPosition="right">
-              <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
-              <span class="nav-label">{{ item.label }}</span>
-            </a>
-          }
+          <div class="nav-section">
+            @if (!isSidebarCollapsed) {
+              <div class="nav-section-label">
+                <mat-icon class="section-icon">admin_panel_settings</mat-icon>
+                <span>Administration</span>
+              </div>
+            }
+            @for (item of visibleAdminMenu; track item.label) {
+              <a
+                mat-list-item
+                [routerLink]="item.route"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: false }"
+                [matTooltip]="isSidebarCollapsed ? item.label : ''"
+                matTooltipPosition="right">
+                <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+                @if (!isSidebarCollapsed) {
+                  <span class="nav-label">{{ item.label }}</span>
+                }
+              </a>
+            }
+          </div>
         }
 
         @if (hasEnvMenu) {
-          <div class="nav-section-label">Environnements</div>
-          @for (envItem of envMenu; track envItem.code) {
-            <a
-              mat-list-item
-              [routerLink]="envItem.route"
-              routerLinkActive="active"
-              [matTooltip]="isSidebarCollapsed ? envItem.label : ''"
-              matTooltipPosition="right">
-              <mat-icon class="nav-icon">cloud</mat-icon>
-              <span class="nav-label">{{ envItem.label }}</span>
-            </a>
-          }
+          <div class="nav-section">
+            @if (!isSidebarCollapsed) {
+              <div class="nav-section-label">
+                <mat-icon class="section-icon">cloud_queue</mat-icon>
+                <span>Environnements</span>
+              </div>
+            }
+            @for (envItem of envMenu; track envItem.code) {
+              <a
+                mat-list-item
+                [routerLink]="envItem.route"
+                routerLinkActive="active"
+                [matTooltip]="isSidebarCollapsed ? envItem.label : ''"
+                matTooltipPosition="right">
+                <mat-icon class="nav-icon">cloud</mat-icon>
+                @if (!isSidebarCollapsed) {
+                  <span class="nav-label">{{ envItem.label }}</span>
+                }
+              </a>
+            }
+          </div>
         }
 
       </mat-nav-list>
     </nav>
 
+    <!-- Sidebar Footer -->
     <div class="sidebar-footer">
-      <button mat-button class="logout-button" (click)="logout()">
+      <button
+        mat-button
+        class="footer-btn theme-toggle"
+        (click)="toggleDarkMode()"
+        [matTooltip]="isDarkMode ? 'Mode clair' : 'Mode sombre'"
+        matTooltipPosition="right">
+        <mat-icon>{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
+        @if (!isSidebarCollapsed) {
+          <span>{{ isDarkMode ? 'Mode clair' : 'Mode sombre' }}</span>
+        }
+      </button>
+      <button
+        mat-button
+        class="footer-btn logout-btn"
+        (click)="logout()"
+        [matTooltip]="isSidebarCollapsed ? 'Se déconnecter' : ''"
+        matTooltipPosition="right">
         <mat-icon>logout</mat-icon>
-        <span>Se déconnecter</span>
+        @if (!isSidebarCollapsed) {
+          <span>Se déconnecter</span>
+        }
       </button>
     </div>
 
   </mat-sidenav>
 
+  <!-- MAIN CONTENT -->
   <mat-sidenav-content>
+    <!-- Top Toolbar -->
     <mat-toolbar class="top-toolbar">
-      <div class="toolbar-left">
-        <mat-icon class="toolbar-logo">layers</mat-icon>
-        <div class="toolbar-text">
-          <h1 class="app-title">Environment Management</h1>
-          <span class="app-subtitle">Console d’administration</span>
+      <div class="toolbar-content">
+        <div class="toolbar-left">
+          <mat-icon class="app-icon">layers</mat-icon>
+          <div class="app-info">
+            <h1 class="app-title">Environment Management</h1>
+            <span class="app-subtitle">Gestion des environnements</span>
+          </div>
+        </div>
+
+        <div class="toolbar-right">
+          @if (context?.user; as u) {
+            <div class="user-chip">
+              <div class="chip-avatar">{{ getUserInitials() }}</div>
+              <div class="chip-info">
+                <span class="chip-name">{{ userDisplayName }}</span>
+                <span class="chip-email">{{ userEmail }}</span>
+              </div>
+            </div>
+          }
         </div>
       </div>
-
-      <span class="toolbar-spacer"></span>
-
-      @if (context?.user; as u) {
-        <div class="user-card">
-          <div class="user-avatar">{{ getUserInitials() }}</div>
-          <div class="user-details">
-            <div class="user-name">{{ userDisplayName }}</div>
-            <div class="user-role">{{ u.admin ? 'Administrateur' : 'Utilisateur' }}</div>
-          </div>
-          <div class="user-status" [class.admin-status]="u.admin">
-            <mat-icon>{{ u.admin ? 'verified_user' : 'person' }}</mat-icon>
-            <span>{{ u.admin ? 'ADMIN' : 'USER' }}</span>
-          </div>
-        </div>
-      }
-
-      <button mat-icon-button (click)="toggleDarkMode()" aria-label="Basculer le mode sombre">
-        <mat-icon>{{ isDarkMode ? 'dark_mode' : 'light_mode' }}</mat-icon>
-      </button>
     </mat-toolbar>
 
-    <main class="content">
-      <div class="content-inner">
+    <!-- Page Content -->
+    <main class="page-content">
+      <div class="content-wrapper">
         <router-outlet></router-outlet>
       </div>
     </main>

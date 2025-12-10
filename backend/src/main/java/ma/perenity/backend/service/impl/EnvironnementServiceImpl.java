@@ -93,7 +93,7 @@ public class EnvironnementServiceImpl implements EnvironnementService {
         if (!permissionService.canAccessEnvType(type.getCode(), ActionType.CREATE)
                 || !permissionService.canAccessProject(projet, ActionType.CREATE)) {
             throw new ResponseStatusException(FORBIDDEN,
-                    "Vous n'avez pas le droit de créer des environnements pour le projet " +
+                    "Vous n'avez pas le droit de creer des environnements pour le projet " +
                             projet.getCode() + " et le type " + type.getCode());
         }
 
@@ -102,7 +102,7 @@ public class EnvironnementServiceImpl implements EnvironnementService {
         env.setId(null);
         env.setProjet(projet);
         env.setType(type);
-        env.setActif(true); // par défaut actif à la création
+        env.setActif(true); // par defaut actif a la creation
 
         env = environnementRepository.save(env);
 
@@ -143,11 +143,6 @@ public class EnvironnementServiceImpl implements EnvironnementService {
     @Override
     public PaginatedResponse<EnvironnementDTO> search(PaginationRequest req) {
 
-        if (!permissionService.isAdmin()) {
-            throw new ResponseStatusException(FORBIDDEN,
-                    "La recherche globale des environnements est réservée à l'administrateur");
-        }
-
         Sort sort = req.getSortDirection().equalsIgnoreCase("desc")
                 ? Sort.by(req.getSortField()).descending()
                 : Sort.by(req.getSortField()).ascending();
@@ -158,44 +153,47 @@ public class EnvironnementServiceImpl implements EnvironnementService {
                 ? new HashMap<>(req.getFilters())
                 : new HashMap<>();
 
-        // ---------------------
-        // EXTRAIRE SEARCH
-        // ---------------------
         String search = null;
         if (rawFilters.containsKey("search")) {
             search = rawFilters.remove("search").toString().trim();
             if (search.isEmpty()) search = null;
         }
 
-        // ---------------------
-        // EXTRAIRE projetId
-        // ---------------------
         Long projetId = null;
         if (rawFilters.containsKey("projetId")) {
             projetId = Long.valueOf(rawFilters.remove("projetId").toString());
         }
 
-        // ---------------------
-        // EXTRAIRE typeCode
-        // ---------------------
         String typeCode = null;
         if (rawFilters.containsKey("typeCode")) {
             typeCode = rawFilters.remove("typeCode").toString().trim().toUpperCase();
         }
 
+        boolean isAdmin = permissionService.isAdmin();
+
+        // Non-admins can only search within a project/type they can consult
+        if (!isAdmin) {
+            if (projetId == null || typeCode == null) {
+                throw new ResponseStatusException(FORBIDDEN,
+                        "Recherche restreinte aux environnements autorises");
+            }
+            if (!permissionService.canAccessEnvType(typeCode, ActionType.CONSULT)
+                    || !permissionService.canAccessProjectById(projetId, ActionType.CONSULT)) {
+                throw new ResponseStatusException(FORBIDDEN,
+                        "Vous n'avez pas les droits pour consulter ces environnements");
+            }
+            // ignore any other raw filters for non-admins
+            rawFilters.clear();
+        }
+
         EntitySpecification<EnvironnementEntity> specBuilder = new EntitySpecification<>();
         Specification<EnvironnementEntity> spec = specBuilder.getSpecification(rawFilters);
 
-        // ---------------------
-        // FILTRE ACTIF
-        // ---------------------
+        // Always filter active
         spec = spec.and((root, query, cb) ->
                 cb.isTrue(root.get("actif"))
         );
 
-        // ---------------------
-        // FILTRE PAR PROJET
-        // ---------------------
         if (projetId != null) {
             final Long pid = projetId;
             spec = spec.and((root, query, cb) -> {
@@ -204,9 +202,6 @@ public class EnvironnementServiceImpl implements EnvironnementService {
             });
         }
 
-        // ---------------------
-        // FILTRE PAR TYPE D'ENVIRONNEMENT
-        // ---------------------
         if (typeCode != null) {
             final String tcode = typeCode;
             spec = spec.and((root, query, cb) -> {
@@ -215,9 +210,6 @@ public class EnvironnementServiceImpl implements EnvironnementService {
             });
         }
 
-        // ---------------------
-        // SEARCH GLOBAL
-        // ---------------------
         if (search != null) {
             final String term = "%" + search.toLowerCase() + "%";
             spec = spec.and((root, query, cb) -> {

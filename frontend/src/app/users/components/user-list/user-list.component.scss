@@ -1,266 +1,652 @@
+// ========================================
+// VARIABLES
+// ========================================
+$transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+$transition-fast: all 0.15s ease;
+
+// ========================================
+// LAYOUT
+// ========================================
 :host {
   display: block;
 }
 
 .user-layout {
-  width: 100%;
-  max-width: none;
-  margin: 0;
-  padding: 12px 12px 20px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  box-shadow: var(--shadow-card);
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 64px - 32px);
+  gap: 20px;
 }
 
+// ========================================
+// HEADER
+// ========================================
 .table-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 10px 8px 6px;
-  border-bottom: 1px solid var(--border);
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .head-title {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+
+  mat-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    color: #667eea;
+  }
+
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
 
   h1 {
     margin: 0;
-    font-size: 18px;
-    font-weight: 800;
-    color: var(--text-main);
+    font-size: 24px;
+    font-weight: 700;
+    color: #111827;
+    line-height: 1;
   }
 
   p {
-    margin: 2px 0 0;
-    font-size: 12px;
-    color: var(--text-muted);
+    margin: 0;
+    font-size: 14px;
+    color: #6b7280;
   }
 }
 
 .head-actions {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.ghost-btn {
-  border-color: var(--border);
-  color: var(--text-main);
-}
-
-.add-btn {
-  box-shadow: var(--shadow-soft);
-}
-
-.filter-bar {
-  margin-top: 10px;
-  padding: 8px 8px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+}
+
+::ng-deep .ghost-btn {
+  border-color: #e5e7eb !important;
+  color: #374151 !important;
+  transition: $transition-fast !important;
+
+  &:hover {
+    background: #f9fafb !important;
+    border-color: #d1d5db !important;
+  }
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+::ng-deep .add-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4) !important;
+  transition: $transition-smooth !important;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5) !important;
+  }
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+// ========================================
+// FILTER BAR
+// ========================================
+.filter-bar {
+  display: flex;
+  align-items: center;
   justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   flex-wrap: wrap;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
 }
 
 .search-control {
   flex: 1;
-  min-width: 280px;
-  display: inline-flex;
+  min-width: 300px;
+  display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  border: 1px solid var(--border);
+  gap: 10px;
+  padding: 10px 14px;
+  background: #f9fafb;
+  border: 1.5px solid #e5e7eb;
   border-radius: 10px;
-  background: var(--surface-strong);
-  box-shadow: inset 0 1px 2px rgba(0,0,0,0.04);
-}
+  transition: $transition-fast;
 
-.search-control input {
-  flex: 1;
-  border: none;
-  outline: none;
-  background: transparent;
-  color: var(--text-main);
-}
+  &:focus-within {
+    background: #ffffff;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
 
-.search-control button {
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  color: var(--text-muted);
+  mat-icon {
+    color: #9ca3af;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #111827;
+    font-size: 14px;
+    font-family: inherit;
+
+    &::placeholder {
+      color: #9ca3af;
+    }
+  }
+
+  button {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 4px;
+    color: #9ca3af;
+    transition: $transition-fast;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      color: #374151;
+      transform: scale(1.1);
+    }
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
 }
 
 .stat-line {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 6px;
-  color: var(--text-muted);
+  gap: 8px;
+  padding: 8px 14px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  border-radius: 8px;
+  color: #667eea;
   font-weight: 600;
+  font-size: 13px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+// ========================================
+// TABLE PANEL
+// ========================================
+.panel {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
 }
 
 .table-panel {
-  margin-top: 16px;
-  padding: 0;
-  overflow: hidden;
-  flex: 1;
   display: flex;
   flex-direction: column;
 }
 
 .table-wrapper {
   position: relative;
-  flex: 1;
-  border: 1px solid #111;
-  border-radius: 6px;
-  overflow: hidden;
-  background: var(--surface-strong);
+  overflow-x: auto;
+
+  &.table-blurred {
+    opacity: 0.5;
+    pointer-events: none;
+  }
 }
 
+// ========================================
+// TABLE
+// ========================================
 .users-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-::ng-deep .users-table .mat-mdc-header-row {
-  background: linear-gradient(180deg, var(--surface), var(--surface-strong));
+::ng-deep .users-table {
+  .mat-mdc-header-row {
+    background: #f9fafb;
+    border-bottom: 2px solid #e5e7eb;
+  }
+
+  .mat-mdc-header-cell {
+    color: #374151 !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 14px 16px !important;
+    border: none !important;
+  }
+
+  .mat-mdc-row {
+    border-bottom: 1px solid #f3f4f6;
+    transition: $transition-fast;
+
+    &:hover {
+      background: #f9fafb;
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .mat-mdc-cell {
+    color: #111827 !important;
+    font-size: 14px !important;
+    padding: 14px 16px !important;
+    border: none !important;
+  }
 }
 
-::ng-deep .users-table .mat-mdc-header-cell,
-::ng-deep .users-table .mat-mdc-cell {
-  color: var(--text-main);
-  font-size: 12px;
-  font-weight: 400;
-  padding: 10px 12px;
-  border: 1px solid #111;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  height: 36px;
-}
-
-::ng-deep .users-table .mat-mdc-row:hover .mat-mdc-cell {
-  background: var(--surface-strong);
-}
-
-::ng-deep .users-table .mat-mdc-row:last-child .mat-mdc-cell {
-  border-bottom: 1px solid #111;
-}
-
+// Cell specific styles
 .mono {
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  font-weight: 700;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-weight: 600;
+  color: #667eea;
+  font-size: 13px !important;
 }
 
 .email-link {
-  color: var(--accent-strong);
-}
+  color: #667eea;
+  text-decoration: none;
+  transition: $transition-fast;
 
-.email-link:hover {
-  color: var(--accent);
+  &:hover {
+    color: #764ba2;
+    text-decoration: underline;
+  }
 }
 
 .email-missing {
-  color: var(--text-muted);
+  color: #9ca3af;
   font-style: italic;
 }
 
-.profil-chip {
-  background: rgba(29, 164, 255, 0.16);
-  color: var(--text-main);
-  border-radius: 999px;
-  font-weight: 700;
-  height: 26px;
-  border: 1px solid rgba(29, 164, 255, 0.35);
-  display: inline-flex;
-  gap: 4px;
-  align-items: center;
-  padding: 0 10px;
+// ========================================
+// CHIPS & BADGES
+// ========================================
+::ng-deep .profil-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 6px 12px !important;
+  height: auto !important;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15)) !important;
+  border: 1px solid rgba(102, 126, 234, 0.3) !important;
+  border-radius: 8px !important;
+  color: #667eea !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
 }
 
 .profil-missing {
-  color: var(--text-muted);
-  font-size: 0.9rem;
+  color: #9ca3af;
+  font-size: 13px;
+  font-style: italic;
 }
 
 .status-chip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-weight: 700;
-  border: 1px solid transparent;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 12px;
+  border: 1px solid;
+  transition: $transition-fast;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
 }
 
 .status-active {
-  background: rgba(16, 185, 129, 0.14);
-  color: #0f766e;
-  border-color: rgba(16, 185, 129, 0.32);
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border-color: rgba(16, 185, 129, 0.3);
 }
 
 .status-inactive {
-  background: rgba(239, 68, 68, 0.14);
-  color: #b91c1c;
-  border-color: rgba(239, 68, 68, 0.32);
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border-color: rgba(239, 68, 68, 0.3);
 }
 
+// ========================================
+// ACTIONS
+// ========================================
 .actions-cell {
   display: flex;
-  gap: 6px;
+  gap: 4px;
   justify-content: flex-end;
 }
 
-.action-btn {
-  border-radius: 8px;
-  color: var(--text-main);
+::ng-deep .action-btn {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 8px !important;
+  color: #6b7280 !important;
+  transition: $transition-fast !important;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &.edit:hover {
+    background: rgba(102, 126, 234, 0.1) !important;
+    color: #667eea !important;
+  }
+
+  &.delete:hover {
+    background: rgba(239, 68, 68, 0.1) !important;
+    color: #ef4444 !important;
+  }
 }
 
-.action-btn.edit:hover {
-  color: var(--accent-strong);
-}
-
-.action-btn.delete:hover {
-  color: var(--error);
-}
-
+// ========================================
+// EMPTY STATE
+// ========================================
 .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
   text-align: center;
-  padding: 32px;
-  color: var(--text-muted);
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: #d1d5db;
+    margin-bottom: 16px;
+  }
+
+  p {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #6b7280;
+
+    &.empty-hint {
+      margin-top: 8px;
+      font-size: 14px;
+      font-weight: 400;
+      color: #9ca3af;
+    }
+  }
 }
 
+// ========================================
+// LOADING
+// ========================================
 .loading-overlay {
   position: absolute;
   inset: 0;
-  display: grid;
-  place-items: center;
-  background: rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(4px);
+  z-index: 10;
+
+  p {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #6b7280;
+  }
 }
 
+// ========================================
+// PAGINATOR
+// ========================================
 ::ng-deep .mat-mdc-paginator {
-  border-top: 1px solid var(--border);
-  padding: 10px 12px;
-  background: var(--surface);
+  background: #f9fafb !important;
+  border-top: 1px solid #e5e7eb !important;
+  color: #374151 !important;
 }
 
+// ========================================
+// RESPONSIVE
+// ========================================
 @media (max-width: 1024px) {
-  .hero {
+  .table-head {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .hero-actions {
+  .head-actions {
     width: 100%;
     justify-content: flex-end;
+  }
+}
+
+@media (max-width: 768px) {
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-control {
+    min-width: 100%;
+  }
+
+  .stat-line {
+    justify-content: center;
+  }
+}
+
+// ========================================
+// DARK MODE
+// ========================================
+:host-context([data-theme="dark"]),
+:host-context(body[data-theme="dark"]),
+:host-context(html[data-theme="dark"]) {
+  .head-title {
+    h1 {
+      color: #f1f5f9 !important;
+    }
+
+    p {
+      color: #94a3b8 !important;
+    }
+  }
+
+  ::ng-deep .ghost-btn {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: #cbd5e0 !important;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.05) !important;
+      border-color: rgba(255, 255, 255, 0.15) !important;
+    }
+  }
+
+  .filter-bar {
+    background: #1e293b !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .search-control {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+
+    &:focus-within {
+      background: rgba(255, 255, 255, 0.08) !important;
+      border-color: #667eea !important;
+    }
+
+    input {
+      color: #f1f5f9 !important;
+
+      &::placeholder {
+        color: #64748b !important;
+      }
+    }
+
+    mat-icon,
+    button {
+      color: #64748b !important;
+
+      &:hover {
+        color: #94a3b8 !important;
+      }
+    }
+  }
+
+  .stat-line {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2)) !important;
+    border-color: rgba(102, 126, 234, 0.3) !important;
+    color: #a5b4fc !important;
+  }
+
+  .panel {
+    background: #1e293b !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  ::ng-deep .users-table {
+    .mat-mdc-header-row {
+      background: rgba(255, 255, 255, 0.05) !important;
+      border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .mat-mdc-header-cell {
+      color: #e2e8f0 !important;
+    }
+
+    .mat-mdc-row {
+      border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.05) !important;
+      }
+    }
+
+    .mat-mdc-cell {
+      color: #cbd5e0 !important;
+    }
+  }
+
+  .mono {
+    color: #a5b4fc !important;
+  }
+
+  .email-link {
+    color: #a5b4fc !important;
+
+    &:hover {
+      color: #c7d2fe !important;
+    }
+  }
+
+  .email-missing {
+    color: #64748b !important;
+  }
+
+  .profil-missing {
+    color: #64748b !important;
+  }
+
+  .status-active {
+    background: rgba(16, 185, 129, 0.15) !important;
+    color: #34d399 !important;
+    border-color: rgba(16, 185, 129, 0.4) !important;
+  }
+
+  .status-inactive {
+    background: rgba(239, 68, 68, 0.15) !important;
+    color: #f87171 !important;
+    border-color: rgba(239, 68, 68, 0.4) !important;
+  }
+
+  ::ng-deep .action-btn {
+    color: #94a3b8 !important;
+
+    &.edit:hover {
+      background: rgba(102, 126, 234, 0.15) !important;
+      color: #a5b4fc !important;
+    }
+
+    &.delete:hover {
+      background: rgba(239, 68, 68, 0.15) !important;
+      color: #f87171 !important;
+    }
+  }
+
+  .empty-state {
+    mat-icon {
+      color: #475569 !important;
+    }
+
+    p {
+      color: #94a3b8 !important;
+
+      &.empty-hint {
+        color: #64748b !important;
+      }
+    }
+  }
+
+  .loading-overlay {
+    background: rgba(30, 41, 59, 0.95) !important;
+
+    p {
+      color: #94a3b8 !important;
+    }
+  }
+
+  ::ng-deep .mat-mdc-paginator {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-top-color: rgba(255, 255, 255, 0.1) !important;
+    color: #cbd5e0 !important;
   }
 }

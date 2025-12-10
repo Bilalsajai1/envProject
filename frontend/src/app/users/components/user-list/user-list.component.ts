@@ -19,7 +19,7 @@ import {
 } from 'rxjs';
 
 import { UserService } from '../../services/user.service';
-import {UserDTO } from '../../models/user.model';
+import { UserDTO } from '../../models/user.model';
 import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog.component';
 import { UserFormComponent } from '../user-form/user-form.component';
 
@@ -91,6 +91,7 @@ export class UserListComponent implements OnInit, OnDestroy {
   private setupSearchListener(): void {
     this.searchSubject
       .pipe(
+        debounceTime(300),
         distinctUntilChanged(),
         takeUntil(this.destroy$)
       )
@@ -123,7 +124,8 @@ export class UserListComponent implements OnInit, OnDestroy {
         finalize(() => {
           this.loading = false;
           this.cdr.markForCheck();
-        })
+        }),
+        takeUntil(this.destroy$)
       )
       .subscribe({
         next: res => {
@@ -205,7 +207,7 @@ export class UserListComponent implements OnInit, OnDestroy {
 
         this.userService.delete(user.id).subscribe({
           next: () => {
-            this.showSnackBar('Utilisateur supprimé avec succès', 'success-snackbar');
+            this.showSnackBar('Utilisateur supprime avec succes', 'success-snackbar');
             this.loadUsers();
           },
           error: () => {

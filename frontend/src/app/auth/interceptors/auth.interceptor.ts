@@ -39,10 +39,11 @@ export class AuthInterceptor implements HttpInterceptor {
 
     return next.handle(authReq).pipe(
       catchError((error: HttpErrorResponse) => {
-        // Token expiré / invalide
         if (error.status === 401) {
           this.session.clear();
           this.router.navigate(['/auth/login']);
+        } else if (error.status === 403) {
+          this.router.navigate(['/auth/access-denied']);
         }
         return throwError(() => error);
       })

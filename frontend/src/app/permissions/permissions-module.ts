@@ -5,8 +5,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MaterialModule } from '../shared/material/material.module';
-import {PermissionManagementComponent} from './permission-management/permission-management.component';
-import {MatStep, MatStepper} from '@angular/material/stepper';
+import { PermissionManagementComponent } from './permission-management/permission-management.component';
+import { MatStepperModule } from '@angular/material/stepper';
 
 @NgModule({
   declarations: [
@@ -18,8 +18,7 @@ import {MatStep, MatStepper} from '@angular/material/stepper';
     ReactiveFormsModule,
     MaterialModule,
     RouterModule,
-    MatStepper,
-    MatStep
+    MatStepperModule
   ],
   exports: [
     PermissionManagementComponent

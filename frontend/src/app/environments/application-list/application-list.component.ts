@@ -37,7 +37,6 @@ export class ApplicationListComponent implements OnInit, OnDestroy {
   searchTerm: string = '';
   private readonly searchSubject = new Subject<string>();
   private readonly destroy$ = new Subject<void>();
-  private readonly passwordVisibility = new Set<number>();
 
   displayedColumns = [
     'application',
@@ -64,18 +63,6 @@ export class ApplicationListComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.initSearchListener();
     this.initializeComponent();
-  }
-
-  isPasswordVisible(appId: number): boolean {
-    return this.passwordVisibility.has(appId);
-  }
-
-  togglePassword(appId: number): void {
-    if (this.passwordVisibility.has(appId)) {
-      this.passwordVisibility.delete(appId);
-    } else {
-      this.passwordVisibility.add(appId);
-    }
   }
 
   ngOnDestroy(): void {
@@ -137,7 +124,7 @@ export class ApplicationListComponent implements OnInit, OnDestroy {
     this.typeCode = (typeParamRoute?.snapshot.paramMap.get('typeCode') || '').toUpperCase();
 
     if (!this.environmentId) {
-      this.snackBar.open('❌ Environnement introuvable', 'Fermer', { duration: 3000 });
+      this.snackBar.open('Environnement introuvable', 'Fermer', { duration: 3000 });
       return;
     }
 
@@ -155,12 +142,16 @@ export class ApplicationListComponent implements OnInit, OnDestroy {
       .getByEnvironment(this.environmentId, this.searchTerm)
       .subscribe({
         next: (apps) => {
-          this.applications = apps;
+          // Do not keep clear-text passwords in memory
+          this.applications = (apps ?? []).map(a => ({
+            ...a,
+            password: undefined
+          }));
           this.loading = false;
           this.cdr.detectChanges();
         },
         error: () => {
-          this.snackBar.open('❌ Erreur lors du chargement', 'Fermer', { duration: 3000 });
+          this.snackBar.open('Erreur lors du chargement', 'Fermer', { duration: 3000 });
           this.loading = false;
           this.cdr.markForCheck();
         }
@@ -212,13 +203,13 @@ export class ApplicationListComponent implements OnInit, OnDestroy {
       if (confirmed) {
         this.applicationService.delete(app.id).subscribe({
           next: () => {
-            this.snackBar.open('✅ Application supprimée avec succès', 'Fermer', {
+            this.snackBar.open('Application supprimee avec succes', 'Fermer', {
               duration: 3000
             });
             this.loadApplications();
           },
           error: () => {
-            this.snackBar.open('❌ Erreur lors de la suppression', 'Fermer', {
+            this.snackBar.open('Erreur lors de la suppression', 'Fermer', {
               duration: 3000
             });
           }

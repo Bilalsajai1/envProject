@@ -37,11 +37,15 @@ export class AuthenticationService {
   login(req: LoginRequest): Observable<void> {
     return this.http.post<LoginResponse>(this.loginUrl, req).pipe(
       tap(res => {
+        const expiresAt = res.expiresIn
+          ? Date.now() + res.expiresIn * 1000
+          : undefined;
         const stored: StoredUser = {
           accessToken: res.accessToken,
           refreshToken: res.refreshToken,
           tokenType: res.tokenType,
           expiresIn: res.expiresIn,
+          expiresAt,
           username: res.username,
           roles: res.roles ?? []
         };

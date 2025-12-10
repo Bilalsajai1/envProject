@@ -17,7 +17,7 @@ import {
   EnvironmentDTO, ProjectDTO
 } from '../models/environment.model';
 
-import { ProjectService, SortDirection } from '../services/project.service';
+import { PaginatedResponse, PaginationRequest, ProjectService, SortDirection } from '../services/project.service';
 import { EnvironmentDialogComponent } from '../components/dialogs/environment-dialog/environment-dialog.component';
 import { ConfirmDialogComponent } from '../../users/confirm-dialog/confirm-dialog.component';
 import { EnvironmentService } from '../services/environment.service';
@@ -151,25 +151,47 @@ export class EnvironmentListComponent implements OnInit, OnDestroy {
     });
   }
 
+  private buildFilters(): Record<string, any> {
+    const filters: Record<string, any> = {
+      projetId: this.projectId,
+      typeCode: this.typeCode
+    };
+    if (this.searchTerm) {
+      filters['search'] = this.searchTerm;
+    }
+    return filters;
+  }
+
   loadEnvironments(): void {
     this.loading = true;
     this.cdr.markForCheck();
 
+    const request: PaginationRequest = {
+      page: this.page,
+      size: this.size,
+      sortField: this.sortField,
+      sortDirection: this.sortDirection,
+      filters: this.buildFilters()
+    };
+
     this.envService
-      .getByProjectAndType(this.projectId, this.typeCode, this.searchTerm)
+      .search(request)
       .pipe(
         finalize(() => {
           this.loading = false;
           this.cdr.markForCheck();
-        })
+        }),
+        takeUntil(this.destroy$)
       )
       .subscribe({
-        next: (envs) => {
-          this.environments = envs;
-          this.totalElements = envs.length;
+        next: (res: PaginatedResponse<EnvironmentDTO>) => {
+          this.environments = res.content ?? [];
+          this.totalElements = res.totalElements ?? this.environments.length;
+          this.page = res.page ?? this.page;
+          this.size = res.size ?? this.size;
         },
         error: () => {
-          this.snackBar.open('❌ Erreur lors du chargement des environnements', 'Fermer', {
+          this.snackBar.open('Erreur lors du chargement des environnements', 'Fermer', {
             duration: 3000
           });
         }
@@ -233,12 +255,12 @@ export class EnvironmentListComponent implements OnInit, OnDestroy {
       if (yes) {
         this.envService.delete(env.id).subscribe({
           next: () => {
-            this.snackBar.open('✅ Environnement supprimé avec succès', 'Fermer', {
+            this.snackBar.open('Environnement supprime avec succes', 'Fermer', {
               duration: 3000
             });
             this.loadEnvironments();
           },
-          error: () => this.snackBar.open('❌ Erreur suppression', 'Fermer', {
+          error: () => this.snackBar.open('Erreur suppression', 'Fermer', {
             duration: 3000
           })
         });

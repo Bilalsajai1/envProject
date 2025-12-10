@@ -40,9 +40,10 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
 
   isSidebarCollapsed = false;
   isDarkMode = false;
+  currentTheme: 'light' | 'dark' = 'light';
 
   private readonly SIDEBAR_KEY = 'perenity.sidebar';
-  private readonly THEME_KEY = 'perenity.theme';
+  private readonly THEME_KEY = 'theme';
   private readonly destroy$ = new Subject<void>();
 
   readonly adminMenu: AdminNavItem[] = [
@@ -70,12 +71,12 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.isSidebarCollapsed = localStorage.getItem(this.SIDEBAR_KEY) === 'true';
-    this.isDarkMode = localStorage.getItem(this.THEME_KEY) === 'dark';
 
-    document.documentElement.setAttribute(
-      'data-theme',
-      this.isDarkMode ? 'dark' : 'light'
-    );
+    const savedTheme = localStorage.getItem(this.THEME_KEY);
+    this.currentTheme = (savedTheme === 'dark' || savedTheme === 'light') ? savedTheme : 'light';
+    this.isDarkMode = this.currentTheme === 'dark';
+
+    this.applyTheme(this.currentTheme);
 
     this.authCtx.getContext$()
       .pipe(takeUntil(this.destroy$))
@@ -99,16 +100,18 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   }
 
   toggleDarkMode(): void {
-    this.isDarkMode = !this.isDarkMode;
-
-    localStorage.setItem(this.THEME_KEY, this.isDarkMode ? 'dark' : 'light');
-
-    document.documentElement.setAttribute(
-      'data-theme',
-      this.isDarkMode ? 'dark' : 'light'
-    );
-
+    this.currentTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+    this.isDarkMode = this.currentTheme === 'dark';
+    this.applyTheme(this.currentTheme);
     this.cdr.markForCheck();
+  }
+
+  private applyTheme(theme: 'light' | 'dark'): void {
+    this.currentTheme = theme;
+    this.isDarkMode = theme === 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+    document.body.setAttribute('data-theme', theme);
+    localStorage.setItem(this.THEME_KEY, theme);
   }
 
   /* -----------------------------------------------
