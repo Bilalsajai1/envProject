@@ -36,6 +36,28 @@
           }
         </mat-form-field>
 
+        <div class="section-header">
+          <mat-icon class="section-icon">category</mat-icon>
+          <div class="section-title-text">
+            <h3>Types d'environnement</h3>
+            <p class="section-subtitle">Associez le projet aux types autorisés</p>
+          </div>
+        </div>
+
+        <div class="env-types-grid">
+          @for (opt of envTypeOptions; track opt.code) {
+            <mat-checkbox
+              [checked]="isTypeSelected(opt.code)"
+              (change)="toggleEnvType(opt.code, $event.checked)"
+              [disabled]="opt.disabled && !isTypeSelected(opt.code)">
+              {{ opt.libelle || opt.code }}
+            </mat-checkbox>
+          }
+        </div>
+        @if (form.get('envTypeCodes')?.invalid && form.get('envTypeCodes')?.touched) {
+          <mat-error>Sélectionnez au moins un type</mat-error>
+        }
+
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>
             <mat-icon class="label-icon">label</mat-icon>

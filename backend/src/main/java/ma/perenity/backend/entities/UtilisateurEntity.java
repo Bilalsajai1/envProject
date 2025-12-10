@@ -38,6 +38,8 @@ public class UtilisateurEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PROFIL_ID", nullable = false)
     private ProfilEntity profil;
+    @Builder.Default
     @Column(nullable = false)
     private Boolean isDeleted = false;
+
 }

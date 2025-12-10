@@ -23,12 +23,14 @@ export interface ProfilPermissions {
   profilId: number;
   profilCode: string;
   profilLibelle: string;
+  isAdmin?: boolean;
   envTypePermissions: EnvTypePermission[];
   projectPermissions: ProjectPermission[];
 }
 
 export interface EnvTypePermissionUpdate {
   envTypeCode: string;
+  actions: ActionType[];
 }
 
 export interface ProjectPermissionUpdate {

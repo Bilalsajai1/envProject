@@ -157,6 +157,7 @@ export class AuthContextService {
         code: envType.code,
         libelle: envType.libelle,
         actif: envType.actif,
+        allowedActions: envType.allowedActions ?? [],
         projects: (envType.projects ?? []).map((project: any) => ({
           id: project.id,
           code: project.code,

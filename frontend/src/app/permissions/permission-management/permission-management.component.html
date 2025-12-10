@@ -11,7 +11,6 @@
     </div>
   </div>
 
-  <!-- Sélecteur de profil -->
   <div class="card profil-selector">
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Sélectionnez un profil</mat-label>
@@ -29,7 +28,20 @@
     </mat-form-field>
   </div>
 
-  <!-- Loading -->
+  @if (isAdminProfile && permissions) {
+    <mat-card class="admin-notice">
+      <mat-card-content>
+        <div class="notice-content">
+          <mat-icon class="notice-icon">admin_panel_settings</mat-icon>
+          <div class="notice-text">
+            <strong>Profil Administrateur</strong>
+            <p>Ce profil dispose de tous les droits. Les permissions ne peuvent pas être modifiées.</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+
   @if (loading && !permissions) {
     <div class="loading-zone">
       <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
@@ -37,11 +49,9 @@
     </div>
   }
 
-  <!-- ✅ STEPPER 2 ÉTAPES -->
   @if (permissions && !loading) {
     <mat-stepper #stepper [selectedIndex]="currentStep" [linear]="false">
 
-      <!-- ÉTAPE 1: Types d'Environnement -->
       <mat-step>
         <ng-template matStepLabel>Types d'Environnement</ng-template>
 
@@ -49,10 +59,10 @@
           <mat-card-header>
             <mat-card-title>
               <mat-icon>dns</mat-icon>
-              Étape 1 : Quels types d'environnement peut-il consulter ?
+              Étape 1 : Types d'environnement
             </mat-card-title>
             <mat-card-subtitle>
-              Cochez les types d'environnement dont l'utilisateur pourra voir les projets
+              Sélectionnez les actions par type (consulter / créer des projets)
             </mat-card-subtitle>
           </mat-card-header>
 
@@ -60,18 +70,26 @@
             <div class="env-type-grid">
               @for (envType of permissions.envTypePermissions; track envType.typeCode) {
                 <div class="env-type-row simple">
-
-                  <mat-checkbox
-                    [checked]="isEnvTypeChecked(envType.typeCode)"
-                    (change)="toggleEnvType(envType.typeCode)"
-                    [color]="'primary'"
-                    class="env-type-checkbox">
-                    <div class="env-type-label">
-                      <strong>{{ envType.typeLibelle }}</strong>
-                      <span class="env-type-code">{{ envType.typeCode }}</span>
-                    </div>
-                  </mat-checkbox>
-
+                  <div class="env-type-label">
+                    <strong>{{ envType.typeLibelle }}</strong>
+                    <span class="env-type-code">{{ envType.typeCode }}</span>
+                  </div>
+                  <div class="actions-checkboxes">
+                    <mat-checkbox
+                      [checked]="isEnvActionChecked(envType.typeCode, 'CONSULT')"
+                      [disabled]="isAdminProfile"
+                      (change)="toggleEnvAction(envType.typeCode, 'CONSULT')"
+                      color="primary">
+                      Consulter
+                    </mat-checkbox>
+                    <mat-checkbox
+                      [checked]="isEnvActionChecked(envType.typeCode, 'CREATE')"
+                      [disabled]="isAdminProfile"
+                      (change)="toggleEnvAction(envType.typeCode, 'CREATE')"
+                      color="primary">
+                      Créer des projets
+                    </mat-checkbox>
+                  </div>
                 </div>
               }
             </div>
@@ -82,15 +100,21 @@
               mat-raised-button
               color="primary"
               (click)="nextStep()"
-              [disabled]="!canProceedToStep2()">
+              [disabled]="!canProceedToStep2() || isAdminProfile">
               Suivant : Configurer les actions par projet
               <mat-icon>arrow_forward</mat-icon>
             </button>
+
+            @if (isAdminProfile) {
+              <span class="admin-hint">
+                <mat-icon>info</mat-icon>
+                Les administrateurs ont tous les droits automatiquement
+              </span>
+            }
           </mat-card-actions>
         </mat-card>
       </mat-step>
 
-      <!-- ÉTAPE 2: Actions par Projet -->
       <mat-step>
         <ng-template matStepLabel>Actions par Projet</ng-template>
 
@@ -98,10 +122,10 @@
           <mat-card-header>
             <mat-card-title>
               <mat-icon>folder</mat-icon>
-              Étape 2 : Quelles actions peut-il faire sur chaque projet ?
+              Étape 2 : Actions par projet
             </mat-card-title>
             <mat-card-subtitle>
-              Pour chaque projet des types sélectionnés, définissez les actions autorisées
+              Définissez les actions autorisées pour chaque projet filtré par type
             </mat-card-subtitle>
           </mat-card-header>
 
@@ -109,7 +133,7 @@
             @if (filteredProjects.length === 0) {
               <div class="empty-state">
                 <mat-icon>info</mat-icon>
-                <p>Aucun projet disponible pour les types d'environnement sélectionnés.</p>
+                <p>Aucun projet disponible pour les types sélectionnés.</p>
                 <button mat-stroked-button (click)="previousStep()">
                   <mat-icon>arrow_back</mat-icon>
                   Retour aux types
@@ -129,8 +153,9 @@
                       @for (action of allActions; track action) {
                         <mat-checkbox
                           [checked]="isProjectActionChecked(proj.projectId, action)"
+                          [disabled]="isAdminProfile"
                           (change)="toggleProjectAction(proj.projectId, action)"
-                          [color]="'primary'">
+                          color="primary">
                           {{ action }}
                         </mat-checkbox>
                       }
@@ -143,12 +168,18 @@
           </mat-card-content>
 
           <mat-card-actions class="step-actions">
-            <button mat-stroked-button (click)="previousStep()">
+            <button
+              mat-stroked-button
+              (click)="previousStep()"
+              [disabled]="isAdminProfile">
               <mat-icon>arrow_back</mat-icon>
               Précédent
             </button>
 
-            <button mat-stroked-button (click)="cancel()" [disabled]="saving">
+            <button
+              mat-stroked-button
+              (click)="cancel()"
+              [disabled]="saving">
               Annuler
             </button>
 
@@ -156,7 +187,7 @@
               mat-raised-button
               color="primary"
               (click)="save()"
-              [disabled]="saving">
+              [disabled]="saving || isAdminProfile">
               @if (saving) {
                 <mat-progress-spinner
                   mode="indeterminate"

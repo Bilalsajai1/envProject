@@ -1,5 +1,3 @@
-// src/app/permissions/services/permission.service.ts
-
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
@@ -10,8 +8,7 @@ import {
   ActionType,
   EnvTypePermissionUpdate,
   ProjectPermissionUpdate,
-  ProjectPermission,
-  SavePermissionsRequest
+  ProjectPermission
 } from '../models/permission.model';
 import { environment } from '../../config/environment';
 
@@ -28,9 +25,6 @@ export class PermissionService {
     return this.http.get<ProfilSimple[]>(this.baseUrl);
   }
 
-  /**
-   * ✅ CORRECTION: Mapper allowedActions pour les types d'environnement
-   */
   getPermissions(profilId: number): Observable<ProfilPermissions> {
     return this.http
       .get<any>(`${this.baseUrl}/${profilId}/permissions`)
@@ -43,7 +37,7 @@ export class PermissionService {
           const envTypePermissions: EnvTypePermission[] = rawEnvTypes.map((et: any) => ({
             typeCode: et.code,
             typeLibelle: et.libelle,
-            allowedActions: (et.allowedActions ?? []) as ActionType[] // ✅ AJOUTÉ
+            allowedActions: (et.allowedActions ?? []) as ActionType[]
           }));
 
           // ✅ Projets
@@ -60,6 +54,7 @@ export class PermissionService {
             profilId: res.profilId,
             profilCode: res.profilCode,
             profilLibelle: res.profilLibelle,
+            isAdmin: res.isAdmin ?? false, // ✅ AJOUTER cette ligne
             envTypePermissions,
             projectPermissions
           };

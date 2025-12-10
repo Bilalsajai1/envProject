@@ -1,175 +1,116 @@
 <!-- src/app/environments/project-list/project-list.component.html -->
 
 <div class="project-list-container">
+  <div class="header">
+    <h2>Projets - {{ typeCode }}</h2>
 
-  <nav class="breadcrumb">
-    <mat-icon>home</mat-icon>
-    <span>{{ typeCode }}</span>
-    <mat-icon>chevron_right</mat-icon>
-    <span class="current">Projets</span>
-  </nav>
-
-  <div class="list-header">
-    <div>
-      <h2>
-        <mat-icon>folder</mat-icon>
-        Projets
-      </h2>
-      <p class="subtitle">Sélectionnez un projet pour gérer ses environnements</p>
-    </div>
-
-    <div class="header-actions">
-      <mat-form-field appearance="outline" class="search-field">
-        <mat-label>Rechercher un projet</mat-label>
-        <input
-          matInput
-          [(ngModel)]="searchTerm"
-          (ngModelChange)="onSearchChange($event)"
-          placeholder="Code, libellé, description..."
-        />
-
-        <button
-          *ngIf="searchTerm"
-          mat-icon-button
-          matSuffix
-          aria-label="Effacer la recherche"
-          (click)="clearSearch()">
-          <mat-icon>close</mat-icon>
-        </button>
-
-        <button
-          *ngIf="!searchTerm"
-          mat-icon-button
-          matSuffix
-          disabled>
-          <mat-icon>search</mat-icon>
-        </button>
-      </mat-form-field>
-
-      <button
-        mat-raised-button
-        color="primary"
-        (click)="addProject()">
-        <mat-icon>add</mat-icon>
-        Nouveau Projet
-      </button>
-    </div>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="addProject()"
+      *ngIf="canCreateProject()">
+      <mat-icon>add</mat-icon>
+      Ajouter un projet
+    </button>
   </div>
 
-  @if (!loading) {
-    <mat-card>
-      <table
-        mat-table
-        [dataSource]="projects"
-        matSort
-        (matSortChange)="onSortChange($event)"
-        class="projects-table">
+  <!-- Barre de recherche -->
+  <mat-form-field appearance="outline" class="search-field">
+    <mat-label>Rechercher...</mat-label>
+    <input
+      matInput
+      [value]="searchTerm"
+      (input)="onSearchChange($any($event.target).value)"
+      placeholder="Code, libellé, description...">
+    <button
+      mat-icon-button
+      matSuffix
+      *ngIf="searchTerm"
+      (click)="clearSearch()">
+      <mat-icon>close</mat-icon>
+    </button>
+    <mat-icon matPrefix>search</mat-icon>
+  </mat-form-field>
 
-        <!-- Code -->
-        <ng-container matColumnDef="code">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Code</th>
-          <td mat-cell *matCellDef="let project">
-            <span class="project-code">{{ project.code }}</span>
-          </td>
-        </ng-container>
+  <!-- Table -->
+  <div class="table-container">
+    <table
+      mat-table
+      [dataSource]="projects"
+      matSort
+      (matSortChange)="onSortChange($event)"
+      class="mat-elevation-z2">
 
-        <!-- Libellé -->
-        <ng-container matColumnDef="libelle">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Libellé</th>
-          <td mat-cell *matCellDef="let project">
-            <strong>{{ project.libelle }}</strong>
-          </td>
-        </ng-container>
+      <ng-container matColumnDef="code">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Code</th>
+        <td mat-cell *matCellDef="let project">{{ project.code }}</td>
+      </ng-container>
 
-        <!-- Description -->
-        <ng-container matColumnDef="description">
-          <th mat-header-cell *matHeaderCellDef>Description</th>
-          <td mat-cell *matCellDef="let project">
-            {{ project.description || '-' }}
-          </td>
-        </ng-container>
+      <ng-container matColumnDef="libelle">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Libellé</th>
+        <td mat-cell *matCellDef="let project">{{ project.libelle }}</td>
+      </ng-container>
 
-        <!-- Statut -->
-        <ng-container matColumnDef="actif">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Statut</th>
-          <td mat-cell *matCellDef="let project">
-            <mat-chip
-              [class.status-active]="project.actif"
-              [class.status-inactive]="!project.actif">
-              {{ project.actif ? 'Actif' : 'Inactif' }}
-            </mat-chip>
-          </td>
-        </ng-container>
+      <ng-container matColumnDef="description">
+        <th mat-header-cell *matHeaderCellDef>Description</th>
+        <td mat-cell *matCellDef="let project">{{ project.description }}</td>
+      </ng-container>
 
-        <!-- Actions -->
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>Actions</th>
-          <td mat-cell *matCellDef="let project" class="actions-cell">
-            <!-- 👉 Consulter environnements -->
-            <button
-              mat-icon-button
-              color="accent"
-              matTooltip="Consulter les environnements"
-              (click)="openProject(project)">
-              <mat-icon>open_in_new</mat-icon>
-            </button>
+      <ng-container matColumnDef="actif">
+        <th mat-header-cell *matHeaderCellDef>Statut</th>
+        <td mat-cell *matCellDef="let project">
+          <mat-chip [class.active-chip]="project.actif" [class.inactive-chip]="!project.actif">
+            {{ project.actif ? 'Actif' : 'Inactif' }}
+          </mat-chip>
+        </td>
+      </ng-container>
 
-            <!-- Modifier -->
-            <button
-              mat-icon-button
-              matTooltip="Modifier"
-              color="primary"
-              (click)="editProject(project)">
-              <mat-icon>edit</mat-icon>
-            </button>
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let project">
+          <button
+            mat-icon-button
+            matTooltip="Consulter"
+            *ngIf="canConsultProject(project.id)"
+            (click)="openProject(project)">
+            <mat-icon>visibility</mat-icon>
+          </button>
 
-            <!-- Supprimer -->
-            <button
-              mat-icon-button
-              matTooltip="Supprimer"
-              color="warn"
-              (click)="deleteProject(project)">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </td>
-        </ng-container>
+          <button
+            mat-icon-button
+            color="primary"
+            matTooltip="Modifier"
+            *ngIf="canUpdateProject(project.id)"
+            (click)="editProject(project); $event.stopPropagation()">
+            <mat-icon>edit</mat-icon>
+          </button>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr
-          mat-row
-          *matRowDef="let row; columns: displayedColumns;">
-        </tr>
+          <button
+            mat-icon-button
+            color="warn"
+            matTooltip="Supprimer"
+            *ngIf="canDeleteProject(project.id)"
+            (click)="deleteProject(project); $event.stopPropagation()">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
 
-      </table>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
 
-      @if (!projects.length) {
-        <div class="empty-state">
-          <mat-icon>folder_off</mat-icon>
-          <p>Aucun projet trouvé</p>
-          <p class="hint">
-            {{ searchTerm ? 'Essayez d\'autres critères de recherche' : 'Créez votre premier projet pour ce type d\'environnement' }}
-          </p>
-        </div>
-      }
+    <mat-paginator
+      [length]="totalElements"
+      [pageSize]="size"
+      [pageSizeOptions]="pageSizeOptions"
+      [pageIndex]="page"
+      (page)="onPageChange($event)"
+      showFirstLastButtons>
+    </mat-paginator>
+  </div>
 
-      <!-- Pagination comme UserList -->
-      @if (projects.length) {
-        <mat-paginator
-          [length]="totalElements"
-          [pageSize]="size"
-          [pageIndex]="page"
-          [pageSizeOptions]="pageSizeOptions"
-          (page)="onPageChange($event)"
-          showFirstLastButtons>
-        </mat-paginator>
-      }
-
-    </mat-card>
-  } @else {
-    <div class="loading-state">
-      <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
-      <p>Chargement des projets...</p>
-    </div>
-  }
-
+  <div *ngIf="loading" class="loading-overlay">
+    <mat-spinner></mat-spinner>
+  </div>
 </div>

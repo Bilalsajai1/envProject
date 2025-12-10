@@ -28,21 +28,12 @@ export class PermissionManagementComponent implements OnInit {
   loading = false;
   saving = false;
 
-  // Stepper
   currentStep = 0;
-
   allActions: ActionType[] = ['CONSULT', 'CREATE', 'UPDATE', 'DELETE'];
 
-  /**
-   * ✅ ÉTAPE 1: Types d'environnement cochés
-   * Map<typeCode, isChecked>
-   */
-  envTypeCheckedMap = new Map<string, boolean>();
-
-  /**
-   * ✅ ÉTAPE 2: Actions par projet
-   * Map<projectId, Set<ActionType>>
-   */
+  // Étape 1 : Map<envTypeCode, Set<ActionType>>
+  envTypeActionsMap = new Map<string, Set<ActionType>>();
+  // Étape 2 : Map<projectId, Set<ActionType>>
   projectActionsMap = new Map<number, Set<ActionType>>();
 
   constructor(
@@ -51,6 +42,10 @@ export class PermissionManagementComponent implements OnInit {
     private route: ActivatedRoute,
     private cdr: ChangeDetectorRef
   ) {}
+
+  get isAdminProfile(): boolean {
+    return this.permissions?.isAdmin ?? false;
+  }
 
   ngOnInit(): void {
     this.loadProfils();
@@ -67,16 +62,14 @@ export class PermissionManagementComponent implements OnInit {
   loadProfils(): void {
     this.loading = true;
     this.permissionService.getProfils().subscribe({
-      next: (profils) => {
+      next: profils => {
         this.profils = profils.filter(p => p.id !== null);
         this.loading = false;
         this.cdr.markForCheck();
       },
-      error: (err) => {
-        console.error('❌ Erreur chargement profils:', err);
-        this.snackBar.open('Erreur lors du chargement des profils', 'Fermer', {
-          duration: 3000
-        });
+      error: err => {
+        console.error('Erreur chargement profils:', err);
+        this.snackBar.open('Erreur lors du chargement des profils', 'Fermer', { duration: 3000 });
         this.loading = false;
       }
     });
@@ -91,141 +84,107 @@ export class PermissionManagementComponent implements OnInit {
 
     this.selectedProfilId = profilId;
     this.loading = true;
-    this.currentStep = 0; // Reset au step 1
+    this.currentStep = 0;
 
     this.permissionService.getPermissions(profilId).subscribe({
-      next: (permissions) => {
-        console.log('✅ Permissions reçues:', permissions);
+      next: permissions => {
         this.permissions = permissions;
         this.initializeCheckboxStates();
         this.loading = false;
         this.cdr.markForCheck();
       },
-      error: (err) => {
-        console.error('❌ Erreur chargement permissions:', err);
-        this.snackBar.open('Erreur lors du chargement des permissions', 'Fermer', {
-          duration: 3000
-        });
+      error: err => {
+        console.error('Erreur chargement permissions:', err);
+        this.snackBar.open('Erreur lors du chargement des permissions', 'Fermer', { duration: 3000 });
         this.loading = false;
       }
     });
   }
 
-  /**
-   * ✅ CORRECTION: Initialiser TOUS les types (cochés et non-cochés)
-   */
   private initializeCheckboxStates(): void {
     if (!this.permissions) return;
 
-    this.envTypeCheckedMap.clear();
+    this.envTypeActionsMap.clear();
     this.projectActionsMap.clear();
 
-    // ✅ Types d'environnement: TOUS les types
-    // Coché si allowedActions contient CONSULT
+    // Types d'environnement: charger les actions autorisées
     if (this.permissions.envTypePermissions) {
       this.permissions.envTypePermissions.forEach(envType => {
-        const isChecked = envType.allowedActions.includes('CONSULT');
-        this.envTypeCheckedMap.set(envType.typeCode, isChecked);
-        console.log(`📋 Type ${envType.typeCode}: ${isChecked ? 'coché ✅' : 'non coché ❌'}`);
+        this.envTypeActionsMap.set(envType.typeCode, new Set(envType.allowedActions ?? []));
       });
     }
 
-    // ✅ Projets: initialiser les actions
+    // Projets: initialiser les actions
     if (this.permissions.projectPermissions) {
       this.permissions.projectPermissions.forEach(proj => {
-        this.projectActionsMap.set(
-          proj.projectId,
-          new Set(proj.actions ?? [])
-        );
+        this.projectActionsMap.set(proj.projectId, new Set(proj.actions ?? []));
       });
     }
-
-    console.log('📋 États initialisés:', {
-      envTypes: Array.from(this.envTypeCheckedMap.entries()),
-      projects: Array.from(this.projectActionsMap.entries())
-    });
   }
 
-  /**
-   * ✅ ÉTAPE 1: Type d'environnement
-   */
-  isEnvTypeChecked(typeCode: string): boolean {
-    return this.envTypeCheckedMap.get(typeCode) ?? false;
+  // Étape 1 : actions par type d'environnement
+  isEnvActionChecked(typeCode: string, action: ActionType): boolean {
+    return this.envTypeActionsMap.get(typeCode)?.has(action) ?? false;
   }
 
-  toggleEnvType(typeCode: string): void {
-    const current = this.envTypeCheckedMap.get(typeCode) ?? false;
-    this.envTypeCheckedMap.set(typeCode, !current);
-    console.log(`🔄 Type ${typeCode} → ${!current ? 'coché ✅' : 'décoché ❌'}`);
+  toggleEnvAction(typeCode: string, action: ActionType): void {
+    if (this.isAdminProfile) {
+      this.snackBar.open('Les administrateurs ont automatiquement tous les droits', 'Fermer', { duration: 3000 });
+      return;
+    }
+    if (!this.envTypeActionsMap.has(typeCode)) {
+      this.envTypeActionsMap.set(typeCode, new Set<ActionType>());
+    }
+    const set = this.envTypeActionsMap.get(typeCode)!;
+    if (set.has(action)) {
+      set.delete(action);
+    } else {
+      set.add(action);
+    }
   }
 
-  /**
-   * ✅ ÉTAPE 2: Filtrer les projets selon les types cochés
-   */
+  // Étape 2 : filtrer les projets selon CONSULT sur les types
   get filteredProjects(): ProjectPermission[] {
     if (!this.permissions) return [];
 
-    // Récupérer les types cochés
-    const checkedTypes = new Set(
-      Array.from(this.envTypeCheckedMap.entries())
-        .filter(([_, isChecked]) => isChecked)
-        .map(([typeCode, _]) => typeCode.toUpperCase())
+    // Un projet est affiché si au moins une action a été cochée sur son type
+    const selectedTypes = new Set(
+      Array.from(this.envTypeActionsMap.entries())
+        .filter(([_, actions]) => actions.size > 0)
+        .map(([typeCode]) => typeCode.toUpperCase())
     );
 
-    console.log('✅ Types cochés:', Array.from(checkedTypes));
+    if (selectedTypes.size === 0) return [];
 
-    if (checkedTypes.size === 0) {
-      console.log('⚠️ Aucun type coché, aucun projet affiché');
-      return [];
-    }
-
-    // Filtrer les projets qui ont au moins un type d'environnement coché
-    const filtered = this.permissions.projectPermissions.filter(proj => {
+    return this.permissions.projectPermissions.filter(proj => {
       const projectTypes = proj.environmentTypeCodes.map(t => t.toUpperCase());
-      const hasMatchingType = projectTypes.some(t => checkedTypes.has(t));
-
-      if (hasMatchingType) {
-        console.log(`✅ Projet ${proj.projectCode} affiché (types: ${projectTypes.join(', ')})`);
-      }
-
-      return hasMatchingType;
+      return projectTypes.some(t => selectedTypes.has(t));
     });
-
-    console.log(`📋 ${filtered.length} projet(s) affiché(s) sur ${this.permissions.projectPermissions.length}`);
-
-    return filtered;
   }
 
-  /**
-   * ✅ Actions sur les projets
-   */
   isProjectActionChecked(projectId: number, action: ActionType): boolean {
     return this.projectActionsMap.get(projectId)?.has(action) ?? false;
   }
 
   toggleProjectAction(projectId: number, action: ActionType): void {
+    if (this.isAdminProfile) {
+      this.snackBar.open('Les administrateurs ont automatiquement tous les droits', 'Fermer', { duration: 3000 });
+      return;
+    }
     if (!this.projectActionsMap.has(projectId)) {
       this.projectActionsMap.set(projectId, new Set<ActionType>());
     }
-
     const actions = this.projectActionsMap.get(projectId)!;
-
     if (actions.has(action)) {
       actions.delete(action);
-      console.log(`🔄 Projet ${projectId}: retiré ${action}`);
     } else {
       actions.add(action);
-      console.log(`🔄 Projet ${projectId}: ajouté ${action}`);
     }
   }
 
-  /**
-   * ✅ Navigation Stepper
-   */
   nextStep(): void {
     if (this.currentStep < 1) {
       this.currentStep++;
-      console.log('➡️ Step suivant:', this.currentStep);
       this.cdr.markForCheck();
     }
   }
@@ -233,42 +192,35 @@ export class PermissionManagementComponent implements OnInit {
   previousStep(): void {
     if (this.currentStep > 0) {
       this.currentStep--;
-      console.log('⬅️ Step précédent:', this.currentStep);
       this.cdr.markForCheck();
     }
   }
 
-  /**
-   * ✅ SAUVEGARDE FINALE
-   */
   save(): void {
+    if (this.isAdminProfile) {
+      this.snackBar.open('Impossible de modifier un profil administrateur', 'Fermer', { duration: 3000 });
+      return;
+    }
     if (!this.selectedProfilId || !this.permissions) {
       return;
     }
-
     this.saving = true;
 
-    // 1️⃣ Types d'environnement: seulement ceux cochés
     const envUpdates: EnvTypePermissionUpdate[] = [];
-    this.envTypeCheckedMap.forEach((isChecked, typeCode) => {
-      if (isChecked) {
-        envUpdates.push({ envTypeCode: typeCode });
+    this.envTypeActionsMap.forEach((actionsSet, typeCode) => {
+      const actions = Array.from(actionsSet);
+      if (actions.length > 0) {
+        envUpdates.push({ envTypeCode: typeCode, actions });
       }
     });
 
-    // 2️⃣ Projets: seulement ceux avec au moins une action
     const projUpdates: ProjectPermissionUpdate[] = [];
     this.projectActionsMap.forEach((actionsSet, projectId) => {
       const actions = Array.from(actionsSet);
       if (actions.length > 0) {
-        projUpdates.push({
-          projectId,
-          actions
-        });
+        projUpdates.push({ projectId, actions });
       }
     });
-
-    console.log('📤 Sauvegarde:', { envUpdates, projUpdates });
 
     this.permissionService.savePermissions(
       this.selectedProfilId,
@@ -276,18 +228,16 @@ export class PermissionManagementComponent implements OnInit {
       projUpdates
     ).subscribe({
       next: () => {
-        this.snackBar.open('✅ Permissions enregistrées avec succès', 'Fermer', {
+        this.snackBar.open('Permissions enregistrées', 'Fermer', {
           duration: 3000,
           panelClass: ['success-snackbar']
         });
         this.saving = false;
-
-        // Recharger les permissions pour afficher l'état sauvegardé
         this.onProfilChange(this.selectedProfilId!);
       },
       error: (err) => {
-        console.error('❌ Erreur sauvegarde permissions:', err);
-        this.snackBar.open('❌ Erreur lors de la sauvegarde', 'Fermer', {
+        console.error('Erreur sauvegarde permissions:', err);
+        this.snackBar.open('Erreur lors de la sauvegarde', 'Fermer', {
           duration: 3000,
           panelClass: ['error-snackbar']
         });
@@ -297,26 +247,14 @@ export class PermissionManagementComponent implements OnInit {
     });
   }
 
-  /**
-   * ✅ Annulation
-   */
   cancel(): void {
     if (this.selectedProfilId) {
       this.onProfilChange(this.selectedProfilId);
     }
   }
 
-  /**
-   * ✅ Validation Step 1
-   */
   canProceedToStep2(): boolean {
-    // Au moins un type doit être coché
-    const hasCheckedType = Array.from(this.envTypeCheckedMap.values()).some(checked => checked);
-
-    if (!hasCheckedType) {
-      console.log('⚠️ Aucun type coché, impossible de passer à l\'étape 2');
-    }
-
-    return hasCheckedType;
+    // Au moins un type avec au moins une action cochée
+    return Array.from(this.envTypeActionsMap.values()).some(set => set.size > 0);
   }
 }

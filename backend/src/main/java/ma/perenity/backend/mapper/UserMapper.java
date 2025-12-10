@@ -24,6 +24,7 @@ public interface UserMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "profil", ignore = true)
     @Mapping(target = "keycloakId", ignore = true)
+    @Mapping(target = "isDeleted", constant = "false")
     UtilisateurEntity toEntity(UserCreateUpdateDTO dto);
 
 
@@ -31,5 +32,6 @@ public interface UserMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "profil", ignore = true)
     @Mapping(target = "keycloakId", ignore = true)
+    @Mapping(target = "isDeleted", ignore = true)
     void updateEntityFromDto(UserCreateUpdateDTO dto, @MappingTarget UtilisateurEntity entity);
 }

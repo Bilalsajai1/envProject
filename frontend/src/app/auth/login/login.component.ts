@@ -20,6 +20,7 @@ export class LoginComponent implements OnInit {
   loading = false;
   error?: string;
   hidePassword = true;
+  currentTheme: 'light' | 'dark' = 'light';
 
   constructor(
     private fb: FormBuilder,
@@ -36,6 +37,13 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark' || savedTheme === 'light') {
+      this.applyTheme(savedTheme as 'dark' | 'light');
+    } else {
+      this.applyTheme('light');
+    }
+
     const savedUsername = localStorage.getItem('remembered_username');
     if (savedUsername) {
       this.form.patchValue({
@@ -92,6 +100,17 @@ export class LoginComponent implements OnInit {
 
   goToForgotPassword(): void {
     this.router.navigate(['/auth/forgot-password']);
+  }
+
+  toggleTheme(): void {
+    const next = this.currentTheme === 'light' ? 'dark' : 'light';
+    this.applyTheme(next);
+  }
+
+  private applyTheme(theme: 'light' | 'dark') {
+    this.currentTheme = theme;
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
   }
 
   /**

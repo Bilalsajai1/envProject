@@ -1,7 +1,6 @@
 package ma.perenity.backend.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import ma.perenity.backend.dto.*;
 import ma.perenity.backend.entities.*;
 import ma.perenity.backend.entities.enums.ActionType;
@@ -78,6 +77,16 @@ public class ProfilServiceImpl implements ProfilService {
                 .actif(dto.getActif() != null ? dto.getActif() : true)
                 .isDeleted(false)
                 .build();
+
+        // ✅ AMÉLIORATION: Créer le groupe Keycloak immédiatement
+        ProfilKeycloakDTO keycloakGroupDto = ProfilKeycloakDTO.builder()
+                .code(profil.getCode())
+                .libelle(profil.getLibelle())
+                .roles(Collections.emptyList())
+                .build();
+
+        String keycloakGroupId = keycloakService.getOrCreateGroup(keycloakGroupDto);
+        profil.setKeycloakGroupId(keycloakGroupId);
 
         profil = profilRepository.save(profil);
         return mapper.toDto(profil);
@@ -192,6 +201,68 @@ public class ProfilServiceImpl implements ProfilService {
         ProfilEntity profil = profilRepository.findById(profilId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Profil introuvable"));
 
+        // ✅ SI ADMIN → Retourner TOUTES les permissions automatiquement
+        if (Boolean.TRUE.equals(profil.getAdmin())) {
+            return buildAdminPermissions(profil);
+        }
+
+        // ✅ Sinon, logique normale pour les non-admins
+        return buildNormalUserPermissions(profil, profilId);
+    }
+
+    /**
+     * ✅ Construire les permissions complètes pour un profil administrateur
+     */
+    private ProfilPermissionsDTO buildAdminPermissions(ProfilEntity profil) {
+        // Toutes les actions disponibles
+        List<ActionType> allActions = Arrays.asList(ActionType.values());
+
+        // Récupérer TOUS les types d'environnement actifs
+        List<EnvironmentTypeEntity> allTypes = environmentTypeRepository.findByActifTrue();
+
+        List<EnvironmentTypePermissionDTO> envPermissions = allTypes.stream()
+                .map(type -> EnvironmentTypePermissionDTO.builder()
+                        .id(type.getId())
+                        .code(type.getCode())
+                        .libelle(type.getLibelle())
+                        .actif(type.getActif())
+                        .allowedActions(new ArrayList<>(allActions)) // ✅ Toutes les actions
+                        .build())
+                .toList();
+
+        // Récupérer TOUS les projets actifs
+        List<ProjetEntity> allProjects = projetRepository.findByActifTrue();
+
+        List<ProjectPermissionDTO> projPermissions = allProjects.stream()
+                .map(projet -> {
+                    // Récupérer les types d'environnement pour ce projet
+                    List<String> environmentTypeCodes = getProjectEnvTypeCodes(projet);
+
+                    return ProjectPermissionDTO.builder()
+                            .id(projet.getId())
+                            .code(projet.getCode())
+                            .libelle(projet.getLibelle())
+                            .actif(projet.getActif())
+                            .allowedActions(new ArrayList<>(allActions)) // ✅ Toutes les actions
+                            .environmentTypeCodes(environmentTypeCodes)
+                            .build();
+                })
+                .toList();
+
+        return ProfilPermissionsDTO.builder()
+                .profilId(profil.getId())
+                .profilCode(profil.getCode())
+                .profilLibelle(profil.getLibelle())
+                .isAdmin(true) // ✅ Flag admin
+                .environmentTypes(envPermissions)
+                .projects(projPermissions)
+                .build();
+    }
+
+    /**
+     * ✅ Construire les permissions pour un utilisateur normal (non-admin)
+     */
+    private ProfilPermissionsDTO buildNormalUserPermissions(ProfilEntity profil, Long profilId) {
         List<RoleEntity> roles = profilRoleRepository.findRolesByProfil(profilId);
 
         Map<String, Set<ActionType>> envTypeActionsMap = new HashMap<>();
@@ -264,13 +335,7 @@ public class ProfilServiceImpl implements ProfilService {
                     Set<ActionType> actions = projectActionsMap.getOrDefault(
                             projet.getId(), Collections.emptySet());
 
-                    // ✅ NOUVEAU: Récupérer les types d'environnement pour ce projet
-                    List<String> environmentTypeCodes = projet.getEnvironnements().stream()
-                            .filter(env -> env.getActif() && env.getType() != null)
-                            .map(env -> env.getType().getCode())
-                            .distinct()
-                            .sorted()
-                            .toList();
+                    List<String> environmentTypeCodes = getProjectEnvTypeCodes(projet);
 
                     return ProjectPermissionDTO.builder()
                             .id(projet.getId())
@@ -278,7 +343,7 @@ public class ProfilServiceImpl implements ProfilService {
                             .libelle(projet.getLibelle())
                             .actif(projet.getActif())
                             .allowedActions(new ArrayList<>(actions))
-                            .environmentTypeCodes(environmentTypeCodes) // ✅ AJOUTÉ
+                            .environmentTypeCodes(environmentTypeCodes)
                             .build();
                 })
                 .toList();
@@ -287,9 +352,38 @@ public class ProfilServiceImpl implements ProfilService {
                 .profilId(profil.getId())
                 .profilCode(profil.getCode())
                 .profilLibelle(profil.getLibelle())
+                .isAdmin(false) // ✅ Flag non-admin
                 .environmentTypes(envPermissions)
                 .projects(projPermissions)
                 .build();
+    }
+
+    /**
+     * Agrège les codes de type d'environnement d'un projet
+     * en combinant les environnements existants et l'association directe environmentTypes.
+     */
+    private List<String> getProjectEnvTypeCodes(ProjetEntity projet) {
+        Set<String> codes = new HashSet<>();
+
+        if (projet.getEnvironnements() != null) {
+            projet.getEnvironnements().stream()
+                    .filter(env -> env.getActif() && env.getType() != null && env.getType().getCode() != null)
+                    .forEach(env -> codes.add(env.getType().getCode()));
+        }
+
+        if (projet.getEnvironmentTypes() != null) {
+            projet.getEnvironmentTypes().stream()
+                    .filter(et -> et != null && et.getCode() != null)
+                    .forEach(et -> codes.add(et.getCode()));
+        }
+
+        return codes.stream()
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .map(String::toUpperCase)
+                .sorted()
+                .toList();
     }
     @Override
     public void updateEnvTypePermissions(Long profilId, List<EnvTypePermissionUpdateDTO> envPermissions) {
@@ -298,13 +392,20 @@ public class ProfilServiceImpl implements ProfilService {
         ProfilEntity profil = profilRepository.findById(profilId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Profil introuvable"));
 
-        Set<String> requestedTypes = (envPermissions != null ? envPermissions : List.<EnvTypePermissionUpdateDTO>of())
+        Map<String, Set<ActionType>> requested = (envPermissions != null ? envPermissions : List.<EnvTypePermissionUpdateDTO>of())
                 .stream()
-                .map(EnvTypePermissionUpdateDTO::getEnvTypeCode)
-                .filter(Objects::nonNull)
-                .map(String::trim)
-                .map(String::toUpperCase)
-                .collect(Collectors.toSet());
+                .filter(dto -> dto.getEnvTypeCode() != null)
+                .collect(Collectors.toMap(
+                        dto -> dto.getEnvTypeCode().trim().toUpperCase(),
+                        dto -> {
+                            List<ActionType> acts = dto.getActions();
+                            if (acts == null || acts.isEmpty()) {
+                                return new HashSet<>(Collections.singletonList(ActionType.CONSULT));
+                            }
+                            return new HashSet<>(acts);
+                        },
+                        (a, b) -> b
+                ));
 
         profilRoleRepository.deleteByProfilIdAndRoleCodePrefix(profilId, "ENV_");
 
@@ -313,28 +414,31 @@ public class ProfilServiceImpl implements ProfilService {
         for (EnvironmentTypeEntity type : envTypes) {
             String typeCodeUpper = type.getCode().trim().toUpperCase();
 
-            if (!requestedTypes.contains(typeCodeUpper)) {
+            Set<ActionType> actions = requested.get(typeCodeUpper);
+            if (actions == null || actions.isEmpty()) {
                 continue;
             }
 
-            String roleCode = "ENV_" + typeCodeUpper + "_CONSULT";
+            for (ActionType action : actions) {
+                String roleCode = "ENV_" + typeCodeUpper + "_" + action.name();
 
-            RoleEntity role = roleRepository.findByCode(roleCode)
-                    .orElseGet(() -> {
-                        RoleEntity newRole = RoleEntity.builder()
-                                .code(roleCode)
-                                .libelle("Consultation type " + type.getCode())
-                                .action(ActionType.CONSULT)
-                                .scope(RoleScope.ENV_TYPE)
-                                .actif(true)
-                                .build();
-                        return roleRepository.save(newRole);
-                    });
+                RoleEntity role = roleRepository.findByCode(roleCode)
+                        .orElseGet(() -> {
+                            RoleEntity newRole = RoleEntity.builder()
+                                    .code(roleCode)
+                                    .libelle(action.name() + " sur type " + type.getCode())
+                                    .action(action)
+                                    .scope(RoleScope.ENV_TYPE)
+                                    .actif(true)
+                                    .build();
+                            return roleRepository.save(newRole);
+                        });
 
-            ProfilRoleEntity pr = new ProfilRoleEntity();
-            pr.setProfil(profil);
-            pr.setRole(role);
-            profilRoleRepository.save(pr);
+                ProfilRoleEntity pr = new ProfilRoleEntity();
+                pr.setProfil(profil);
+                pr.setRole(role);
+                profilRoleRepository.save(pr);
+            }
         }
 
         if (profil.getKeycloakGroupId() != null) {
@@ -419,7 +523,19 @@ public class ProfilServiceImpl implements ProfilService {
     public void updateAllPermissions(Long profilId, UpdateProfilPermissionsRequest request) {
         checkAdmin();
 
+        // ✅ Vérifier si le profil est admin
+        ProfilEntity profil = profilRepository.findById(profilId)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Profil introuvable"));
 
+        if (Boolean.TRUE.equals(profil.getAdmin())) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Impossible de modifier les permissions d'un profil administrateur. " +
+                            "Les administrateurs ont automatiquement tous les droits."
+            );
+        }
+
+        // ✅ Logique normale pour les non-admins
         if (request.getEnvTypePermissions() != null) {
             updateEnvTypePermissions(profilId, request.getEnvTypePermissions());
         }
@@ -427,6 +543,5 @@ public class ProfilServiceImpl implements ProfilService {
         if (request.getProjectPermissions() != null) {
             updateProjectPermissions(profilId, request.getProjectPermissions());
         }
-
     }
 }

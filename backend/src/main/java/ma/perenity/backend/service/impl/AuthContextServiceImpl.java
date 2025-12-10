@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import ma.perenity.backend.dto.*;
 import ma.perenity.backend.entities.EnvironmentTypeEntity;
 import ma.perenity.backend.entities.ProjetEntity;
+import ma.perenity.backend.entities.enums.ActionType;
 import ma.perenity.backend.repository.EnvironmentTypeRepository;
 import ma.perenity.backend.repository.ProjetRepository;
 import ma.perenity.backend.service.AuthContextService;
@@ -29,14 +30,18 @@ public class AuthContextServiceImpl implements AuthContextService {
 
         List<EnvironmentTypeWithProjectsDTO> environmentTypes = envTypes.stream()
                 .filter(type -> permissionService.canViewEnvironmentType(type.getCode()))
-                .map(type -> {
-                    List<ProjetEntity> allProjects = projetRepository.findByEnvironmentTypeCode(type.getCode());
+            .map(type -> {
+                List<ProjetEntity> allProjects = projetRepository.findByEnvironmentTypeCode(type.getCode());
 
-                    List<ProjectWithActionsDTO> accessibleProjects = allProjects.stream()
-                            .filter(ProjetEntity::getActif)
-                            .map(projet -> {
-                                List<ma.perenity.backend.entities.enums.ActionType> actions =
-                                        permissionService.getProjectActions(projet.getId());
+                List<ActionType> envActions = java.util.Arrays.stream(ActionType.values())
+                        .filter(action -> permissionService.canAccessEnvType(type.getCode(), action))
+                        .toList();
+
+                List<ProjectWithActionsDTO> accessibleProjects = allProjects.stream()
+                        .filter(ProjetEntity::getActif)
+                        .map(projet -> {
+                            List<ma.perenity.backend.entities.enums.ActionType> actions =
+                                    permissionService.getProjectActions(projet.getId());
 
                                 if (actions.isEmpty()) {
                                     return null;
@@ -59,9 +64,10 @@ public class AuthContextServiceImpl implements AuthContextService {
                             .code(type.getCode())
                             .libelle(type.getLibelle())
                             .actif(type.getActif())
+                            .allowedActions(envActions)
                             .projects(accessibleProjects)
                             .build();
-                })
+            })
                 .collect(Collectors.toList());
 
         return AuthContextDTO.builder()

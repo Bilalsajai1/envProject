@@ -6,6 +6,8 @@ export interface ProjectDTO {
   libelle: string;
   description?: string;
   actif: boolean;
+  envTypeCode?: string;       // compat mono-type (ancien)
+  envTypeCodes?: string[];    // multi types
 }
 
 export interface EnvironmentDTO {

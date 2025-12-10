@@ -1,418 +1,244 @@
-// ============================================================================
-// 🔐 LOGIN PAGE - FOND NOIR & CARD VERTICALE
-// ============================================================================
+﻿.login-screen {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+}
 
-.account-pages {
+.login-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.login-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(190, 76, 10, 0.14) 0%, rgba(18, 80, 196, 0.06) 50%, rgba(11, 175, 126, 0.18) 100%);
+}
+
+.login-card-wrapper {
+  position: relative;
+  z-index: 2;
   min-height: 100vh;
   display: flex;
   align-items: center;
-  justify-content: center;
-  background: #ffffff; // ✅ FOND TRÈS NOIR
-  padding: var(--space-4);
+  justify-content: flex-end;
+  padding: clamp(20px, 5vw, 48px);
+}
 
-  @media (max-width: 768px) {
-    padding: var(--space-2);
+.theme-toggle {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.35);
+  color: #f5f5f5;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  backdrop-filter: blur(4px);
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
   }
 }
-
-.login-page-container {
-  width: 100%;
-}
-
-// ============================================================================
-// 🎴 LOGIN CARD - VERTICALE & COMPACTE
-// ============================================================================
 
 .login-card {
-  background: var(--bg-elevated);
-  border-radius: var(--radius-2xl);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-  border: 1px solid var(--border-color);
-  animation: fadeInUp 0.5s var(--ease-out);
-  max-width: 380px; // ✅ LARGEUR MAXIMALE FIXE
-  margin: 0 auto;
-
-  @media (max-width: 768px) {
-    border-radius: var(--radius-xl);
-    max-width: 100%;
-  }
+  width: 100%;
+  max-width: 520px;
+  min-height: 640px;
+  background: #ffffff;
+  border-radius: 24px;
+  border: 1px solid #423838;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  animation: fadeInUp 0.4s var(--ease-out);
 }
-
-// ============================================================================
-// 🎯 CARD HEADER
-// ============================================================================
 
 .card-header {
-  padding: var(--space-6) var(--space-5);
+  padding: 32px  ;
 
-  @media (max-width: 768px) {
-    padding: var(--space-4) var(--space-3);
-  }
+  .brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
 
-  .mb-3 {
-    margin-bottom: var(--space-4);
-  }
+    &.solo-logo {
+      justify-content: center;
+    }
 
-  h4 {
-    font-size: var(--text-xl);
-    font-weight: var(--font-bold);
-    color: var(--brand-primary);
-    margin-bottom: var(--space-2);
-
-    @media (max-width: 768px) {
-      font-size: var(--text-lg);
+    .login-logo {
+      width: 400px;
     }
   }
-
-  p {
-    font-size: var(--text-sm);
-    color: var(--text-secondary);
-    margin: 0;
-  }
-
-  hr {
-    border: none;
-    border-top: 1px solid var(--divider-color);
-    margin-top: var(--space-4);
-    opacity: 1;
-  }
 }
-
-// ============================================================================
-// 🖼️ LOGO
-// ============================================================================
-
-.login-logo {
-  max-width: 140px;
-  height: auto;
-  display: block;
-  margin: 0 auto;
-
-  @media (max-width: 768px) {
-    max-width: 120px;
-  }
-}
-
-// ============================================================================
-// 📝 CARD BODY
-// ============================================================================
 
 .card-body {
-  padding: var(--space-5);
-
-  @media (max-width: 768px) {
-    padding: var(--space-4) var(--space-3);
-  }
+  padding: 32px  ;
 }
 
-// ============================================================================
-// 🚨 ALERT ERROR
-// ============================================================================
+.form-label {
+  display: block;
+  font-size: 16px;
+  font-weight: 1000;
+  color: #3c5455;
+  margin-bottom: 8px;
+}
 
-.alert {
-  padding: var(--space-3);
-  border-radius: var(--radius-lg);
-  border: 1px solid;
-  animation: shake 0.4s var(--ease-out);
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
+::ng-deep .mat-mdc-form-field {
+  width: 100%;
 
-  &.alert-danger {
-    background: var(--color-error-bg);
-    border-color: var(--color-error);
-    color: var(--color-error-dark);
+  .mat-mdc-text-field-wrapper {
+    background: #b3c0db;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  }
 
-    .mat-icon {
-      color: var(--color-error);
-    }
+  .mat-mdc-form-field-subscript-wrapper {
+    margin-top: 4px;
   }
 
   .mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-    flex-shrink: 0;
+    color: #065986FF;
   }
 
-  span {
-    flex: 1;
-    font-size: var(--text-xs);
-    font-weight: var(--font-medium);
-  }
+
 }
 
-// ============================================================================
-// 📋 FORM
-// ============================================================================
+.remember-block {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 
-form {
-  .mb-3 {
-    margin-bottom: var(--space-4);
-  }
-
-  .form-label {
-    display: block;
-    font-size: var(--text-sm);
-    font-weight: var(--font-semibold);
-    color: var(--text-primary);
-    margin-bottom: var(--space-2);
-  }
-
-  .w-100 {
-    width: 100%;
-  }
-
-  .text-center {
-    text-align: center;
-  }
-}
-
-// ============================================================================
-// 🔤 FORM FIELDS
-// ============================================================================
-
-::ng-deep {
-  .mat-mdc-form-field {
-    width: 100%;
-
-    .mat-mdc-text-field-wrapper {
-      background: var(--bg-primary);
-    }
-
-    .mat-mdc-form-field-focus-overlay {
-      background-color: transparent;
-    }
-
-    input {
-      color: var(--text-primary);
-      font-size: var(--text-sm);
-    }
-
-    .mat-icon {
-      color: var(--text-secondary);
-      transition: color var(--transition-fast);
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
-    }
-
-    &.mat-focused {
-      .mat-icon[matPrefix] {
-        color: var(--brand-primary);
-      }
-    }
-
-    .mat-mdc-form-field-subscript-wrapper {
-      margin-top: var(--space-1);
-    }
-
-    .mat-mdc-form-field-error {
-      color: var(--color-error);
-      font-size: var(--text-xs);
-    }
-  }
-
-  // Suffix button (password toggle)
-  button[matSuffix] {
-    color: var(--text-secondary);
-    transition: color var(--transition-fast);
-
-    &:hover {
-      color: var(--text-primary);
-    }
-
-    .mat-icon {
-      color: inherit;
-    }
-  }
-}
-
-// ============================================================================
-// ✅ CHECKBOX
-// ============================================================================
-
-::ng-deep .mat-mdc-checkbox {
-  .mdc-form-field {
-    color: var(--text-primary);
-    font-size: var(--text-sm);
-  }
-
-  .mdc-checkbox__background {
-    border-color: var(--text-secondary);
-  }
-
-  &.mat-mdc-checkbox-checked {
-    .mdc-checkbox__background {
-      background-color: var(--brand-primary);
-      border-color: var(--brand-primary);
-    }
-  }
-}
-
-// ============================================================================
-// 🔗 FORGOT PASSWORD LINK
-// ============================================================================
-
-.forgot-password-link {
+  .forgot-password-link {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-1);
-  font-size: var(--text-xs);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: color var(--transition-fast);
+  gap: 6px;
+  font-size: 12px;
+  color: #2554c4;
   text-decoration: none;
+  transition: color var(--transition-fast);
 
   &:hover {
     color: var(--brand-primary);
     text-decoration: underline;
   }
 
-  .mat-icon {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
+    .mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
   }
 }
 
-// ============================================================================
-// 🔘 LOGIN BUTTON
-// ============================================================================
-
 .login-button {
-  height: 44px;
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  border-radius: var(--radius-lg);
-  display: flex;
+  height: 46px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary, #2fa8ff));
+  color: var(--text-inverse);
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2);
-  transition: all var(--transition-base);
-  background-color: var(--brand-primary);
+  gap: 8px;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  background-color: rgb(188, 217, 233);
 
   &:not([disabled]):hover {
     transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+    background-color: #065986FF;
   }
 
-  &:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
+  &:active {
+    transform: translateY(0);
+    background-color: #065986FF;
+  }
+}
+
+.card-footer {
+  padding: 16px 24px 24px;
+  text-align: center;
+
+  p {
+    margin: 0;
+    font-size: 12px;
+    color: #1861bb;
+  }
+}
+
+.alert {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--color-error);
+  background: var(--color-error-bg);
+  color: var(--color-error-dark);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .mat-icon { color: var(--color-error); }
+  span { font-size: 13px; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 900px) {
+  .login-card-wrapper { justify-content: center; }
+  .login-card { border-radius: 18px; }
+}
+
+// Dark mode tweaks
+[data-theme="dark"] {
+  .login-screen { background: var(--bg-primary); }
+  .login-overlay { background: linear-gradient(120deg, rgba(3, 7, 18, 0.48) 0%, rgba(3, 7, 18, 0.35) 50%, rgba(3, 7, 18, 0.58) 100%); }
+  .login-card {
+    background: linear-gradient(180deg, #000000 0%, #000000 100%);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 25px 80px rgba(247, 0, 0, 0.65);
+    color: #000000;
+  }
+  .card-header p,
+  .form-label,
+  ::ng-deep .mat-mdc-form-field input,
+  ::ng-deep .mat-mdc-form-field .mat-icon {
+    color: #000000;
+  }
+  ::ng-deep .mat-mdc-form-field .mat-mdc-text-field-wrapper {
+    background: #0f172a;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    color: #000000;
+  }
+  .card-footer p { color: rgba(0, 0, 0, 0.7); }
+  .theme-toggle {
+    background: rgba(0, 0, 0, 0.12);
+    border-color: rgba(0, 0, 0, 0.22);
+    color: #000000;
   }
 
-  ::ng-deep .mat-mdc-progress-spinner {
-    display: inline-block;
-    vertical-align: middle;
-
-    circle {
-      stroke: var(--text-inverse);
+  .login-button {
+    background: linear-gradient(90deg, #000000, #000000);
+    color: #000000;
+    &:not([disabled]):hover {
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
     }
   }
 
-  span {
-    display: inline-block;
-  }
-}
-
-// ============================================================================
-// 📄 CARD FOOTER
-// ============================================================================
-
-.card-footer {
-  padding: var(--space-4) var(--space-5);
-  border-top: 1px solid var(--divider-color);
-
-  @media (max-width: 768px) {
-    padding: var(--space-3);
-  }
-
-  p {
-    font-size: var(--text-xs);
-    color: var(--text-tertiary);
-    margin: 0;
-  }
-}
-
-// ============================================================================
-// 🎨 ANIMATIONS
-// ============================================================================
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes shake {
-  0%, 100% {
-    transform: translateX(0);
-  }
-  10%, 30%, 50%, 70%, 90% {
-    transform: translateX(-5px);
-  }
-  20%, 40%, 60%, 80% {
-    transform: translateX(5px);
-  }
-}
-
-// ============================================================================
-// 📱 RESPONSIVE
-// ============================================================================
-
-@media (max-width: 768px) {
-  .account-pages {
-    padding: var(--space-3);
-  }
-}
-
-// ============================================================================
-// ♿ ACCESSIBILITY
-// ============================================================================
-
-button:focus-visible,
-a:focus-visible,
-input:focus-visible {
-  outline: 2px solid var(--brand-primary);
-  outline-offset: 2px;
-}
-
-// High contrast mode
-@media (prefers-contrast: high) {
-  .login-card {
-    border-width: 2px;
-  }
-
-  .alert {
-    border-width: 2px;
-  }
-}
-
-// Reduced motion
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-// ============================================================================
-// 🌙 DARK MODE - ENCORE PLUS SOMBRE
-// ============================================================================
-
-[data-theme="dark"] {
-  .account-pages {
-    background: #000000; // ✅ NOIR PUR EN DARK MODE
-  }
-
-  .login-card {
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+  .remember-block .forgot-password-link {
+    color: #000000;
+    &:hover { color: #000000; }
   }
 }

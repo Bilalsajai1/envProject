@@ -1,549 +1,104 @@
-// ============================================================================
-// 📱 APPLICATION LIST - SIMPLE & CLEAN
-// ============================================================================
+// src/app/environments/application-list/application-list.component.scss
 
 .application-list-container {
-  max-width: 1600px;
-  margin: 0 auto;
-}
-
-// ============================================================================
-// 🍞 BREADCRUMB
-// ============================================================================
-
-.breadcrumb {
+  padding: 20px;
+  height: 100%;
   display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-4) var(--space-6);
-  background: var(--bg-elevated);
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--border-color);
-  margin-bottom: var(--space-6);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
+  flex-direction: column;
 
-  .mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-    color: var(--text-tertiary);
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      h2 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 500;
+      }
+    }
+
+    button {
+      mat-icon {
+        margin-right: 8px;
+      }
+    }
   }
 
-  span {
-    color: var(--text-secondary);
+  .search-field {
+    width: 100%;
+    margin-bottom: 16px;
   }
 
-  .current {
-    color: var(--text-primary);
-    font-weight: var(--font-semibold);
+.table-container {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+
+  table {
+    width: 100%;
+
+      th {
+        background-color: #f5f5f5;
+        font-weight: 600;
+      }
+
+      td {
+        a {
+          color: #1976d2;
+          text-decoration: none;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+    }
   }
 
-  @media (max-width: 768px) {
-    padding: var(--space-3) var(--space-4);
-    overflow-x: auto;
-    white-space: nowrap;
-  }
-}
-
-.breadcrumb-link {
-  color: var(--brand-primary);
-  cursor: pointer;
-  transition: color var(--transition-fast);
-
-  &:hover {
-    color: var(--brand-primary-dark);
-    text-decoration: underline;
-  }
-}
-
-// ============================================================================
-// 📋 LIST HEADER
-// ============================================================================
-
-.list-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-6);
-  padding: var(--space-6);
-  background: var(--bg-elevated);
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--border-color);
-  margin-bottom: var(--space-6);
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--space-4);
-  }
-
-  @media (max-width: 768px) {
-    padding: var(--space-4);
-  }
-
-  h2 {
+  .loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
     display: flex;
     align-items: center;
-    gap: var(--space-3);
-    font-size: var(--text-2xl);
-    font-weight: var(--font-bold);
-    color: var(--text-primary);
-    margin: 0 0 var(--space-1) 0;
-
-    .mat-icon {
-      color: var(--brand-primary);
-      font-size: 28px;
-      width: 28px;
-      height: 28px;
-    }
-
-    @media (max-width: 768px) {
-      font-size: var(--text-xl);
-
-      .mat-icon {
-        font-size: 24px;
-        width: 24px;
-        height: 24px;
-      }
-    }
-  }
-
-  .subtitle {
-    font-size: var(--text-sm);
-    color: var(--text-secondary);
-    margin: 0;
-  }
-}
-
-// ============================================================================
-// 🎬 HEADER ACTIONS
-// ============================================================================
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  flex-wrap: wrap;
-
-  @media (max-width: 1024px) {
-    width: 100%;
-  }
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: stretch;
-  }
-}
-
-.search-field {
-  min-width: 300px;
-
-  @media (max-width: 1024px) {
-    flex: 1;
-    min-width: 200px;
-  }
-
-  @media (max-width: 768px) {
-    width: 100%;
-    min-width: 100%;
-  }
-
-  ::ng-deep {
-    .mat-mdc-text-field-wrapper {
-      background: var(--bg-primary);
-    }
-
-    input {
-      color: var(--text-primary);
-    }
-
-    .mat-mdc-form-field-subscript-wrapper {
-      display: none;
-    }
-  }
-}
-
-button[mat-raised-button],
-button[mat-stroked-button] {
-  height: var(--button-height);
-  font-weight: var(--font-medium);
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-
-  .mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-  }
-
-  @media (max-width: 768px) {
-    width: 100%;
     justify-content: center;
+    z-index: 1000;
   }
-}
 
-button[mat-stroked-button] {
-  border-color: var(--border-color);
-  color: var(--text-secondary);
+  .no-data {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: #999;
 
-  &:hover {
-    background: var(--bg-tertiary);
-    border-color: var(--text-secondary);
-  }
-}
-
-// ============================================================================
-// 🎴 MAT CARD
-// ============================================================================
-
-mat-card {
-  background: var(--bg-elevated);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--border-color);
-  padding: 0;
-
-  ::ng-deep .mat-mdc-card-content {
-    padding: 0;
-  }
-}
-
-// ============================================================================
-// 📋 TABLE AVEC BORDURES
-// ============================================================================
-
-.applications-table {
-  width: 100%;
-  background: transparent;
-  border-collapse: separate;
-  border-spacing: 0;
-
-  ::ng-deep {
-    .mat-mdc-header-row {
-      background: var(--bg-secondary);
+    mat-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      margin-bottom: 16px;
     }
 
-    .mat-mdc-header-cell {
-      font-size: var(--text-xs);
-      font-weight: var(--font-bold);
-      text-transform: uppercase;
-      color: var(--text-secondary);
-      padding: var(--space-4);
-      border-bottom: 2px solid var(--divider-color);
-      border-right: 1px solid var(--divider-color);
-
-      &:first-child {
-        padding-left: var(--space-6);
-        border-left: none;
-      }
-
-      &:last-child {
-        padding-right: var(--space-6);
-        border-right: none;
-      }
-    }
-
-    .mat-mdc-row {
-      transition: background-color var(--transition-fast);
-
-      &:hover {
-        background: var(--bg-secondary);
-      }
-    }
-
-    .mat-mdc-cell {
-      padding: var(--space-4);
-      font-size: var(--text-sm);
-      color: var(--text-primary);
-      border-bottom: 1px solid var(--divider-color);
-      border-right: 1px solid var(--divider-color);
-
-      &:first-child {
-        padding-left: var(--space-6);
-        border-left: none;
-      }
-
-      &:last-child {
-        padding-right: var(--space-6);
-        border-right: none;
-      }
+    p {
+      font-size: 16px;
+      margin: 0;
     }
   }
 
-  @media (max-width: 1200px) {
-    min-width: 1200px;
-  }
-}
-
-// ============================================================================
-// 📱 APPLICATION CELL
-// ============================================================================
-
-.app-main {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-
-.app-code {
-  display: inline-flex;
-  padding: var(--space-1) var(--space-2);
-  background: var(--neutral-200);
-  color: var(--neutral-800);
-  border-radius: var(--radius-sm);
-  font-size: var(--text-xs);
-  font-weight: var(--font-semibold);
-  font-family: var(--font-mono);
-  border: 1px solid var(--neutral-300);
-  width: fit-content;
-}
-
-[data-theme="dark"] .app-code {
-  background: var(--neutral-800);
-  color: var(--neutral-200);
-  border-color: var(--neutral-700);
-}
-
-.app-libelle {
-  font-size: var(--text-sm);
-  color: var(--text-primary);
-  font-weight: var(--font-medium);
-}
-
-// ============================================================================
-// 🏷️ PROTOCOL CHIP
-// ============================================================================
-
-.protocol-chip {
-  display: inline-flex;
-  align-items: center;
-  height: 24px;
-  padding: 0 var(--space-3);
-  background: var(--brand-primary);
-  color: var(--text-inverse);
-  font-size: var(--text-xs);
-  font-weight: var(--font-semibold);
-  border-radius: var(--radius-full);
-  text-transform: uppercase;
-
-  ::ng-deep .mat-mdc-chip-action-label {
-    color: var(--text-inverse);
-    padding: 0;
-  }
-}
-
-// ============================================================================
-// 🔗 URL LINK
-// ============================================================================
-
-.url-link {
-  color: var(--brand-primary);
-  text-decoration: none;
-  transition: color var(--transition-fast);
-  font-size: var(--text-sm);
-  max-width: 250px;
-  display: inline-block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-
-  &:hover {
-    color: var(--brand-primary-dark);
-    text-decoration: underline;
-  }
-
-  &::before {
-    content: '🔗';
-    margin-right: var(--space-1);
-  }
-}
-
-// ============================================================================
-// 🎬 ACTIONS CELL
-// ============================================================================
-
-.actions-cell {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  justify-content: flex-end;
-}
-
-button[mat-icon-button] {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-md);
-  transition: all var(--transition-fast);
-
-  .mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-  }
-
-  // Edit - VERT
-  &[color="primary"] {
-    color: var(--color-success);
-
-    &:hover {
-      background: var(--color-success-bg);
-      color: var(--color-success-dark);
-    }
-
-    .mat-icon {
-      color: var(--color-success);
-    }
-
-    &:hover .mat-icon {
-      color: var(--color-success-dark);
-    }
-  }
-
-  // Delete - ROUGE
-  &[color="warn"] {
-    color: var(--color-error);
-
-    &:hover {
-      background: var(--color-error-bg);
-      color: var(--color-error-dark);
-    }
-
-    .mat-icon {
-      color: var(--color-error);
-    }
-
-    &:hover .mat-icon {
-      color: var(--color-error-dark);
-    }
-  }
-}
-
-// ============================================================================
-// 🚫 EMPTY STATE
-// ============================================================================
-
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-16) var(--space-8);
-  text-align: center;
-
-  .mat-icon {
-    font-size: 64px;
-    width: 64px;
-    height: 64px;
-    color: var(--text-disabled);
-    margin-bottom: var(--space-4);
-  }
-
-  p {
-    font-size: var(--text-lg);
-    font-weight: var(--font-semibold);
-    color: var(--text-secondary);
-    margin: 0 0 var(--space-1) 0;
-  }
-
-  .hint {
-    font-size: var(--text-sm);
-    color: var(--text-tertiary);
-    margin: 0;
-  }
-}
-
-// ============================================================================
-// ⏳ LOADING STATE
-// ============================================================================
-
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-16) var(--space-8);
-  gap: var(--space-4);
-  background: var(--bg-elevated);
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--border-color);
-
-  ::ng-deep .mat-mdc-progress-spinner {
-    --mdc-circular-progress-active-indicator-color: var(--brand-primary);
-  }
-
-  p {
-    font-size: var(--text-sm);
-    color: var(--text-secondary);
-    margin: 0;
-  }
-}
-
-// ============================================================================
-// 📱 RESPONSIVE
-// ============================================================================
-
-@media (max-width: 768px) {
-  .application-list-container {
-    padding: 0;
-  }
-
-  .breadcrumb {
-    margin-bottom: var(--space-4);
-  }
-
-  .list-header {
-    margin-bottom: var(--space-4);
-  }
-
-  mat-card {
-    border-radius: var(--radius-lg);
-  }
-
-  .applications-table {
-    ::ng-deep {
-      .mat-mdc-header-cell,
-      .mat-mdc-cell {
-        padding: var(--space-3);
-
-        &:first-child {
-          padding-left: var(--space-4);
-        }
-
-        &:last-child {
-          padding-right: var(--space-4);
-        }
-      }
-    }
-  }
-}
-
-// ============================================================================
-// ♿ ACCESSIBILITY
-// ============================================================================
-
-.breadcrumb-link:focus-visible {
-  outline: 2px solid var(--brand-primary);
-  outline-offset: 2px;
-  border-radius: var(--radius-sm);
-}
-
-button:focus-visible {
-  outline: 2px solid var(--brand-primary);
-  outline-offset: 2px;
-}
-
-// High contrast mode
-@media (prefers-contrast: high) {
-  .app-code,
-  .protocol-chip {
-    border-width: 2px;
-  }
-
-  .breadcrumb,
-  .list-header,
-  mat-card {
-    border-width: 2px;
+  .password-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
   }
 }

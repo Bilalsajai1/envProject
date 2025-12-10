@@ -37,6 +37,7 @@ export interface EnvironmentTypeWithProjects {
   code: string;
   libelle: string;
   actif: boolean;
+  allowedActions: ActionType[];
   projects: ProjectWithActions[];
 }
 

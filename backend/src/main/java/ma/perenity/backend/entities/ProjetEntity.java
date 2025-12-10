@@ -1,9 +1,11 @@
-package ma.perenity.backend.entities;
+﻿package ma.perenity.backend.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "PROJET")
@@ -30,6 +32,15 @@ public class ProjetEntity {
     @Builder.Default
     @Column(nullable = false)
     private Boolean actif = true;
+
+    @Builder.Default
+    @ManyToMany
+    @JoinTable(
+            name = "PROJET_ENV_TYPE",
+            joinColumns = @JoinColumn(name = "projet_id"),
+            inverseJoinColumns = @JoinColumn(name = "env_type_id")
+    )
+    private Set<EnvironmentTypeEntity> environmentTypes = new HashSet<>();
 
     @OneToMany(mappedBy = "projet")
     private List<EnvironnementEntity> environnements;

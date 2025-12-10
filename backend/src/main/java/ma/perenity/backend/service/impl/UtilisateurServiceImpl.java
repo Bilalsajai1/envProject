@@ -216,15 +216,23 @@ public class UtilisateurServiceImpl implements UtilisateurService {
 
     private void ensureKeycloakGroupExists(ProfilEntity profil) {
         if (profil.getKeycloakGroupId() == null) {
+            System.out.println("🔍 Profil " + profil.getCode() + " sans keycloakGroupId, recherche/création du groupe...");
+
             ProfilKeycloakDTO keycloakGroupDto = ProfilKeycloakDTO.builder()
                     .code(profil.getCode())
                     .libelle(profil.getLibelle())
                     .roles(Collections.emptyList())
                     .build();
 
-            String keycloakGroupId = keycloakService.createGroup(keycloakGroupDto);
+            // ✅ Utiliser getOrCreateGroup au lieu de createGroup
+            String keycloakGroupId = keycloakService.getOrCreateGroup(keycloakGroupDto);
+
             profil.setKeycloakGroupId(keycloakGroupId);
             profilRepository.save(profil);
+
+            System.out.println("✅ Profil " + profil.getCode() + " associé au groupe Keycloak ID: " + keycloakGroupId);
+        } else {
+            System.out.println("✅ Profil " + profil.getCode() + " déjà associé au groupe Keycloak ID: " + profil.getKeycloakGroupId());
         }
     }
 }

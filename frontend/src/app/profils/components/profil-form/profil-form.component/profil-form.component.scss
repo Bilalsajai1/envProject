@@ -1,707 +1,330 @@
-// ============================================================================
-// 🏷️ PROFIL FORM - SIMPLE & CLEAN
-// ============================================================================
-
-.profil-form-page {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  background: var(--bg-primary);
+:host {
+  display: block;
 }
 
-// ============================================================================
-// 🎯 HEADER
-// ============================================================================
+.profil-form-page {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 20px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow-card);
+}
 
 .profil-form-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--space-6);
-  border-bottom: 1px solid var(--divider-color);
-  background: var(--bg-elevated);
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
 }
 
 .title-block {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
-  flex: 1;
+  gap: 12px;
 }
 
 .avatar {
-  width: 56px;
-  height: 56px;
-  border-radius: var(--radius-xl);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-
-  &.create {
-    background: var(--brand-primary);
-  }
-
-  &.edit {
-    background: var(--brand-secondary);
-  }
-
-  .mat-icon {
-    font-size: 28px;
-    width: 28px;
-    height: 28px;
-    color: var(--text-inverse);
-  }
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  color: #0b1220;
+  font-weight: 700;
 }
 
-.title-text {
-  flex: 1;
-  min-width: 0;
+.avatar.create {
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+}
 
-  h1 {
-    font-size: var(--text-2xl);
-    font-weight: var(--font-bold);
-    color: var(--text-primary);
-    margin: 0 0 var(--space-1) 0;
-  }
+.avatar.edit {
+  background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+  color: #fff;
+}
 
-  .subtitle {
-    font-size: var(--text-sm);
-    color: var(--text-secondary);
-    margin: 0;
-  }
+.title-text h1 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.title-text .subtitle {
+  margin: 4px 0 0;
+  color: var(--text-muted);
 }
 
 .close-button {
-  flex-shrink: 0;
-  transition: background-color var(--transition-fast);
-
-  &:hover {
-    background: var(--bg-tertiary);
-  }
-
-  .mat-icon {
-    color: var(--text-secondary);
-  }
+  border: 1px solid var(--border);
+  background: var(--surface-strong);
 }
-
-// ============================================================================
-// ⏳ LOADING BAR
-// ============================================================================
 
 .loading-bar {
-  height: 3px;
+  margin: 0 0 12px;
 }
 
-// ============================================================================
-// 📋 CONTENT
-// ============================================================================
-
 .profil-form-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: var(--space-6);
-
-  &::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: var(--bg-secondary);
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: var(--neutral-400);
-    border-radius: var(--radius-full);
-  }
+  background: var(--surface);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
 }
 
 form {
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: 16px;
 }
-
-// ============================================================================
-// 📊 SECTIONS GRID
-// ============================================================================
 
 .sections-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-6);
-  margin-bottom: var(--space-6);
-
-  @media (max-width: 1024px) {
-    grid-template-columns: 1fr;
-  }
+  grid-template-columns: 1fr;
+  gap: 16px;
 }
 
-// ============================================================================
-// 🎴 FORM SECTION
-// ============================================================================
-
 .form-section {
-  background: var(--bg-elevated);
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-strong);
+  padding: 14px;
 }
 
 .section-header {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-6);
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--divider-color);
-
-  h2 {
-    font-size: var(--text-lg);
-    font-weight: var(--font-semibold);
-    color: var(--text-primary);
-    margin: 0 0 var(--space-1) 0;
-  }
-
-  p {
-    font-size: var(--text-xs);
-    color: var(--text-secondary);
-    margin: 0;
-  }
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
 .section-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-lg);
-  background: var(--brand-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: rgba(29, 164, 255, 0.14);
+  color: var(--accent-strong);
+}
 
-  &.section-icon-secondary {
-    background: var(--brand-secondary);
-  }
+.section-icon-secondary {
+  background: rgba(139, 92, 246, 0.14);
+  color: #6d28d9;
+}
 
-  .mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-    color: var(--text-inverse);
-  }
+.section-header h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.section-header p {
+  margin: 2px 0 0;
+  color: var(--text-muted);
 }
 
 .section-body {
-  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
-
-// ============================================================================
-// 📝 FORM FIELDS
-// ============================================================================
 
 .fields-row {
-  display: flex;
-  gap: var(--space-4);
-  margin-bottom: var(--space-4);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
 
-  &:last-child {
-    margin-bottom: 0;
-  }
-
-  &.two-cols {
-    > * {
-      flex: 1;
-    }
-  }
-
-  .full-width {
-    width: 100%;
-  }
+.fields-row.two-cols {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 
   @media (max-width: 768px) {
-    flex-direction: column;
+    grid-template-columns: 1fr;
   }
 }
 
-::ng-deep {
-  .mat-mdc-form-field {
-    width: 100%;
-
-    .mat-mdc-text-field-wrapper {
-      background: var(--bg-primary);
-    }
-
-    .mat-mdc-floating-label {
-      color: var(--text-secondary);
-    }
-
-    input,
-    textarea,
-    .mat-mdc-select {
-      color: var(--text-primary);
-    }
-
-    .mat-icon {
-      color: var(--text-secondary);
-    }
-
-    .mat-mdc-form-field-hint {
-      color: var(--text-tertiary);
-      font-size: var(--text-xs);
-    }
-
-    .mat-mdc-form-field-error {
-      color: var(--color-error);
-      font-size: var(--text-xs);
-    }
-
-    &.mat-focused {
-      .mat-icon {
-        color: var(--brand-primary);
-      }
-    }
-  }
+.full-width {
+  width: 100%;
 }
 
-// ============================================================================
-// 🔐 ADMIN BLOCK
-// ============================================================================
-
-.admin-block {
-  padding: var(--space-4);
-  background: var(--bg-secondary);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-color);
-  margin-bottom: var(--space-4);
+.admin-block,
+.status-block {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
 }
 
-.admin-header {
+.admin-header,
+.status-header {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  margin-bottom: var(--space-4);
+  gap: 12px;
+  margin-bottom: 10px;
 }
 
 .admin-badge {
   width: 40px;
   height: 40px;
-  border-radius: var(--radius-lg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
 
-  &.admin-on {
-    background: var(--color-warning-bg);
+.admin-on {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #fff;
+}
 
-    .mat-icon {
-      color: var(--color-warning);
-    }
-  }
-
-  &.admin-off {
-    background: var(--bg-tertiary);
-
-    .mat-icon {
-      color: var(--text-secondary);
-    }
-  }
-
-  .mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-  }
+.admin-off {
+  background: var(--surface-strong);
+  color: var(--text-muted);
 }
 
 .admin-text {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
-  flex: 1;
-}
-
-.admin-title {
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  color: var(--text-primary);
+  gap: 2px;
+  color: var(--text-main);
 }
 
 .admin-sub {
-  font-size: var(--text-xs);
-  color: var(--text-secondary);
-  line-height: var(--leading-relaxed);
+  color: var(--text-muted);
 }
 
-// ============================================================================
-// 🔘 ADMIN TOGGLE
-// ============================================================================
-
 .admin-toggle {
-  display: flex;
-  justify-content: center;
-  margin-bottom: var(--space-3);
+  margin-bottom: 10px;
 }
 
 .admin-chip {
-  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 10px;
+  display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-full);
-  border: 1px solid var(--border-color);
-  background: var(--bg-tertiary);
-  color: var(--text-secondary);
-  font-size: var(--text-sm);
-  font-weight: var(--font-medium);
-  font-family: inherit;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-
-  .mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-  }
-
-  &:hover {
-    background: var(--bg-elevated);
-    border-color: var(--border-color-hover);
-  }
-
-  &.admin-chip-on {
-    background: linear-gradient(135deg, var(--color-warning), var(--color-warning-dark));
-    color: var(--text-inverse);
-    border-color: var(--color-warning);
-    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
-
-    .mat-icon {
-      color: var(--text-inverse);
-    }
-
-    &:hover {
-      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
-      transform: translateY(-1px);
-    }
-  }
+  gap: 6px;
+  background: var(--surface-strong);
+  color: var(--text-main);
 }
 
-// ============================================================================
-// ℹ️ ADMIN HINT
-// ============================================================================
+.admin-chip-on {
+  background: rgba(245, 158, 11, 0.16);
+  color: #b45309;
+  border-color: rgba(245, 158, 11, 0.3);
+}
 
 .admin-hint-row {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-3);
-  background: var(--color-info-bg);
-  border-radius: var(--radius-md);
-  border-left: 3px solid var(--color-info);
-
-  .mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-    color: var(--color-info);
-    flex-shrink: 0;
-  }
-
-  span {
-    font-size: var(--text-xs);
-    color: var(--text-primary);
-    line-height: var(--leading-relaxed);
-  }
-}
-
-// ============================================================================
-// 🎯 STATUS BLOCK
-// ============================================================================
-
-.status-block {
-  padding: var(--space-4);
-  background: var(--bg-secondary);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-color);
-}
-
-.status-header {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin-bottom: var(--space-4);
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
 }
 
 .status-badge {
   width: 40px;
   height: 40px;
-  border-radius: var(--radius-lg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
 
-  &.badge-active {
-    background: var(--color-success-bg);
+.badge-active {
+  background: rgba(16, 185, 129, 0.18);
+  color: #0f766e;
+}
 
-    .mat-icon {
-      color: var(--color-success);
-    }
-  }
-
-  &.badge-inactive {
-    background: var(--color-error-bg);
-
-    .mat-icon {
-      color: var(--color-error);
-    }
-  }
-
-  .mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-  }
+.badge-inactive {
+  background: rgba(239, 68, 68, 0.18);
+  color: #b91c1c;
 }
 
 .status-text {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
-  flex: 1;
-}
-
-.status-title {
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  color: var(--text-primary);
+  gap: 2px;
+  color: var(--text-main);
 }
 
 .status-sub {
-  font-size: var(--text-xs);
-  color: var(--text-secondary);
-  line-height: var(--leading-relaxed);
+  color: var(--text-muted);
+  font-size: 0.9rem;
 }
 
-// ============================================================================
-// 🔘 STATUS TOGGLE PILL
-// ============================================================================
-
 .status-toggle-pill {
-  display: flex;
-  gap: var(--space-2);
-  padding: var(--space-1);
-  background: var(--bg-tertiary);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-color);
+  display: inline-flex;
+  gap: 8px;
+  background: var(--surface-strong);
+  padding: 6px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
 }
 
 .pill-button {
-  flex: 1;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: 999px;
+  padding: 6px 10px;
   background: transparent;
-  color: var(--text-secondary);
-  font-size: var(--text-sm);
-  font-weight: var(--font-medium);
-  font-family: inherit;
+  color: var(--text-main);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   cursor: pointer;
-  transition: all var(--transition-fast);
-
-  .mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-  }
-
-  &:hover:not(.selected) {
-    background: var(--bg-primary);
-  }
-
-  &.selected {
-    background: var(--bg-elevated);
-    box-shadow: var(--shadow-sm);
-    cursor: default;
-  }
-
-  &.pill-active.selected {
-    color: var(--color-success);
-  }
-
-  &.pill-inactive.selected {
-    color: var(--color-error);
-  }
 }
 
-// ============================================================================
-// 🦶 FOOTER
-// ============================================================================
+.pill-button.selected {
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
 
 .form-footer {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
   justify-content: space-between;
-  gap: var(--space-6);
-  padding: var(--space-6);
-  background: var(--bg-elevated);
-  border-top: 1px solid var(--divider-color);
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-sm);
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--space-4);
-  }
+  gap: 10px;
+  align-items: center;
 }
 
 .footer-info {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
-  flex: 1;
-
-  @media (max-width: 768px) {
-    order: 2;
-  }
-}
-
-.info-icon {
-  color: var(--color-info);
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-}
-
-.info-text {
-  font-size: var(--text-xs);
-  color: var(--text-secondary);
-  line-height: var(--leading-relaxed);
+  gap: 8px;
+  color: var(--text-muted);
 }
 
 .footer-actions {
-  display: flex;
-  gap: var(--space-3);
-  flex-shrink: 0;
-
-  @media (max-width: 768px) {
-    order: 1;
-    width: 100%;
-
-    button {
-      flex: 1;
-    }
-  }
+  display: inline-flex;
+  gap: 8px;
 }
 
 .cancel-button {
-  height: var(--button-height-lg);
-  font-weight: var(--font-medium);
-  border-color: var(--border-color);
-  color: var(--text-secondary);
-
-  &:hover {
-    background: var(--bg-tertiary);
-    border-color: var(--text-secondary);
-  }
-
-  .mat-icon {
-    margin-right: var(--space-2);
-  }
+  border-color: var(--border);
 }
 
 .submit-button {
-  height: var(--button-height-lg);
-  font-weight: var(--font-medium);
-  min-width: 140px;
-
-  .mat-icon {
-    margin-right: var(--space-2);
-  }
-
-  &:disabled {
-    opacity: 0.6;
-  }
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: var(--shadow-soft);
 }
 
 .button-spinner {
-  margin-right: var(--space-2);
-
-  ::ng-deep circle {
-    stroke: var(--text-inverse);
-  }
+  margin-right: 6px;
 }
-
-// ============================================================================
-// 📱 RESPONSIVE
-// ============================================================================
 
 @media (max-width: 768px) {
-  .profil-form-header {
-    padding: var(--space-4);
+  .profil-form-page {
+    padding: 16px 12px;
   }
 
-  .profil-form-content {
-    padding: var(--space-4);
+  form {
+    padding: 12px;
   }
-
-  .title-block {
-    gap: var(--space-3);
-  }
-
-  .avatar {
-    width: 48px;
-    height: 48px;
-
-    .mat-icon {
-      font-size: 24px;
-      width: 24px;
-      height: 24px;
-    }
-  }
-
-  .title-text h1 {
-    font-size: var(--text-xl);
-  }
-
-  .sections-grid {
-    gap: var(--space-4);
-  }
-
-  .section-header {
-    padding: var(--space-4);
-  }
-
-  .section-body {
-    padding: var(--space-4);
-  }
-
-  .form-footer {
-    padding: var(--space-4);
-  }
-}
-
-// ============================================================================
-// ♿ ACCESSIBILITY
-// ============================================================================
-
-.admin-chip:focus-visible,
-.pill-button:focus-visible {
-  outline: 2px solid var(--brand-primary);
-  outline-offset: 2px;
-}
-
-.close-button:focus-visible,
-.cancel-button:focus-visible,
-.submit-button:focus-visible {
-  outline: 2px solid var(--brand-primary);
-  outline-offset: 2px;
 }
