@@ -163,17 +163,14 @@ public class PermissionServiceImpl implements PermissionService {
             return false;
         }
 
-        String envTypeCode = env.getType().getCode();
         String projectCode = env.getProjet().getCode();
-
-        if (envTypeCode == null || projectCode == null) {
+        if (projectCode == null) {
             return false;
         }
 
-        String envRole = buildEnvTypeRole(envTypeCode, ActionType.CONSULT);
+        // Propagation : une action accordée sur le projet s'applique aux environnements / applications du projet
         String projRole = buildProjectRole(projectCode, action);
-
-        return ctx.hasRole(envRole) && ctx.hasRole(projRole);
+        return ctx.hasRole(projRole);
     }
 
     @Override

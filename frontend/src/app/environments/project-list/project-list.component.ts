@@ -99,7 +99,9 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   // ============================================
   canCreateProject(): boolean {
     const ctx = this.authContext.getCurrentContext();
-    return ctx?.user?.admin ?? false;
+    if (ctx?.user?.admin) return true;
+    const type = ctx?.environmentTypes.find(t => t.code?.toUpperCase() === this.typeCode?.toUpperCase());
+    return type?.allowedActions?.includes('CREATE') ?? false;
   }
 
   canUpdateProject(projectId: number): boolean {

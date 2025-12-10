@@ -236,12 +236,7 @@ public class ProfilServiceImpl implements ProfilService {
         List<ProjectPermissionDTO> projPermissions = allProjects.stream()
                 .map(projet -> {
                     // Récupérer les types d'environnement pour ce projet
-                    List<String> environmentTypeCodes = projet.getEnvironnements().stream()
-                            .filter(env -> env.getActif() && env.getType() != null)
-                            .map(env -> env.getType().getCode())
-                            .distinct()
-                            .sorted()
-                            .toList();
+                    List<String> environmentTypeCodes = getProjectEnvTypeCodes(projet);
 
                     return ProjectPermissionDTO.builder()
                             .id(projet.getId())
@@ -340,12 +335,7 @@ public class ProfilServiceImpl implements ProfilService {
                     Set<ActionType> actions = projectActionsMap.getOrDefault(
                             projet.getId(), Collections.emptySet());
 
-                    List<String> environmentTypeCodes = projet.getEnvironnements().stream()
-                            .filter(env -> env.getActif() && env.getType() != null)
-                            .map(env -> env.getType().getCode())
-                            .distinct()
-                            .sorted()
-                            .toList();
+                    List<String> environmentTypeCodes = getProjectEnvTypeCodes(projet);
 
                     return ProjectPermissionDTO.builder()
                             .id(projet.getId())
@@ -367,6 +357,34 @@ public class ProfilServiceImpl implements ProfilService {
                 .projects(projPermissions)
                 .build();
     }
+
+    /**
+     * Agrège les codes de type d'environnement d'un projet
+     * en combinant les environnements existants et l'association directe environmentTypes.
+     */
+    private List<String> getProjectEnvTypeCodes(ProjetEntity projet) {
+        Set<String> codes = new HashSet<>();
+
+        if (projet.getEnvironnements() != null) {
+            projet.getEnvironnements().stream()
+                    .filter(env -> env.getActif() && env.getType() != null && env.getType().getCode() != null)
+                    .forEach(env -> codes.add(env.getType().getCode()));
+        }
+
+        if (projet.getEnvironmentTypes() != null) {
+            projet.getEnvironmentTypes().stream()
+                    .filter(et -> et != null && et.getCode() != null)
+                    .forEach(et -> codes.add(et.getCode()));
+        }
+
+        return codes.stream()
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .map(String::toUpperCase)
+                .sorted()
+                .toList();
+    }
     @Override
     public void updateEnvTypePermissions(Long profilId, List<EnvTypePermissionUpdateDTO> envPermissions) {
         checkAdmin();
@@ -374,13 +392,20 @@ public class ProfilServiceImpl implements ProfilService {
         ProfilEntity profil = profilRepository.findById(profilId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Profil introuvable"));
 
-        Set<String> requestedTypes = (envPermissions != null ? envPermissions : List.<EnvTypePermissionUpdateDTO>of())
+        Map<String, Set<ActionType>> requested = (envPermissions != null ? envPermissions : List.<EnvTypePermissionUpdateDTO>of())
                 .stream()
-                .map(EnvTypePermissionUpdateDTO::getEnvTypeCode)
-                .filter(Objects::nonNull)
-                .map(String::trim)
-                .map(String::toUpperCase)
-                .collect(Collectors.toSet());
+                .filter(dto -> dto.getEnvTypeCode() != null)
+                .collect(Collectors.toMap(
+                        dto -> dto.getEnvTypeCode().trim().toUpperCase(),
+                        dto -> {
+                            List<ActionType> acts = dto.getActions();
+                            if (acts == null || acts.isEmpty()) {
+                                return new HashSet<>(Collections.singletonList(ActionType.CONSULT));
+                            }
+                            return new HashSet<>(acts);
+                        },
+                        (a, b) -> b
+                ));
 
         profilRoleRepository.deleteByProfilIdAndRoleCodePrefix(profilId, "ENV_");
 
@@ -389,28 +414,31 @@ public class ProfilServiceImpl implements ProfilService {
         for (EnvironmentTypeEntity type : envTypes) {
             String typeCodeUpper = type.getCode().trim().toUpperCase();
 
-            if (!requestedTypes.contains(typeCodeUpper)) {
+            Set<ActionType> actions = requested.get(typeCodeUpper);
+            if (actions == null || actions.isEmpty()) {
                 continue;
             }
 
-            String roleCode = "ENV_" + typeCodeUpper + "_CONSULT";
+            for (ActionType action : actions) {
+                String roleCode = "ENV_" + typeCodeUpper + "_" + action.name();
 
-            RoleEntity role = roleRepository.findByCode(roleCode)
-                    .orElseGet(() -> {
-                        RoleEntity newRole = RoleEntity.builder()
-                                .code(roleCode)
-                                .libelle("Consultation type " + type.getCode())
-                                .action(ActionType.CONSULT)
-                                .scope(RoleScope.ENV_TYPE)
-                                .actif(true)
-                                .build();
-                        return roleRepository.save(newRole);
-                    });
+                RoleEntity role = roleRepository.findByCode(roleCode)
+                        .orElseGet(() -> {
+                            RoleEntity newRole = RoleEntity.builder()
+                                    .code(roleCode)
+                                    .libelle(action.name() + " sur type " + type.getCode())
+                                    .action(action)
+                                    .scope(RoleScope.ENV_TYPE)
+                                    .actif(true)
+                                    .build();
+                            return roleRepository.save(newRole);
+                        });
 
-            ProfilRoleEntity pr = new ProfilRoleEntity();
-            pr.setProfil(profil);
-            pr.setRole(role);
-            profilRoleRepository.save(pr);
+                ProfilRoleEntity pr = new ProfilRoleEntity();
+                pr.setProfil(profil);
+                pr.setRole(role);
+                profilRoleRepository.save(pr);
+            }
         }
 
         if (profil.getKeycloakGroupId() != null) {

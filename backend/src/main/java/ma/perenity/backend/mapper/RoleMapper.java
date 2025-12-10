@@ -2,7 +2,6 @@ package ma.perenity.backend.mapper;
 
 import ma.perenity.backend.dto.RoleDTO;
 import ma.perenity.backend.entities.RoleEntity;
-import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

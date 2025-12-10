@@ -72,8 +72,13 @@
       <ng-container matColumnDef="password">
         <th mat-header-cell *matHeaderCellDef>Password</th>
         <td mat-cell *matCellDef="let app">
-          <span *ngIf="app.password">******</span>
-          <span *ngIf="!app.password">-</span>
+          <div class="password-cell" *ngIf="app.password; else noPass">
+            <span>{{ isPasswordVisible(app.id) ? app.password : '******' }}</span>
+            <button mat-icon-button type="button" (click)="togglePassword(app.id)" [matTooltip]="isPasswordVisible(app.id) ? 'Masquer' : 'Afficher'">
+              <mat-icon>{{ isPasswordVisible(app.id) ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+          </div>
+          <ng-template #noPass>-</ng-template>
         </td>
       </ng-container>
 

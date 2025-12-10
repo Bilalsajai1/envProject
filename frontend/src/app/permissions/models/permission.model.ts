@@ -30,6 +30,7 @@ export interface ProfilPermissions {
 
 export interface EnvTypePermissionUpdate {
   envTypeCode: string;
+  actions: ActionType[];
 }
 
 export interface ProjectPermissionUpdate {

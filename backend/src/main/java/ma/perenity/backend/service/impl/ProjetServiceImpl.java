@@ -1,15 +1,16 @@
-// src/main/java/ma/perenity/backend/service/impl/ProjetServiceImpl.java
-package ma.perenity.backend.service.impl;
+﻿package ma.perenity.backend.service.impl;
 
 import jakarta.persistence.criteria.JoinType;
 import lombok.RequiredArgsConstructor;
 import ma.perenity.backend.dto.PaginatedResponse;
 import ma.perenity.backend.dto.PaginationRequest;
 import ma.perenity.backend.dto.ProjetDTO;
+import ma.perenity.backend.entities.EnvironmentTypeEntity;
 import ma.perenity.backend.entities.ProjetEntity;
 import ma.perenity.backend.entities.enums.ActionType;
 import ma.perenity.backend.excepion.ResourceNotFoundException;
 import ma.perenity.backend.mapper.ProjetMapper;
+import ma.perenity.backend.repository.EnvironmentTypeRepository;
 import ma.perenity.backend.repository.ProjetRepository;
 import ma.perenity.backend.service.PermissionService;
 import ma.perenity.backend.service.ProjetService;
@@ -20,9 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,12 +29,16 @@ import java.util.stream.Collectors;
 public class ProjetServiceImpl implements ProjetService {
 
     private final ProjetRepository projetRepository;
+    private final EnvironmentTypeRepository environmentTypeRepository;
     private final ProjetMapper projetMapper;
     private final PermissionService permissionService;
 
     @Override
     public List<ProjetDTO> getProjectsByEnvironmentType(String typeCode, String search) {
-        if (!permissionService.canViewEnvironmentType(typeCode)) {
+        boolean canConsultType = permissionService.canViewEnvironmentType(typeCode);
+        boolean canCreateType = permissionService.canAccessEnvType(typeCode, ActionType.CREATE);
+
+        if (!canConsultType && !canCreateType) {
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN,
                     "Vous n'avez pas le droit de consulter les projets pour le type " + typeCode
@@ -45,8 +48,9 @@ public class ProjetServiceImpl implements ProjetService {
         List<ProjetEntity> projets = projetRepository.findByEnvironmentTypeCode(typeCode);
 
         if (!permissionService.isAdmin()) {
+            final boolean allowByCreateOnType = canCreateType;
             projets = projets.stream()
-                    .filter(p -> permissionService.canConsultProject(p.getId()))
+                    .filter(p -> allowByCreateOnType || permissionService.canConsultProject(p.getId()))
                     .collect(Collectors.toList());
         }
 
@@ -71,7 +75,7 @@ public class ProjetServiceImpl implements ProjetService {
 
         if (!permissionService.isAdmin()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "La consultation de tous les projets est réservée à l'administrateur");
+                    "La consultation de tous les projets est reservee a l'administrateur");
         }
 
         return projetRepository.findByActifTrue()
@@ -102,12 +106,22 @@ public class ProjetServiceImpl implements ProjetService {
     public ProjetDTO create(ProjetDTO dto) {
 
         if (!permissionService.isAdmin()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "La création de projet est réservée à l'administrateur");
+            List<String> codes = resolveEnvTypeCodes(dto);
+            if (codes.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                        "Type d'environnement requis pour la creation de projet");
+            }
+            for (String code : codes) {
+                if (!permissionService.canAccessEnvType(code, ActionType.CREATE)) {
+                    throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                            "La creation de projet n'est pas autorisee pour le type " + code);
+                }
+            }
         }
 
         ProjetEntity entity = projetMapper.toEntity(dto);
         entity.setId(null);
+        applyEnvTypes(dto, entity);
 
         if (entity.getActif() == null) {
             entity.setActif(true);
@@ -122,7 +136,7 @@ public class ProjetServiceImpl implements ProjetService {
 
         if (!permissionService.isAdmin()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "La mise à jour de projet est réservée à l'administrateur");
+                    "La mise a jour de projet est reservee a l'administrateur");
         }
 
         ProjetEntity entity = projetRepository.findById(id)
@@ -132,6 +146,7 @@ public class ProjetServiceImpl implements ProjetService {
                 ));
 
         projetMapper.updateEntityFromDto(dto, entity);
+        applyEnvTypes(dto, entity);
 
         entity = projetRepository.save(entity);
         return projetMapper.toDto(entity);
@@ -142,7 +157,7 @@ public class ProjetServiceImpl implements ProjetService {
 
         if (!permissionService.isAdmin()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "La suppression de projet est réservée à l'administrateur");
+                    "La suppression de projet est reservee a l'administrateur");
         }
 
         ProjetEntity projet = projetRepository.findById(id)
@@ -181,8 +196,9 @@ public class ProjetServiceImpl implements ProjetService {
             typeCode = typeObj.toString().trim().toUpperCase();
         }
 
-        // 🔐 Vérifier les permissions pour le type d'environnement
-        if (typeCode != null && !permissionService.canViewEnvironmentType(typeCode)) {
+        // Permissions type
+        boolean canCreateType = typeCode != null && permissionService.canAccessEnvType(typeCode, ActionType.CREATE);
+        if (typeCode != null && !permissionService.canViewEnvironmentType(typeCode) && !canCreateType) {
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN,
                     "Vous n'avez pas le droit de consulter les projets pour le type " + typeCode
@@ -197,18 +213,22 @@ public class ProjetServiceImpl implements ProjetService {
                 cb.isTrue(root.get("actif"))
         );
 
-        // 🔥 FILTRE PAR TYPE D'ENVIRONNEMENT
+        // Filtre par type d'environnement
         if (typeCode != null) {
             final String finalType = typeCode;
             spec = spec.and((root, query, cb) -> {
                 query.distinct(true);
                 var envJoin = root.join("environnements", JoinType.LEFT);
                 var typeJoin = envJoin.join("type", JoinType.LEFT);
-                return cb.equal(typeJoin.get("code"), finalType);
+                var typeJoin2 = root.join("environmentTypes", JoinType.LEFT);
+                return cb.or(
+                        cb.equal(typeJoin.get("code"), finalType),
+                        cb.equal(typeJoin2.get("code"), finalType)
+                );
             });
         }
 
-        // 🔎 RECHERCHE GLOBALE
+        // Recherche globale
         if (search != null) {
             final String term = "%" + search.toLowerCase() + "%";
             spec = spec.and((root, query, cb) ->
@@ -222,10 +242,11 @@ public class ProjetServiceImpl implements ProjetService {
 
         Page<ProjetEntity> page = projetRepository.findAll(spec, pageable);
 
-        // 🔐 FILTRAGE PAR PERMISSIONS (pour les non-admins)
+        // Filtrage par permissions (pour les non-admins)
         if (!permissionService.isAdmin()) {
+            final boolean allowByCreateOnType = canCreateType;
             List<ProjetEntity> filteredProjects = page.getContent().stream()
-                    .filter(p -> permissionService.canConsultProject(p.getId()))
+                    .filter(p -> allowByCreateOnType || permissionService.canConsultProject(p.getId()))
                     .collect(Collectors.toList());
 
             // Recréer une Page avec les projets filtrés
@@ -241,4 +262,29 @@ public class ProjetServiceImpl implements ProjetService {
         );
     }
 
+    private List<String> resolveEnvTypeCodes(ProjetDTO dto) {
+        if (dto.getEnvTypeCodes() != null && !dto.getEnvTypeCodes().isEmpty()) {
+            return dto.getEnvTypeCodes();
+        }
+        if (dto.getEnvTypeCode() != null && !dto.getEnvTypeCode().isBlank()) {
+            return Collections.singletonList(dto.getEnvTypeCode());
+        }
+        return Collections.emptyList();
+    }
+
+    private void applyEnvTypes(ProjetDTO dto, ProjetEntity entity) {
+        List<String> codes = resolveEnvTypeCodes(dto);
+        if (codes.isEmpty()) {
+            entity.getEnvironmentTypes().clear();
+            return;
+        }
+        List<EnvironmentTypeEntity> types = environmentTypeRepository.findByCodeIn(codes.stream()
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(c -> !c.isEmpty())
+                .map(String::toUpperCase)
+                .toList());
+        entity.getEnvironmentTypes().clear();
+        entity.getEnvironmentTypes().addAll(types);
+    }
 }

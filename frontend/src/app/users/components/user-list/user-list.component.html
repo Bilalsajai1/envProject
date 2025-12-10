@@ -1,23 +1,13 @@
 <div class="user-layout">
-  <header class="hero">
-    <div class="hero-text">
-      <div class="eyebrow">
-        <mat-icon>verified</mat-icon>
-        Administration
-      </div>
-      <div class="title-line">
-        <mat-icon>group</mat-icon>
-        <div>
-          <h1>Utilisateurs</h1>
-          <p>Gérez les comptes et profils sur la plateforme</p>
-        </div>
-      </div>
-      <div class="meta">
-        <span class="pill primary">{{ resultsLabel }}</span>
-        <span class="pill subtle" *ngIf="searchTerm">Filtré sur "{{ searchTerm }}"</span>
+  <header class="table-head">
+    <div class="head-title">
+      <mat-icon>group</mat-icon>
+      <div>
+        <h1>Utilisateurs</h1>
+        <p>Gérez les comptes et profils</p>
       </div>
     </div>
-    <div class="hero-actions">
+    <div class="head-actions">
       <button mat-stroked-button class="ghost-btn" (click)="clearSearch()" *ngIf="searchTerm">
         <mat-icon>refresh</mat-icon>
         Réinitialiser
@@ -29,7 +19,7 @@
     </div>
   </header>
 
-  <section class="panel search-panel">
+  <section class="filter-bar">
     <div class="search-control">
       <mat-icon>search</mat-icon>
       <input

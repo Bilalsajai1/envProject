@@ -37,6 +37,7 @@ export class ApplicationListComponent implements OnInit, OnDestroy {
   searchTerm: string = '';
   private readonly searchSubject = new Subject<string>();
   private readonly destroy$ = new Subject<void>();
+  private readonly passwordVisibility = new Set<number>();
 
   displayedColumns = [
     'application',
@@ -63,6 +64,18 @@ export class ApplicationListComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.initSearchListener();
     this.initializeComponent();
+  }
+
+  isPasswordVisible(appId: number): boolean {
+    return this.passwordVisibility.has(appId);
+  }
+
+  togglePassword(appId: number): void {
+    if (this.passwordVisibility.has(appId)) {
+      this.passwordVisibility.delete(appId);
+    } else {
+      this.passwordVisibility.add(appId);
+    }
   }
 
   ngOnDestroy(): void {

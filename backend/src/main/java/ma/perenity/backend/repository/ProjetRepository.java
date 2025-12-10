@@ -1,4 +1,4 @@
-package ma.perenity.backend.repository;
+﻿package ma.perenity.backend.repository;
 
 import ma.perenity.backend.entities.ProjetEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,9 +15,10 @@ public interface ProjetRepository extends
     @Query("""
             SELECT DISTINCT p
             FROM ProjetEntity p
-            JOIN p.environnements e
-            JOIN e.type t
-            WHERE t.code = :typeCode
+            LEFT JOIN p.environnements e
+            LEFT JOIN e.type t
+            LEFT JOIN p.environmentTypes et
+            WHERE t.code = :typeCode OR et.code = :typeCode
             """)
     List<ProjetEntity> findByEnvironmentTypeCode(@Param("typeCode") String typeCode);
 
