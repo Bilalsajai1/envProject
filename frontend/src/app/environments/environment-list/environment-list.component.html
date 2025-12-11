@@ -5,9 +5,12 @@
   <!-- Header -->
   <header class="page-header">
     <div class="header-left">
-      <button mat-icon-button class="ghost-btn" (click)="goBack()" matTooltip="Retour aux projets">
+      <button mat-icon-button class="ghost-btn back-btn" (click)="goBack()" matTooltip="Retour aux projets">
         <mat-icon>arrow_back</mat-icon>
       </button>
+      <div class="header-icon">
+        <mat-icon>public</mat-icon>
+      </div>
       <div class="header-text">
         <p class="eyebrow">Projet {{ project?.code || '' }} · {{ typeCode }}</p>
         <h1>Environnements</h1>

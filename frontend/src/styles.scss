@@ -28,3 +28,120 @@ body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
+
+/* ========================================
+   DARK MODE - GLOBAL DIALOG STYLES
+   ======================================== */
+[data-theme="dark"],
+body[data-theme="dark"],
+html[data-theme="dark"] {
+  /* Force dialog container background */
+  .cdk-overlay-container {
+    .cdk-overlay-pane {
+      .mat-mdc-dialog-container {
+        --mdc-dialog-container-color: #1e293b !important;
+        background: #1e293b !important;
+
+        .mat-mdc-dialog-surface {
+          background-color: #1e293b !important;
+          color: #e2e8f0 !important;
+        }
+      }
+    }
+  }
+
+  /* Dialog content */
+  .mat-mdc-dialog-content {
+    color: #e2e8f0 !important;
+  }
+
+ 
+
+  /* Form fields in dialogs */
+  .mat-mdc-dialog-container {
+    .mat-mdc-form-field {
+      .mat-mdc-text-field-wrapper {
+        background: rgba(255, 255, 255, 0.05) !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+        border-radius: 14px !important;
+        transition: all 0.2s ease;
+      }
+
+      &:hover .mat-mdc-text-field-wrapper {
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25) !important;
+      }
+
+   
+
+      .mdc-text-field--filled {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        border-radius: 14px !important;
+      }
+
+      .mat-mdc-form-field-focus-overlay {
+        background-color: rgba(255, 255, 255, 0.08) !important;
+      }
+
+      .mat-mdc-input-element {
+        color: #f1f5f9 !important;
+        font-weight: 500 !important;
+        caret-color: #a5b4fc !important;
+      }
+
+      textarea {
+        color: #f1f5f9 !important;
+        font-weight: 500 !important;
+        caret-color: #a5b4fc !important;
+      }
+
+
+     
+
+      .mdc-notched-outline__leading,
+      .mdc-notched-outline__notch,
+      .mdc-notched-outline__trailing {
+        border-color: rgba(182, 194, 252, 0.3) !important;
+        border-width: 2px !important;
+      }
+
+     
+     
+    }
+  }
+
+  /* Select dropdowns in dialogs */
+  .mat-mdc-select-panel {
+    background: #1e293b !important;
+  }
+
+  .mat-mdc-option {
+    background: #1e293b !important;
+    color: #e2e8f0 !important;
+
+    &:hover {
+      background: rgba(102, 126, 234, 0.15) !important;
+    }
+
+    &.mdc-list-item--selected {
+      background: rgba(102, 126, 234, 0.25) !important;
+    }
+  }
+
+  /* Hints in dialogs */
+  mat-hint {
+    color: #94a3b8 !important;
+  }
+
+  /* Slide toggles in dialogs */
+  .mat-mdc-slide-toggle.mat-accent {
+    --mdc-switch-selected-track-color: #667eea !important;
+    --mdc-switch-selected-handle-color: #ffffff !important;
+    --mdc-switch-selected-hover-track-color: #764ba2 !important;
+    --mdc-switch-selected-pressed-track-color: #764ba2 !important;
+  }
+
+  .mat-mdc-slide-toggle {
+    --mdc-switch-unselected-track-color: rgba(255, 255, 255, 0.2) !important;
+    --mdc-switch-unselected-handle-color: #94a3b8 !important;
+  }
+}
