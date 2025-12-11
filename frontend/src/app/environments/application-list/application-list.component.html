@@ -14,7 +14,7 @@
       <div class="header-text">
         <p class="eyebrow">Environnement {{ environmentId }}</p>
         <h1>Applications</h1>
-        <p class="subtitle">Configurez les endpoints et accès applicatifs.</p>
+        <p class="subtitle">Configurez les endpoints et acces applicatifs.</p>
       </div>
     </div>
 
@@ -91,7 +91,7 @@
         <ng-container matColumnDef="password">
           <th mat-header-cell *matHeaderCellDef>Password</th>
           <td mat-cell *matCellDef="let app">
-            <span>{{ app.passwordMasked || '—' }}</span>
+            <span>{{ app.passwordMasked || '--' }}</span>
           </td>
         </ng-container>
 
@@ -109,7 +109,7 @@
         </ng-container>
 
         <ng-container matColumnDef="dateDerniereLivraison">
-          <th mat-header-cell *matHeaderCellDef>Dernière livraison</th>
+          <th mat-header-cell *matHeaderCellDef>Derniere livraison</th>
           <td mat-cell *matCellDef="let app">
             {{ app.dateDerniereLivraison ? (app.dateDerniereLivraison | date:'dd/MM/yyyy') : '—' }}
           </td>
@@ -157,19 +157,19 @@
       @if (!loading && applications.length === 0) {
         <div class="empty-state">
           <div class="empty-icon"><mat-icon>inbox</mat-icon></div>
-          <h3>Aucune application trouvée</h3>
+          <h3>Aucune application trouvee</h3>
           <p>
             @if (searchTerm) {
-              Aucun résultat pour cette recherche.
+              Aucun resultat pour cette recherche.
             } @else {
-              Ajoutez votre première application.
+              Ajoutez votre premiere application.
             }
           </p>
           <div class="empty-actions">
             @if (searchTerm) {
               <button mat-stroked-button class="ghost-btn" (click)="clearSearch()">
                 <mat-icon>refresh</mat-icon>
-                Réinitialiser
+                Reinitialiser
               </button>
             }
             @if (canCreateApplication()) {

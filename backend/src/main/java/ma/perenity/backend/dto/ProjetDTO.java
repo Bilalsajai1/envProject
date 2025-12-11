@@ -1,7 +1,11 @@
-﻿package ma.perenity.backend.dto;
+package ma.perenity.backend.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -24,9 +28,7 @@ public class ProjetDTO {
 
     private Boolean actif;
 
-    // Optionnel : type(s) d'environnement contextuel(s) pour la création (contrôle d'accès)
     private List<String> envTypeCodes;
 
-    // Compatibilité ascendante (un seul type envoyé côté front actuel)
     private String envTypeCode;
 }

@@ -1,4 +1,4 @@
-﻿package ma.perenity.backend.repository;
+package ma.perenity.backend.repository;
 
 import ma.perenity.backend.entities.EnvironmentTypeEntity;
 import org.springframework.data.jpa.repository.JpaRepository;

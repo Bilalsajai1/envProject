@@ -19,7 +19,7 @@ public class EnvironmentTypeEntity {
     private Long id;
 
     @Column(nullable = false, unique = true, length = 50)
-    private String code;   // EDITION / INTEGRATION / CLIENT
+    private String code;
 
     @Column(length = 100)
     private String libelle;

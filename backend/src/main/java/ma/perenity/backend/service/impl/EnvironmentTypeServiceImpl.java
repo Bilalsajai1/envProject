@@ -1,4 +1,3 @@
-// src/main/java/ma/perenity/backend/service/impl/EnvironmentTypeServiceImpl.java
 package ma.perenity.backend.service.impl;
 
 import lombok.RequiredArgsConstructor;
@@ -12,8 +11,11 @@ import ma.perenity.backend.mapper.EnvironmentTypeMapper;
 import ma.perenity.backend.repository.EnvironmentTypeRepository;
 import ma.perenity.backend.service.EnvironmentTypeService;
 import ma.perenity.backend.service.PermissionService;
+import ma.perenity.backend.service.util.AdminGuard;
+import ma.perenity.backend.service.util.PaginationUtils;
 import ma.perenity.backend.specification.EntitySpecification;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -28,18 +30,9 @@ public class EnvironmentTypeServiceImpl implements EnvironmentTypeService {
     private final EnvironmentTypeMapper mapper;
     private final PermissionService permissionService;
 
-    private void checkAdmin() {
-        if (!permissionService.isAdmin()) {
-            throw new ResponseStatusException(
-                    HttpStatus.FORBIDDEN,
-                    "Administration des types d'environnement réservée à l'administrateur"
-            );
-        }
-    }
-
     @Override
     public List<EnvironmentTypeDTO> getAll() {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des types d'environnement reservee a l'administrateur");
         return repository.findAll()
                 .stream()
                 .map(mapper::toDto)
@@ -64,7 +57,7 @@ public class EnvironmentTypeServiceImpl implements EnvironmentTypeService {
 
     @Override
     public EnvironmentTypeDTO getById(Long id) {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des types d'environnement reservee a l'administrateur");
         EnvironmentTypeEntity entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "EnvironmentType not found with id = " + id
@@ -74,7 +67,7 @@ public class EnvironmentTypeServiceImpl implements EnvironmentTypeService {
 
     @Override
     public EnvironmentTypeDTO create(EnvironmentTypeDTO dto) {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des types d'environnement reservee a l'administrateur");
 
         if (repository.existsByCode(dto.getCode())) {
             throw new IllegalStateException("EnvironmentType code already exists: " + dto.getCode());
@@ -89,7 +82,7 @@ public class EnvironmentTypeServiceImpl implements EnvironmentTypeService {
 
     @Override
     public EnvironmentTypeDTO update(Long id, EnvironmentTypeDTO dto) {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des types d'environnement reservee a l'administrateur");
 
         EnvironmentTypeEntity entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -109,7 +102,7 @@ public class EnvironmentTypeServiceImpl implements EnvironmentTypeService {
 
     @Override
     public void delete(Long id) {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des types d'environnement reservee a l'administrateur");
 
         EnvironmentTypeEntity entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -122,22 +115,11 @@ public class EnvironmentTypeServiceImpl implements EnvironmentTypeService {
 
     @Override
     public PaginatedResponse<EnvironmentTypeDTO> search(PaginationRequest req) {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des types d'environnement reservee a l'administrateur");
 
-        Sort sort = req.getSortDirection().equalsIgnoreCase("desc")
-                ? Sort.by(req.getSortField()).descending()
-                : Sort.by(req.getSortField()).ascending();
-
-        Pageable pageable = PageRequest.of(req.getPage(), req.getSize(), sort);
+        Pageable pageable = PaginationUtils.buildPageable(req);
 
         EntitySpecification<EnvironmentTypeEntity> specBuilder = new EntitySpecification<>();
-
-        System.out.println("=== FILTERS DEBUG ===");
-        if (req.getFilters() != null) {
-            req.getFilters().forEach((k, v) ->
-                    System.out.println("Filter: " + k + " = " + v)
-            );
-        }
 
         Page<EnvironmentTypeEntity> page = repository.findAll(
                 specBuilder.getSpecification(req.getFilters()),

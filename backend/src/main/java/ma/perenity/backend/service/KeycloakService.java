@@ -38,17 +38,13 @@ public class KeycloakService {
         return keycloak;
     }
 
-    /**
-     * ✅ NOUVELLE MÉTHODE: Récupérer un groupe par son nom
-     */
     public String findGroupIdByName(String groupName) {
         List<GroupRepresentation> groups = getKeycloak()
                 .realm(keycloakProperties.getRealm())
                 .groups()
-                .groups(groupName, 0, 1); // Recherche exacte
+                .groups(groupName, 0, 1);
 
         if (groups != null && !groups.isEmpty()) {
-            // Vérifier que le nom correspond exactement (case-insensitive)
             for (GroupRepresentation group : groups) {
                 if (group.getName().equalsIgnoreCase(groupName)) {
                     return group.getId();
@@ -58,17 +54,10 @@ public class KeycloakService {
         return null;
     }
 
-    /**
-     * ✅ NOUVELLE MÉTHODE: Créer ou récupérer un groupe existant
-     */
     public String getOrCreateGroup(ProfilKeycloakDTO profilDTO) {
-        // 1️⃣ Vérifier si le groupe existe déjà
         String existingGroupId = findGroupIdByName(profilDTO.getLibelle());
 
         if (existingGroupId != null) {
-            System.out.println("✅ Groupe Keycloak déjà existant: " + profilDTO.getLibelle() + " (ID: " + existingGroupId + ")");
-
-            // Mettre à jour les rôles du groupe existant
             if (profilDTO.getRoles() != null && !profilDTO.getRoles().isEmpty()) {
                 createMissingRoles(profilDTO.getRoles());
                 replaceGroupRoles(existingGroupId, profilDTO.getRoles());
@@ -77,8 +66,6 @@ public class KeycloakService {
             return existingGroupId;
         }
 
-        // 2️⃣ Sinon, créer le groupe
-        System.out.println("🆕 Création du groupe Keycloak: " + profilDTO.getLibelle());
         return createGroup(profilDTO);
     }
 
@@ -136,9 +123,6 @@ public class KeycloakService {
                 .remove();
     }
 
-    /**
-     * ✅ MODIFIÉ: Ne plus lever d'exception si le groupe existe déjà
-     */
     public String createGroup(ProfilKeycloakDTO profilDTO) {
         GroupRepresentation group = new GroupRepresentation();
         group.setName(profilDTO.getLibelle());
@@ -158,8 +142,6 @@ public class KeycloakService {
                 return groupId;
             }
         } else if (response.getStatus() == 409) {
-            // ✅ Si le groupe existe déjà, le récupérer au lieu de lever une exception
-            System.out.println("⚠️ Groupe déjà existant, récupération de l'ID...");
             String existingGroupId = findGroupIdByName(profilDTO.getLibelle());
             if (existingGroupId != null) {
                 return existingGroupId;

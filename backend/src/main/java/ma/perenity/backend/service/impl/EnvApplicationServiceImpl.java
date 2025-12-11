@@ -15,8 +15,11 @@ import ma.perenity.backend.repository.EnvApplicationRepository;
 import ma.perenity.backend.repository.EnvironnementRepository;
 import ma.perenity.backend.service.EnvApplicationService;
 import ma.perenity.backend.service.PermissionService;
+import ma.perenity.backend.service.util.AdminGuard;
+import ma.perenity.backend.service.util.PaginationUtils;
 import ma.perenity.backend.specification.EntitySpecification;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -85,7 +88,7 @@ public class EnvApplicationServiceImpl implements EnvApplicationService {
 
         if (!permissionService.canAccessEnv(env, ActionType.CREATE)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Vous n'avez pas le droit d'ajouter des applications à cet environnement");
+                    "Vous n'avez pas le droit d'ajouter des applications a cet environnement");
         }
 
         ApplicationEntity app = applicationRepository.findById(dto.getApplicationId())
@@ -99,7 +102,7 @@ public class EnvApplicationServiceImpl implements EnvApplicationService {
                 .anyMatch(a -> a.getApplication().getId().equals(dto.getApplicationId()));
 
         if (exists) {
-            throw new IllegalStateException("Cette application existe déjà dans cet environnement.");
+            throw new IllegalStateException("Cette application existe deja dans cet environnement.");
         }
 
         EnvApplicationEntity entity = mapper.toEntity(dto);
@@ -151,16 +154,9 @@ public class EnvApplicationServiceImpl implements EnvApplicationService {
     @Override
     public PaginatedResponse<EnvApplicationDTO> search(PaginationRequest req) {
 
-        if (!permissionService.isAdmin()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "La recherche globale des EnvApplications est réservée à l'administrateur");
-        }
+        AdminGuard.requireAdmin(permissionService, "La recherche globale des EnvApplications est reservee a l'administrateur");
 
-        Sort sort = req.getSortDirection().equalsIgnoreCase("desc")
-                ? Sort.by(req.getSortField()).descending()
-                : Sort.by(req.getSortField()).ascending();
-
-        Pageable pageable = PageRequest.of(req.getPage(), req.getSize(), sort);
+        Pageable pageable = PaginationUtils.buildPageable(req);
 
         EntitySpecification<EnvApplicationEntity> specBuilder = new EntitySpecification<>();
 

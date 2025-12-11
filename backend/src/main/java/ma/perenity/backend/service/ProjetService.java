@@ -1,4 +1,3 @@
-// src/main/java/ma/perenity/backend/service/ProjetService.java
 package ma.perenity.backend.service;
 
 import ma.perenity.backend.dto.PaginatedResponse;

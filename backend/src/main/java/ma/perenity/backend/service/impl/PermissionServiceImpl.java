@@ -18,7 +18,12 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,30 +40,30 @@ public class PermissionServiceImpl implements PermissionService {
         private final boolean admin;
         private final Set<String> roleCodes;
 
-        public UserContext(UtilisateurEntity user, ProfilEntity profil, boolean admin, Set<String> roleCodes) {
+        UserContext(UtilisateurEntity user, ProfilEntity profil, boolean admin, Set<String> roleCodes) {
             this.user = user;
             this.profil = profil;
             this.admin = admin;
             this.roleCodes = roleCodes;
         }
 
-        public UtilisateurEntity getUser() {
+        UtilisateurEntity getUser() {
             return user;
         }
 
-        public ProfilEntity getProfil() {
+        ProfilEntity getProfil() {
             return profil;
         }
 
-        public boolean isAdmin() {
+        boolean isAdmin() {
             return admin;
         }
 
-        public Set<String> getRoleCodes() {
+        Set<String> getRoleCodes() {
             return roleCodes;
         }
 
-        public boolean hasRole(String roleCode) {
+        boolean hasRole(String roleCode) {
             return roleCodes.contains(roleCode.trim().toUpperCase());
         }
     }
@@ -168,7 +173,6 @@ public class PermissionServiceImpl implements PermissionService {
             return false;
         }
 
-        // Propagation : une action accordée sur le projet s'applique aux environnements / applications du projet
         String projRole = buildProjectRole(projectCode, action);
         return ctx.hasRole(projRole);
     }
@@ -257,7 +261,7 @@ public class PermissionServiceImpl implements PermissionService {
     private UserContext loadCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !(auth.getPrincipal() instanceof Jwt jwt)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Utilisateur non authentifié");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Utilisateur non authentifie");
         }
 
         String email = jwt.getClaimAsString("email");
@@ -272,7 +276,7 @@ public class PermissionServiceImpl implements PermissionService {
         ProfilEntity profil = user.getProfil();
         if (profil == null) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Aucun profil associé à l'utilisateur");
+                    "Aucun profil associe a l'utilisateur");
         }
 
         Set<String> roleCodes = profilRoleRepository.findRolesByProfil(profil.getId())

@@ -1,4 +1,4 @@
-﻿package ma.perenity.backend.service.impl;
+package ma.perenity.backend.service.impl;
 
 import jakarta.persistence.criteria.JoinType;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +14,12 @@ import ma.perenity.backend.repository.EnvironmentTypeRepository;
 import ma.perenity.backend.repository.ProjetRepository;
 import ma.perenity.backend.service.PermissionService;
 import ma.perenity.backend.service.ProjetService;
+import ma.perenity.backend.service.util.AdminGuard;
+import ma.perenity.backend.service.util.PaginationUtils;
 import ma.perenity.backend.specification.EntitySpecification;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -72,11 +76,7 @@ public class ProjetServiceImpl implements ProjetService {
 
     @Override
     public List<ProjetDTO> getAll() {
-
-        if (!permissionService.isAdmin()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "La consultation de tous les projets est reservee a l'administrateur");
-        }
+        AdminGuard.requireAdmin(permissionService, "La consultation de tous les projets est reservee a l'administrateur");
 
         return projetRepository.findByActifTrue()
                 .stream()
@@ -86,7 +86,6 @@ public class ProjetServiceImpl implements ProjetService {
 
     @Override
     public ProjetDTO getById(Long id) {
-
         if (!permissionService.isAdmin() &&
                 !permissionService.canAccessProjectById(id, ActionType.CONSULT)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
@@ -104,7 +103,6 @@ public class ProjetServiceImpl implements ProjetService {
 
     @Override
     public ProjetDTO create(ProjetDTO dto) {
-
         if (!permissionService.isAdmin()) {
             List<String> codes = resolveEnvTypeCodes(dto);
             if (codes.isEmpty()) {
@@ -133,17 +131,17 @@ public class ProjetServiceImpl implements ProjetService {
 
     @Override
     public ProjetDTO update(Long id, ProjetDTO dto) {
-
-        if (!permissionService.isAdmin()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "La mise a jour de projet est reservee a l'administrateur");
-        }
-
         ProjetEntity entity = projetRepository.findById(id)
                 .filter(ProjetEntity::getActif)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Projet introuvable (ou inactif) avec id = " + id
                 ));
+
+        boolean allowed = permissionService.isAdmin() || permissionService.canAccessProject(entity, ActionType.UPDATE);
+        if (!allowed) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Vous n'avez pas le droit de modifier ce projet");
+        }
 
         projetMapper.updateEntityFromDto(dto, entity);
         applyEnvTypes(dto, entity);
@@ -154,49 +152,32 @@ public class ProjetServiceImpl implements ProjetService {
 
     @Override
     public void delete(Long id) {
-
-        if (!permissionService.isAdmin()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "La suppression de projet est reservee a l'administrateur");
-        }
-
         ProjetEntity projet = projetRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Projet introuvable avec id = " + id));
 
-        projet.setActif(false);
+        boolean allowed = permissionService.isAdmin() || permissionService.canAccessProject(projet, ActionType.DELETE);
+        if (!allowed) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Vous n'avez pas le droit de supprimer ce projet");
+        }
 
+        projet.setActif(false);
         projetRepository.save(projet);
     }
 
     @Override
     public PaginatedResponse<ProjetDTO> search(PaginationRequest req) {
+        Pageable pageable = PaginationUtils.buildPageable(req);
 
-        Sort sort = req.getSortDirection().equalsIgnoreCase("desc")
-                ? Sort.by(req.getSortField()).descending()
-                : Sort.by(req.getSortField()).ascending();
+        Map<String, Object> rawFilters = PaginationUtils.extractFilters(req);
+        String search = PaginationUtils.extractSearch(rawFilters);
 
-        Pageable pageable = PageRequest.of(req.getPage(), req.getSize(), sort);
-
-        Map<String, Object> rawFilters = req.getFilters() != null
-                ? new HashMap<>(req.getFilters())
-                : new HashMap<>();
-
-        // Extraire search
-        String search = null;
-        Object searchObj = rawFilters.remove("search");
-        if (searchObj != null) {
-            search = searchObj.toString().trim();
-            if (search.isEmpty()) search = null;
-        }
-
-        // Extraire typeCode
         String typeCode = null;
         Object typeObj = rawFilters.remove("typeCode");
         if (typeObj != null) {
             typeCode = typeObj.toString().trim().toUpperCase();
         }
 
-        // Permissions type
         boolean canCreateType = typeCode != null && permissionService.canAccessEnvType(typeCode, ActionType.CREATE);
         if (typeCode != null && !permissionService.canViewEnvironmentType(typeCode) && !canCreateType) {
             throw new ResponseStatusException(
@@ -208,12 +189,10 @@ public class ProjetServiceImpl implements ProjetService {
         EntitySpecification<ProjetEntity> specBuilder = new EntitySpecification<>();
         Specification<ProjetEntity> spec = specBuilder.getSpecification(rawFilters);
 
-        // Filtre actif = true
         spec = spec.and((root, query, cb) ->
                 cb.isTrue(root.get("actif"))
         );
 
-        // Filtre par type d'environnement
         if (typeCode != null) {
             final String finalType = typeCode;
             spec = spec.and((root, query, cb) -> {
@@ -228,7 +207,6 @@ public class ProjetServiceImpl implements ProjetService {
             });
         }
 
-        // Recherche globale
         if (search != null) {
             final String term = "%" + search.toLowerCase() + "%";
             spec = spec.and((root, query, cb) ->
@@ -242,14 +220,12 @@ public class ProjetServiceImpl implements ProjetService {
 
         Page<ProjetEntity> page = projetRepository.findAll(spec, pageable);
 
-        // Filtrage par permissions (pour les non-admins)
         if (!permissionService.isAdmin()) {
             final boolean allowByCreateOnType = canCreateType;
             List<ProjetEntity> filteredProjects = page.getContent().stream()
                     .filter(p -> allowByCreateOnType || permissionService.canConsultProject(p.getId()))
                     .collect(Collectors.toList());
 
-            // Recréer une Page avec les projets filtrés
             page = new PageImpl<>(
                     filteredProjects,
                     pageable,

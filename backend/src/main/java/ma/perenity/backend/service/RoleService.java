@@ -17,7 +17,7 @@ public interface RoleService {
 
     RoleDTO update(Long id, RoleCreateUpdateDTO dto);
 
-    void delete(Long id); // suppression logique (actif = false)
+    void delete(Long id);
 
     List<RoleDTO> getByEnvironnement(Long envId);
     PaginatedResponse<RoleDTO> search(PaginationRequest req);

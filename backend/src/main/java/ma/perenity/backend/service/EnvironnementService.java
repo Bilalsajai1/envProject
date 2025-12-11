@@ -1,4 +1,3 @@
-// src/main/java/ma/perenity/backend/service/EnvironnementService.java
 package ma.perenity.backend.service;
 
 import ma.perenity.backend.dto.EnvironnementDTO;
@@ -10,7 +9,7 @@ import java.util.List;
 
 public interface EnvironnementService {
 
-    List<EnvironnementDTO> getEnvironmentsByProjetAndType(Long projetId, String typeCode , String search);
+    List<EnvironnementDTO> getEnvironmentsByProjetAndType(Long projetId, String typeCode, String search);
 
     EnvironnementEntity getByIdOrThrow(Long id);
 

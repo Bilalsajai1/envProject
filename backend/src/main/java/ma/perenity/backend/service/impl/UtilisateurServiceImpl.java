@@ -3,7 +3,11 @@ package ma.perenity.backend.service.impl;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import lombok.RequiredArgsConstructor;
-import ma.perenity.backend.dto.*;
+import ma.perenity.backend.dto.PaginatedResponse;
+import ma.perenity.backend.dto.PaginationRequest;
+import ma.perenity.backend.dto.ProfilKeycloakDTO;
+import ma.perenity.backend.dto.UserCreateUpdateDTO;
+import ma.perenity.backend.dto.UserDTO;
 import ma.perenity.backend.entities.ProfilEntity;
 import ma.perenity.backend.entities.UtilisateurEntity;
 import ma.perenity.backend.mapper.UserMapper;
@@ -12,8 +16,11 @@ import ma.perenity.backend.repository.UtilisateurRepository;
 import ma.perenity.backend.service.KeycloakService;
 import ma.perenity.backend.service.PermissionService;
 import ma.perenity.backend.service.UtilisateurService;
+import ma.perenity.backend.service.util.AdminGuard;
+import ma.perenity.backend.service.util.PaginationUtils;
 import ma.perenity.backend.specification.EntitySpecification;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -21,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,19 +44,19 @@ public class UtilisateurServiceImpl implements UtilisateurService {
 
     @Override
     public List<UserDTO> getAll() {
-        checkAdminPermission();
+        AdminGuard.requireAdmin(permissionService, "Administration des utilisateurs reservee a l'administrateur");
         return userMapper.toDtoList(utilisateurRepository.findByActifTrueAndIsDeletedFalse());
     }
 
     @Override
     public UserDTO getById(Long id) {
-        checkAdminPermission();
+        AdminGuard.requireAdmin(permissionService, "Administration des utilisateurs reservee a l'administrateur");
         return userMapper.toDto(findUserById(id));
     }
 
     @Override
     public UserDTO create(UserCreateUpdateDTO dto) {
-        checkAdminPermission();
+        AdminGuard.requireAdmin(permissionService, "Administration des utilisateurs reservee a l'administrateur");
         validatePassword(dto.getPassword());
 
         ProfilEntity profil = findProfilById(dto.getProfilId());
@@ -82,7 +88,7 @@ public class UtilisateurServiceImpl implements UtilisateurService {
 
     @Override
     public UserDTO update(Long id, UserCreateUpdateDTO dto) {
-        checkAdminPermission();
+        AdminGuard.requireAdmin(permissionService, "Administration des utilisateurs reservee a l'administrateur");
 
         UtilisateurEntity entity = findUserById(id);
         ProfilEntity profil = findProfilById(dto.getProfilId());
@@ -90,13 +96,13 @@ public class UtilisateurServiceImpl implements UtilisateurService {
 
         if (entity.getKeycloakId() != null) {
             keycloakService.updateUser(
-                    entity.getKeycloakId(),
-                    entity.getCode(),
-                    dto.getFirstName(),
-                    dto.getLastName(),
-                    dto.getEmail(),
-                    dto.getActif() != null ? dto.getActif() : true,
-                    profil.getKeycloakGroupId()
+                entity.getKeycloakId(),
+                entity.getCode(),
+                dto.getFirstName(),
+                dto.getLastName(),
+                dto.getEmail(),
+                dto.getActif() != null ? dto.getActif() : true,
+                profil.getKeycloakGroupId()
             );
         }
 
@@ -112,14 +118,15 @@ public class UtilisateurServiceImpl implements UtilisateurService {
 
     @Override
     public void delete(Long id) {
-        checkAdminPermission();
+        AdminGuard.requireAdmin(permissionService, "Administration des utilisateurs reservee a l'administrateur");
 
         UtilisateurEntity entity = findUserById(id);
 
         if (entity.getKeycloakId() != null) {
             try {
                 keycloakService.deleteUser(entity.getKeycloakId());
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
 
         entity.setActif(false);
@@ -127,29 +134,13 @@ public class UtilisateurServiceImpl implements UtilisateurService {
         utilisateurRepository.save(entity);
     }
 
-
     @Override
     public PaginatedResponse<UserDTO> search(PaginationRequest req) {
-        checkAdminPermission();
+        AdminGuard.requireAdmin(permissionService, "Administration des utilisateurs reservee a l'administrateur");
 
-        Sort sort = req.getSortDirection().equalsIgnoreCase("asc")
-                ? Sort.by(req.getSortField()).ascending()
-                : Sort.by(req.getSortField()).descending();
-
-        Pageable pageable = PageRequest.of(req.getPage(), req.getSize(), sort);
-
-        Map<String, Object> rawFilters = req.getFilters() != null
-                ? new HashMap<>(req.getFilters())
-                : new HashMap<>();
-
-        String search = null;
-        Object searchObj = rawFilters.remove("search");
-        if (searchObj != null) {
-            search = searchObj.toString().trim();
-            if (search.isEmpty()) {
-                search = null;
-            }
-        }
+        Pageable pageable = PaginationUtils.buildPageable(req);
+        Map<String, Object> rawFilters = PaginationUtils.extractFilters(req);
+        String search = PaginationUtils.extractSearch(rawFilters);
 
         EntitySpecification<UtilisateurEntity> specBuilder = new EntitySpecification<>();
         Specification<UtilisateurEntity> spec = specBuilder.getSpecification(rawFilters);
@@ -180,20 +171,13 @@ public class UtilisateurServiceImpl implements UtilisateurService {
 
     @Override
     public void updatePassword(Long userId, String newPassword) {
-        checkAdminPermission();
+        AdminGuard.requireAdmin(permissionService, "Administration des utilisateurs reservee a l'administrateur");
         validatePassword(newPassword);
 
         UtilisateurEntity entity = findUserById(userId);
 
         if (entity.getKeycloakId() != null) {
             keycloakService.setPassword(entity.getKeycloakId(), newPassword);
-        }
-    }
-
-    private void checkAdminPermission() {
-        if (!permissionService.isAdmin()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Administration des utilisateurs réservée à l'administrateur");
         }
     }
 
@@ -210,29 +194,22 @@ public class UtilisateurServiceImpl implements UtilisateurService {
     private void validatePassword(String password) {
         if (password == null || password.length() < 8) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Le mot de passe doit contenir au moins 8 caractères");
+                    "Le mot de passe doit contenir au moins 8 caracteres");
         }
     }
 
     private void ensureKeycloakGroupExists(ProfilEntity profil) {
         if (profil.getKeycloakGroupId() == null) {
-            System.out.println("🔍 Profil " + profil.getCode() + " sans keycloakGroupId, recherche/création du groupe...");
-
             ProfilKeycloakDTO keycloakGroupDto = ProfilKeycloakDTO.builder()
                     .code(profil.getCode())
                     .libelle(profil.getLibelle())
                     .roles(Collections.emptyList())
                     .build();
 
-            // ✅ Utiliser getOrCreateGroup au lieu de createGroup
             String keycloakGroupId = keycloakService.getOrCreateGroup(keycloakGroupDto);
 
             profil.setKeycloakGroupId(keycloakGroupId);
             profilRepository.save(profil);
-
-            System.out.println("✅ Profil " + profil.getCode() + " associé au groupe Keycloak ID: " + keycloakGroupId);
-        } else {
-            System.out.println("✅ Profil " + profil.getCode() + " déjà associé au groupe Keycloak ID: " + profil.getKeycloakGroupId());
         }
     }
 }

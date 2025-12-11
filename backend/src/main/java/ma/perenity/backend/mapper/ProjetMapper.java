@@ -1,8 +1,13 @@
-﻿package ma.perenity.backend.mapper;
+package ma.perenity.backend.mapper;
 
 import ma.perenity.backend.dto.ProjetDTO;
 import ma.perenity.backend.entities.ProjetEntity;
-import org.mapstruct.*;
+import org.mapstruct.BeanMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ProjetMapper {

@@ -10,7 +10,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
+  import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 
 import { ApplicationService } from '../services/application.service';
 import { EnvApplicationDTO } from '../models/environment.model';
@@ -142,7 +142,6 @@ export class ApplicationListComponent implements OnInit, OnDestroy {
       .getByEnvironment(this.environmentId, this.searchTerm)
       .subscribe({
         next: (apps) => {
-          // Do not keep clear-text passwords in memory
           this.applications = (apps ?? []).map(a => ({
             ...a,
             password: undefined

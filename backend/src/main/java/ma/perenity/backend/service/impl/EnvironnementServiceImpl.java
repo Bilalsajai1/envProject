@@ -1,4 +1,3 @@
-// src/main/java/ma/perenity/backend/service/impl/EnvironnementServiceImpl.java
 package ma.perenity.backend.service.impl;
 
 import jakarta.persistence.criteria.JoinType;
@@ -17,13 +16,14 @@ import ma.perenity.backend.repository.EnvironnementRepository;
 import ma.perenity.backend.repository.ProjetRepository;
 import ma.perenity.backend.service.EnvironnementService;
 import ma.perenity.backend.service.PermissionService;
+import ma.perenity.backend.service.util.PaginationUtils;
 import ma.perenity.backend.specification.EntitySpecification;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -102,7 +102,7 @@ public class EnvironnementServiceImpl implements EnvironnementService {
         env.setId(null);
         env.setProjet(projet);
         env.setType(type);
-        env.setActif(true); // par defaut actif a la creation
+        env.setActif(true);
 
         env = environnementRepository.save(env);
 
@@ -143,21 +143,11 @@ public class EnvironnementServiceImpl implements EnvironnementService {
     @Override
     public PaginatedResponse<EnvironnementDTO> search(PaginationRequest req) {
 
-        Sort sort = req.getSortDirection().equalsIgnoreCase("desc")
-                ? Sort.by(req.getSortField()).descending()
-                : Sort.by(req.getSortField()).ascending();
+        Pageable pageable = PaginationUtils.buildPageable(req);
 
-        Pageable pageable = PageRequest.of(req.getPage(), req.getSize(), sort);
+        Map<String, Object> rawFilters = PaginationUtils.extractFilters(req);
 
-        Map<String, Object> rawFilters = req.getFilters() != null
-                ? new HashMap<>(req.getFilters())
-                : new HashMap<>();
-
-        String search = null;
-        if (rawFilters.containsKey("search")) {
-            search = rawFilters.remove("search").toString().trim();
-            if (search.isEmpty()) search = null;
-        }
+        String search = PaginationUtils.extractSearch(rawFilters);
 
         Long projetId = null;
         if (rawFilters.containsKey("projetId")) {
@@ -171,7 +161,6 @@ public class EnvironnementServiceImpl implements EnvironnementService {
 
         boolean isAdmin = permissionService.isAdmin();
 
-        // Non-admins can only search within a project/type they can consult
         if (!isAdmin) {
             if (projetId == null || typeCode == null) {
                 throw new ResponseStatusException(FORBIDDEN,
@@ -182,14 +171,12 @@ public class EnvironnementServiceImpl implements EnvironnementService {
                 throw new ResponseStatusException(FORBIDDEN,
                         "Vous n'avez pas les droits pour consulter ces environnements");
             }
-            // ignore any other raw filters for non-admins
             rawFilters.clear();
         }
 
         EntitySpecification<EnvironnementEntity> specBuilder = new EntitySpecification<>();
         Specification<EnvironnementEntity> spec = specBuilder.getSpecification(rawFilters);
 
-        // Always filter active
         spec = spec.and((root, query, cb) ->
                 cb.isTrue(root.get("actif"))
         );
@@ -232,6 +219,4 @@ public class EnvironnementServiceImpl implements EnvironnementService {
 
         return PaginatedResponse.fromPage(page.map(mapper::toDto));
     }
-
-
 }

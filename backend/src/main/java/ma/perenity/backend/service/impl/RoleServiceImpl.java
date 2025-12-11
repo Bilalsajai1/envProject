@@ -15,15 +15,20 @@ import ma.perenity.backend.repository.ProjetRepository;
 import ma.perenity.backend.repository.RoleRepository;
 import ma.perenity.backend.service.PermissionService;
 import ma.perenity.backend.service.RoleService;
+import ma.perenity.backend.service.util.AdminGuard;
+import ma.perenity.backend.service.util.PaginationUtils;
 import ma.perenity.backend.specification.EntitySpecification;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -36,42 +41,29 @@ public class RoleServiceImpl implements RoleService {
     private final RoleMapper roleMapper;
     private final PermissionService permissionService;
 
-    private void checkAdmin() {
-        if (!permissionService.isAdmin()) {
-            throw new ResponseStatusException(FORBIDDEN,
-                    "Administration des rôles réservée à l'administrateur");
-        }
-    }
-
     @Override
     public List<RoleDTO> getAll() {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des roles reservee a l'administrateur");
         return roleMapper.toDtoList(roleRepository.findByActifTrue());
     }
 
     @Override
     public RoleDTO getById(Long id) {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des roles reservee a l'administrateur");
         RoleEntity role = roleRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Rôle introuvable"));
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Role introuvable"));
         return roleMapper.toDto(role);
     }
 
     @Override
     public RoleDTO create(RoleCreateUpdateDTO dto) {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des roles reservee a l'administrateur");
 
         roleRepository.findByCode(dto.getCode()).ifPresent(r -> {
-            throw new ResponseStatusException(BAD_REQUEST, "Code de rôle déjà utilisé");
+            throw new ResponseStatusException(BAD_REQUEST, "Code de role deja utilise");
         });
 
-        ActionType actionType;
-        try {
-            actionType = ActionType.valueOf(dto.getAction());
-        } catch (IllegalArgumentException ex) {
-            throw new ResponseStatusException(BAD_REQUEST,
-                    "Action invalide : " + dto.getAction());
-        }
+        ActionType actionType = parseAction(dto.getAction());
 
         EnvironnementEntity env = null;
         if (dto.getEnvironnementId() != null) {
@@ -102,24 +94,18 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public RoleDTO update(Long id, RoleCreateUpdateDTO dto) {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des roles reservee a l'administrateur");
 
         RoleEntity role = roleRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Rôle introuvable"));
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Role introuvable"));
 
         if (!role.getCode().equals(dto.getCode())) {
             roleRepository.findByCode(dto.getCode()).ifPresent(r -> {
-                throw new ResponseStatusException(BAD_REQUEST, "Code de rôle déjà utilisé");
+                throw new ResponseStatusException(BAD_REQUEST, "Code de role deja utilise");
             });
         }
 
-        ActionType actionType;
-        try {
-            actionType = ActionType.valueOf(dto.getAction());
-        } catch (IllegalArgumentException ex) {
-            throw new ResponseStatusException(BAD_REQUEST,
-                    "Action invalide : " + dto.getAction());
-        }
+        ActionType actionType = parseAction(dto.getAction());
 
         EnvironnementEntity env = null;
         if (dto.getEnvironnementId() != null) {
@@ -148,10 +134,10 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public void delete(Long id) {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des roles reservee a l'administrateur");
 
         RoleEntity role = roleRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Rôle introuvable"));
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Role introuvable"));
 
         role.setActif(false);
         roleRepository.save(role);
@@ -159,20 +145,15 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public List<RoleDTO> getByEnvironnement(Long envId) {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des roles reservee a l'administrateur");
         return roleMapper.toDtoList(roleRepository.findByEnvironnementId(envId));
     }
 
     @Override
     public PaginatedResponse<RoleDTO> search(PaginationRequest req) {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des roles reservee a l'administrateur");
 
-        Sort sort = req.getSortDirection().equalsIgnoreCase("desc")
-                ? Sort.by(req.getSortField()).descending()
-                : Sort.by(req.getSortField()).ascending();
-
-        Pageable pageable = PageRequest.of(req.getPage(), req.getSize(), sort);
-
+        Pageable pageable = PaginationUtils.buildPageable(req);
         EntitySpecification<RoleEntity> specBuilder = new EntitySpecification<>();
 
         Page<RoleEntity> page = roleRepository.findAll(
@@ -183,5 +164,13 @@ public class RoleServiceImpl implements RoleService {
         return PaginatedResponse.fromPage(
                 page.map(roleMapper::toDto)
         );
+    }
+
+    private ActionType parseAction(String value) {
+        try {
+            return ActionType.valueOf(value);
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(BAD_REQUEST, "Action invalide : " + value);
+        }
     }
 }

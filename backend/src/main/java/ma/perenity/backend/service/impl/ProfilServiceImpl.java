@@ -1,18 +1,40 @@
 package ma.perenity.backend.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import ma.perenity.backend.dto.*;
-import ma.perenity.backend.entities.*;
+import ma.perenity.backend.dto.EnvTypePermissionUpdateDTO;
+import ma.perenity.backend.dto.PaginatedResponse;
+import ma.perenity.backend.dto.PaginationRequest;
+import ma.perenity.backend.dto.ProfilCreateUpdateDTO;
+import ma.perenity.backend.dto.ProfilDTO;
+import ma.perenity.backend.dto.ProfilKeycloakDTO;
+import ma.perenity.backend.dto.ProfilPermissionsDTO;
+import ma.perenity.backend.dto.ProjectPermissionDTO;
+import ma.perenity.backend.dto.ProjectPermissionUpdateDTO;
+import ma.perenity.backend.dto.UpdateProfilPermissionsRequest;
+import ma.perenity.backend.dto.EnvironmentTypePermissionDTO;
+import ma.perenity.backend.dto.RoleKeycloakDTO;
+import ma.perenity.backend.entities.EnvironmentTypeEntity;
+import ma.perenity.backend.entities.ProfilEntity;
+import ma.perenity.backend.entities.ProfilRoleEntity;
+import ma.perenity.backend.entities.ProjetEntity;
+import ma.perenity.backend.entities.RoleEntity;
 import ma.perenity.backend.entities.enums.ActionType;
 import ma.perenity.backend.entities.enums.RoleScope;
 import ma.perenity.backend.mapper.ProfilMapper;
-import ma.perenity.backend.repository.*;
+import ma.perenity.backend.repository.EnvironmentTypeRepository;
+import ma.perenity.backend.repository.ProfilRepository;
+import ma.perenity.backend.repository.ProfilRoleRepository;
+import ma.perenity.backend.repository.ProjetRepository;
+import ma.perenity.backend.repository.RoleRepository;
+import ma.perenity.backend.repository.UtilisateurRepository;
 import ma.perenity.backend.service.KeycloakService;
 import ma.perenity.backend.service.PermissionService;
 import ma.perenity.backend.service.ProfilService;
-import ma.perenity.backend.repository.UtilisateurRepository;
+import ma.perenity.backend.service.util.AdminGuard;
+import ma.perenity.backend.service.util.PaginationUtils;
 import ma.perenity.backend.specification.EntitySpecification;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -23,7 +45,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
-
 
 @Service
 @RequiredArgsConstructor
@@ -40,23 +61,16 @@ public class ProfilServiceImpl implements ProfilService {
     private final KeycloakService keycloakService;
     private final UtilisateurRepository utilisateurRepository;
 
-    private void checkAdmin() {
-        if (!permissionService.isAdmin()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Administration des profils réservée à l'administrateur");
-        }
-    }
-
     @Override
     public List<ProfilDTO> getAll() {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des profils reservee a l'administrateur");
         return mapper.toDtoList(profilRepository.findByActifTrueAndIsDeletedFalse());
 
     }
 
     @Override
     public ProfilDTO getById(Long id) {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des profils reservee a l'administrateur");
         ProfilEntity profil = profilRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Profil introuvable"));
         return mapper.toDto(profil);
@@ -64,11 +78,11 @@ public class ProfilServiceImpl implements ProfilService {
 
     @Override
     public ProfilDTO create(ProfilCreateUpdateDTO dto) {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des profils reservee a l'administrateur");
 
         if (profilRepository.existsByCode(dto.getCode())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Le code profil existe déjà : " + dto.getCode());
+                    "Le code profil existe deja : " + dto.getCode());
         }
 
         ProfilEntity profil = ProfilEntity.builder()
@@ -80,7 +94,6 @@ public class ProfilServiceImpl implements ProfilService {
                 .isDeleted(false)
                 .build();
 
-        // ✅ AMÉLIORATION: Créer le groupe Keycloak immédiatement
         ProfilKeycloakDTO keycloakGroupDto = ProfilKeycloakDTO.builder()
                 .code(profil.getCode())
                 .libelle(profil.getLibelle())
@@ -94,19 +107,17 @@ public class ProfilServiceImpl implements ProfilService {
         return mapper.toDto(profil);
     }
 
-
     @Override
     public ProfilDTO update(Long id, ProfilCreateUpdateDTO dto) {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des profils reservee a l'administrateur");
 
         ProfilEntity profil = profilRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Profil introuvable"));
 
-        // Vérifier unicité du code si changé
         if (!profil.getCode().equals(dto.getCode())
                 && profilRepository.existsByCode(dto.getCode())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Le code profil existe déjà : " + dto.getCode());
+                    "Le code profil existe deja : " + dto.getCode());
         }
 
         profil.setCode(dto.getCode());
@@ -125,7 +136,7 @@ public class ProfilServiceImpl implements ProfilService {
 
     @Override
     public void delete(Long id) {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des profils reservee a l'administrateur");
 
         ProfilEntity profil = profilRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Profil introuvable"));
@@ -134,7 +145,7 @@ public class ProfilServiceImpl implements ProfilService {
         if (activeUsers > 0) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Impossible de supprimer ce profil : des utilisateurs actifs y sont associés."
+                    "Impossible de supprimer ce profil : des utilisateurs actifs y sont associes."
             );
         }
 
@@ -143,20 +154,19 @@ public class ProfilServiceImpl implements ProfilService {
         }
 
         profil.setActif(false);
-        profil.setIsDeleted(true); // <── AJOUT ICI
+        profil.setIsDeleted(true);
         profilRepository.save(profil);
     }
 
-
     @Override
     public List<Long> getRoleIds(Long profilId) {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des profils reservee a l'administrateur");
         return profilRoleRepository.findRoleIdsByProfilId(profilId);
     }
 
     @Override
     public void assignRoles(Long profilId, List<Long> roleIds) {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des profils reservee a l'administrateur");
 
         ProfilEntity profil = profilRepository.findById(profilId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Profil introuvable"));
@@ -177,20 +187,13 @@ public class ProfilServiceImpl implements ProfilService {
 
     @Override
     public PaginatedResponse<ProfilDTO> search(PaginationRequest req) {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des profils reservee a l'administrateur");
 
-        Sort sort = req.getSortDirection().equalsIgnoreCase("desc")
-                ? Sort.by(req.getSortField()).descending()
-                : Sort.by(req.getSortField()).ascending();
-
-        Pageable pageable = PageRequest.of(req.getPage(), req.getSize(), sort);
+        Pageable pageable = PaginationUtils.buildPageable(req);
 
         EntitySpecification<ProfilEntity> specBuilder = new EntitySpecification<>();
-
-        // Construire la spec à partir des filtres du front
         Specification<ProfilEntity> spec = specBuilder.getSpecification(req.getFilters());
 
-        // 👉 Ajouter filtrage automatique
         spec = spec.and((root, query, cb) -> cb.equal(root.get("actif"), true));
         spec = spec.and((root, query, cb) -> cb.isFalse(root.get("isDeleted")));
 
@@ -201,33 +204,24 @@ public class ProfilServiceImpl implements ProfilService {
         );
     }
 
-
-
     @Override
     @Transactional(readOnly = true)
     public ProfilPermissionsDTO getPermissions(Long profilId) {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des profils reservee a l'administrateur");
 
         ProfilEntity profil = profilRepository.findById(profilId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Profil introuvable"));
 
-        // ✅ SI ADMIN → Retourner TOUTES les permissions automatiquement
         if (Boolean.TRUE.equals(profil.getAdmin())) {
             return buildAdminPermissions(profil);
         }
 
-        // ✅ Sinon, logique normale pour les non-admins
         return buildNormalUserPermissions(profil, profilId);
     }
 
-    /**
-     * ✅ Construire les permissions complètes pour un profil administrateur
-     */
     private ProfilPermissionsDTO buildAdminPermissions(ProfilEntity profil) {
-        // Toutes les actions disponibles
         List<ActionType> allActions = Arrays.asList(ActionType.values());
 
-        // Récupérer TOUS les types d'environnement actifs
         List<EnvironmentTypeEntity> allTypes = environmentTypeRepository.findByActifTrue();
 
         List<EnvironmentTypePermissionDTO> envPermissions = allTypes.stream()
@@ -236,16 +230,14 @@ public class ProfilServiceImpl implements ProfilService {
                         .code(type.getCode())
                         .libelle(type.getLibelle())
                         .actif(type.getActif())
-                        .allowedActions(new ArrayList<>(allActions)) // ✅ Toutes les actions
+                        .allowedActions(new ArrayList<>(allActions))
                         .build())
                 .toList();
 
-        // Récupérer TOUS les projets actifs
         List<ProjetEntity> allProjects = projetRepository.findByActifTrue();
 
         List<ProjectPermissionDTO> projPermissions = allProjects.stream()
                 .map(projet -> {
-                    // Récupérer les types d'environnement pour ce projet
                     List<String> environmentTypeCodes = getProjectEnvTypeCodes(projet);
 
                     return ProjectPermissionDTO.builder()
@@ -253,7 +245,7 @@ public class ProfilServiceImpl implements ProfilService {
                             .code(projet.getCode())
                             .libelle(projet.getLibelle())
                             .actif(projet.getActif())
-                            .allowedActions(new ArrayList<>(allActions)) // ✅ Toutes les actions
+                            .allowedActions(new ArrayList<>(allActions))
                             .environmentTypeCodes(environmentTypeCodes)
                             .build();
                 })
@@ -263,15 +255,12 @@ public class ProfilServiceImpl implements ProfilService {
                 .profilId(profil.getId())
                 .profilCode(profil.getCode())
                 .profilLibelle(profil.getLibelle())
-                .isAdmin(true) // ✅ Flag admin
+                .isAdmin(true)
                 .environmentTypes(envPermissions)
                 .projects(projPermissions)
                 .build();
     }
 
-    /**
-     * ✅ Construire les permissions pour un utilisateur normal (non-admin)
-     */
     private ProfilPermissionsDTO buildNormalUserPermissions(ProfilEntity profil, Long profilId) {
         List<RoleEntity> roles = profilRoleRepository.findRolesByProfil(profilId);
 
@@ -294,8 +283,7 @@ public class ProfilServiceImpl implements ProfilService {
                             .computeIfAbsent(typeCode, k -> new HashSet<>())
                             .add(action);
                 }
-            }
-            else if (code.startsWith("PROJ_")) {
+            } else if (code.startsWith("PROJ_")) {
                 if (role.getProjet() != null) {
                     projectActionsMap
                             .computeIfAbsent(role.getProjet().getId(), k -> new HashSet<>())
@@ -305,7 +293,9 @@ public class ProfilServiceImpl implements ProfilService {
                     if (parts.length >= 3) {
                         StringBuilder projectCodeBuilder = new StringBuilder();
                         for (int i = 1; i < parts.length - 1; i++) {
-                            if (i > 1) projectCodeBuilder.append("_");
+                            if (i > 1) {
+                                projectCodeBuilder.append("_");
+                            }
                             projectCodeBuilder.append(parts[i]);
                         }
                         String projectCode = projectCodeBuilder.toString();
@@ -362,16 +352,12 @@ public class ProfilServiceImpl implements ProfilService {
                 .profilId(profil.getId())
                 .profilCode(profil.getCode())
                 .profilLibelle(profil.getLibelle())
-                .isAdmin(false) // ✅ Flag non-admin
+                .isAdmin(false)
                 .environmentTypes(envPermissions)
                 .projects(projPermissions)
                 .build();
     }
 
-    /**
-     * Agrège les codes de type d'environnement d'un projet
-     * en combinant les environnements existants et l'association directe environmentTypes.
-     */
     private List<String> getProjectEnvTypeCodes(ProjetEntity projet) {
         Set<String> codes = new HashSet<>();
 
@@ -395,9 +381,10 @@ public class ProfilServiceImpl implements ProfilService {
                 .sorted()
                 .toList();
     }
+
     @Override
     public void updateEnvTypePermissions(Long profilId, List<EnvTypePermissionUpdateDTO> envPermissions) {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des profils reservee a l'administrateur");
 
         ProfilEntity profil = profilRepository.findById(profilId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Profil introuvable"));
@@ -467,7 +454,7 @@ public class ProfilServiceImpl implements ProfilService {
 
     @Override
     public void updateProjectPermissions(Long profilId, List<ProjectPermissionUpdateDTO> projectPermissions) {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des profils reservee a l'administrateur");
 
         ProfilEntity profil = profilRepository.findById(profilId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Profil introuvable"));
@@ -531,9 +518,8 @@ public class ProfilServiceImpl implements ProfilService {
 
     @Override
     public void updateAllPermissions(Long profilId, UpdateProfilPermissionsRequest request) {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des profils reservee a l'administrateur");
 
-        // ✅ Vérifier si le profil est admin
         ProfilEntity profil = profilRepository.findById(profilId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Profil introuvable"));
 
@@ -545,7 +531,6 @@ public class ProfilServiceImpl implements ProfilService {
             );
         }
 
-        // ✅ Logique normale pour les non-admins
         if (request.getEnvTypePermissions() != null) {
             updateEnvTypePermissions(profilId, request.getEnvTypePermissions());
         }

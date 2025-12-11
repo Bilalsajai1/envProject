@@ -10,14 +10,14 @@ import ma.perenity.backend.mapper.ApplicationMapper;
 import ma.perenity.backend.repository.ApplicationRepository;
 import ma.perenity.backend.service.ApplicationService;
 import ma.perenity.backend.service.PermissionService;
+import ma.perenity.backend.service.util.AdminGuard;
+import ma.perenity.backend.service.util.PaginationUtils;
 import ma.perenity.backend.specification.EntitySpecification;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,18 +29,9 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final ApplicationMapper mapper;
     private final PermissionService permissionService;
 
-    private void checkAdmin() {
-        if (!permissionService.isAdmin()) {
-            throw new ResponseStatusException(
-                    HttpStatus.FORBIDDEN,
-                    "Administration des applications réservée à l'administrateur"
-            );
-        }
-    }
-
     @Override
     public List<ApplicationDTO> getAll() {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des applications reservee a l'administrateur");
         return repository.findAll()
                 .stream()
                 .map(mapper::toDto)
@@ -57,10 +48,10 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public ApplicationDTO getById(Long id) {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des applications reservee a l'administrateur");
 
         ApplicationEntity entity = repository.findById(id)
-                .filter(ApplicationEntity::getActif) // ne renvoyer que les actifs
+                .filter(ApplicationEntity::getActif)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Application not found with id = " + id)
                 );
@@ -70,7 +61,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public ApplicationDTO create(ApplicationDTO dto) {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des applications reservee a l'administrateur");
 
         ApplicationEntity entity = mapper.toEntity(dto);
 
@@ -84,7 +75,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public ApplicationDTO update(Long id, ApplicationDTO dto) {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des applications reservee a l'administrateur");
 
         ApplicationEntity entity = repository.findById(id)
                 .filter(ApplicationEntity::getActif)
@@ -100,7 +91,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public void delete(Long id) {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des applications reservee a l'administrateur");
 
         ApplicationEntity entity = repository.findById(id)
                 .orElseThrow(() ->
@@ -113,26 +104,12 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public PaginatedResponse<ApplicationDTO> search(PaginationRequest req) {
-        checkAdmin();
+        AdminGuard.requireAdmin(permissionService, "Administration des applications reservee a l'administrateur");
 
-        Sort sort = req.getSortDirection().equalsIgnoreCase("desc")
-                ? Sort.by(req.getSortField()).descending()
-                : Sort.by(req.getSortField()).ascending();
+        Pageable pageable = PaginationUtils.buildPageable(req);
 
-        Pageable pageable = PageRequest.of(req.getPage(), req.getSize(), sort);
-
-        Map<String, Object> rawFilters = req.getFilters() != null
-                ? new HashMap<>(req.getFilters())
-                : new HashMap<>();
-
-        String search = null;
-        Object searchObj = rawFilters.remove("search");
-        if (searchObj != null) {
-            search = searchObj.toString().trim();
-            if (search.isEmpty()) {
-                search = null;
-            }
-        }
+        Map<String, Object> rawFilters = PaginationUtils.extractFilters(req);
+        String search = PaginationUtils.extractSearch(rawFilters);
 
         EntitySpecification<ApplicationEntity> specBuilder = new EntitySpecification<>();
         Specification<ApplicationEntity> spec = specBuilder.getSpecification(rawFilters);
