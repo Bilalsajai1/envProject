@@ -13,7 +13,15 @@ export interface ProfilDTO {
   description?: string;
   admin: boolean;
   actif: boolean;
+  /**
+   * Total users attached to this profile (all statuses).
+   * nbActiveUsers is preferred when available.
+   */
   nbUsers?: number;
+  /**
+   * Active users attached to this profile.
+   */
+  nbActiveUsers?: number;
 }
 
 export interface ProfilCreateUpdateDTO {

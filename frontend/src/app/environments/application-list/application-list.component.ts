@@ -134,7 +134,7 @@ export class ApplicationListComponent implements OnInit, OnDestroy {
   // ============================================
   // LOAD
   // ============================================
-  private loadApplications(): void {
+  loadApplications(): void {
     this.loading = true;
     this.cdr.markForCheck();
 
@@ -163,7 +163,7 @@ export class ApplicationListComponent implements OnInit, OnDestroy {
   // ============================================
   addApplication(): void {
     const dialogRef = this.dialog.open(ApplicationDialogComponent, {
-      width: '700px',
+      width: '900px',
       data: {
         environmentId: this.environmentId
       }
@@ -176,7 +176,7 @@ export class ApplicationListComponent implements OnInit, OnDestroy {
 
   editApplication(app: EnvApplicationDTO): void {
     const dialogRef = this.dialog.open(ApplicationDialogComponent, {
-      width: '700px',
+      width: '900px',
       data: {
         application: app,
         environmentId: this.environmentId

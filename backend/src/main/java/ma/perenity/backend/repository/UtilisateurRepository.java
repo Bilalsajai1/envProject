@@ -14,5 +14,5 @@ public interface UtilisateurRepository extends
     Optional<UtilisateurEntity> findByEmail(String email);
     List<UtilisateurEntity> findByActifTrueAndIsDeletedFalse();
 
-
+    long countByProfil_IdAndActifTrueAndIsDeletedFalse(Long profilId);
 }

@@ -1,202 +1,222 @@
 <!-- src/app/profils/components/profil-list/profil-list.component.html -->
 
-<div class="profil-list-page">
+<div class="profiles-page">
 
-  <!-- En-tête -->
-  <div class="page-header">
-    <div class="page-title-block">
-      <h1>
-        <mat-icon class="header-icon">badge</mat-icon>
-        Profils
-      </h1>
-      <p class="subtitle">
-        Gérez les profils utilisateurs et leurs permissions
-      </p>
+  <!-- Header -->
+  <header class="page-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <mat-icon>badge</mat-icon>
+      </div>
+      <div class="header-text">
+        <h1>Gestion des profils</h1>
+        <p>Administrez les rôles utilisateurs et leurs permissions</p>
+      </div>
     </div>
+    <div class="header-actions">
+      <button
+        mat-icon-button
+        class="action-icon-btn"
+        (click)="loadProfils()"
+        matTooltip="Actualiser">
+        <mat-icon>refresh</mat-icon>
+      </button>
+      <button
+        mat-raised-button
+        class="add-profil-btn"
+        (click)="addProfil()">
+        <mat-icon>add</mat-icon>
+        <span>Nouveau profil</span>
+      </button>
+    </div>
+  </header>
 
-    <button
-      mat-raised-button
-      color="primary"
-      (click)="addProfil()"
-      class="add-button">
-      <mat-icon>add</mat-icon>
-      Nouveau profil
-    </button>
-  </div>
-
-  <mat-card class="data-card">
-
-    <!-- Barre de recherche / résumé -->
-    <div class="search-toolbar">
-      <mat-form-field appearance="outline" class="search-field">
-        <mat-label>Rechercher un profil</mat-label>
+  <!-- Filters -->
+  <section class="filters-card">
+    <div class="filters-row">
+      <div class="search-box">
+        <mat-icon class="search-icon">search</mat-icon>
         <input
-          matInput
+          type="text"
+          placeholder="Rechercher par code, libellé ou description..."
           [(ngModel)]="searchTerm"
-          (ngModelChange)="onSearchChange($event)"
-          placeholder="Code, libellé..." />
+          (ngModelChange)="onSearchChange($event)" />
+        @if (searchTerm) {
+          <button
+            class="clear-search-btn"
+            (click)="clearSearch()"
+            matTooltip="Effacer">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </div>
 
-        <button
-          *ngIf="searchTerm"
-          mat-icon-button
-          matSuffix
-          aria-label="Effacer la recherche"
-          (click)="clearSearch()">
-          <mat-icon>close</mat-icon>
-        </button>
-
-        <button
-          *ngIf="!searchTerm"
-          mat-icon-button
-          matSuffix
-          disabled
-          class="search-icon-button">
-          <mat-icon>search</mat-icon>
-        </button>
-      </mat-form-field>
-
-      <div class="results-info" *ngIf="!loading">
+      <div class="results-chip" *ngIf="!loading">
         <mat-icon>insights</mat-icon>
         <div class="results-text">
           <span class="results-label">{{ resultsLabel }}</span>
-          <span class="results-sub" *ngIf="searchTerm">
-            Filtré par <strong>"{{ searchTerm }}"</strong>
-          </span>
+          @if (searchTerm) {
+            <span class="results-sub">Filtré par "{{ searchTerm }}"</span>
+          }
         </div>
       </div>
     </div>
+  </section>
 
-    <!-- Contenu -->
-    @if (!loading) {
-      <div class="table-container">
-        <table
-          mat-table
-          [dataSource]="profils"
-          matSort
-          (matSortChange)="onSortChange($event)"
-          class="profils-table">
+  <!-- Content -->
+  <section class="content-card">
+    <div class="table-wrapper" [class.blurred]="loading">
+      <table
+        mat-table
+        [dataSource]="profils"
+        matSort
+        (matSortChange)="onSortChange($event)"
+        class="profils-table">
 
-          <!-- Code -->
-          <ng-container matColumnDef="code">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Code</th>
-            <td mat-cell *matCellDef="let profil">
-              <span class="profil-code">{{ profil.code }}</span>
-            </td>
-          </ng-container>
+        <!-- Code -->
+        <ng-container matColumnDef="code">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Code</th>
+          <td mat-cell *matCellDef="let profil">
+            <span class="code-badge">{{ profil.code }}</span>
+          </td>
+        </ng-container>
 
-          <!-- Libellé -->
-          <ng-container matColumnDef="libelle">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Libellé</th>
-            <td mat-cell *matCellDef="let profil">
-              <strong>{{ profil.libelle }}</strong>
-            </td>
-          </ng-container>
+        <!-- Libellé -->
+        <ng-container matColumnDef="libelle">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Libellé</th>
+          <td mat-cell *matCellDef="let profil">
+            <span class="cell-title">{{ profil.libelle }}</span>
+          </td>
+        </ng-container>
 
-          <!-- Description -->
-          <ng-container matColumnDef="description">
-            <th mat-header-cell *matHeaderCellDef>Description</th>
-            <td mat-cell *matCellDef="let profil">
-              {{ profil.description || '-' }}
-            </td>
-          </ng-container>
+        <!-- Description -->
+        <ng-container matColumnDef="description">
+          <th mat-header-cell *matHeaderCellDef>Description</th>
+          <td mat-cell *matCellDef="let profil">
+            @if (profil.description) {
+              <span class="text-secondary">{{ profil.description }}</span>
+            } @else {
+              <span class="text-muted">Aucune description</span>
+            }
+          </td>
+        </ng-container>
 
-          <!-- Admin -->
-          <ng-container matColumnDef="admin">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Admin</th>
-            <td mat-cell *matCellDef="let profil">
-              @if (profil.admin) {
-                <mat-chip class="admin-chip">
-                  <mat-icon>admin_panel_settings</mat-icon>
-                  ADMIN
-                </mat-chip>
-              } @else {
-                <span>-</span>
-              }
-            </td>
-          </ng-container>
+        <!-- Admin -->
+        <ng-container matColumnDef="admin">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Admin</th>
+          <td mat-cell *matCellDef="let profil">
+            @if (profil.admin) {
+              <span class="chip admin-chip">
+                <mat-icon>workspace_premium</mat-icon>
+                Admin
+              </span>
+            } @else {
+              <span class="chip neutral-chip">
+                <mat-icon>person</mat-icon>
+                Standard
+              </span>
+            }
+          </td>
+        </ng-container>
 
-          <!-- Nb users -->
+          <!-- Nb users (actifs) -->
           <ng-container matColumnDef="nbUsers">
-            <th mat-header-cell *matHeaderCellDef>Utilisateurs</th>
+            <th mat-header-cell *matHeaderCellDef>Utilisateurs actifs</th>
             <td mat-cell *matCellDef="let profil">
-              <mat-chip class="user-count-chip">
+              <span class="chip users-chip">
                 <mat-icon>group</mat-icon>
-                {{ profil.nbUsers || 0 }}
-              </mat-chip>
+                {{ profil.nbActiveUsers ?? profil.nbUsers ?? 0 }}
+              </span>
             </td>
           </ng-container>
 
-          <!-- Statut -->
-          <ng-container matColumnDef="actif">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Statut</th>
-            <td mat-cell *matCellDef="let profil">
-              <mat-chip
-                [class.status-active]="profil.actif"
-                [class.status-inactive]="!profil.actif">
-                <mat-icon class="status-icon">
-                  {{ profil.actif ? 'check_circle' : 'cancel' }}
-                </mat-icon>
-                {{ profil.actif ? 'Actif' : 'Inactif' }}
-              </mat-chip>
-            </td>
-          </ng-container>
+        <!-- Statut -->
+        <ng-container matColumnDef="actif">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Statut</th>
+          <td mat-cell *matCellDef="let profil">
+            <span class="status-chip" [class.active]="profil.actif" [class.inactive]="!profil.actif">
+              <mat-icon>{{ profil.actif ? 'check_circle' : 'pause_circle' }}</mat-icon>
+              {{ profil.actif ? 'Actif' : 'Inactif' }}
+            </span>
+          </td>
+        </ng-container>
 
-          <!-- Actions -->
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>Actions</th>
-            <td mat-cell *matCellDef="let profil" class="actions-cell">
+        <!-- Actions -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let profil">
+            <div class="inline-actions">
               <button
                 mat-icon-button
-                class="action-btn permissions"
+                class="action permissions"
                 matTooltip="Configurer les permissions"
                 (click)="configurePermissions(profil)">
                 <mat-icon>security</mat-icon>
               </button>
-
               <button
                 mat-icon-button
-                class="action-btn edit"
+                class="action edit"
                 matTooltip="Modifier"
                 (click)="editProfil(profil)">
                 <mat-icon>edit</mat-icon>
               </button>
-
               <button
                 mat-icon-button
-                class="action-btn delete"
+                class="action delete"
                 matTooltip="Supprimer"
                 (click)="deleteProfil(profil)">
                 <mat-icon>delete</mat-icon>
               </button>
-            </td>
-          </ng-container>
+            </div>
+          </td>
+        </ng-container>
 
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr
-            mat-row
-            *matRowDef="let row; columns: displayedColumns; trackBy: trackByProfil">
-          </tr>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns; trackBy: trackByProfil"
+          class="profil-row">
+        </tr>
+      </table>
 
-        </table>
-
-        @if (isEmpty) {
-          <div class="empty-state">
+      @if (isEmpty) {
+        <div class="empty-state">
+          <div class="empty-icon">
             <mat-icon>badge_off</mat-icon>
-            <p>Aucun profil trouvé</p>
-            <p class="empty-hint">
-              {{ searchTerm ? 'Essayez une autre recherche' : 'Créez votre premier profil' }}
-            </p>
           </div>
-        }
-      </div>
-    } @else {
-      <div class="loading-state">
-        <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
-        <p>Chargement des profils...</p>
-      </div>
-    }
+          <h3>Aucun profil trouvé</h3>
+          <p>
+            @if (searchTerm) {
+              Aucun résultat ne correspond à votre recherche.
+            } @else {
+              Créez votre premier profil pour commencer.
+            }
+          </p>
+          <div class="empty-actions">
+            @if (searchTerm) {
+              <button mat-stroked-button (click)="clearSearch()">
+                <mat-icon>refresh</mat-icon>
+                Réinitialiser
+              </button>
+            } @else {
+              <button mat-raised-button class="add-profil-btn" (click)="addProfil()">
+                <mat-icon>add</mat-icon>
+                Nouveau profil
+              </button>
+            }
+          </div>
+        </div>
+      }
 
-    @if (!loading && !isEmpty) {
+      @if (loading) {
+        <div class="loading-overlay">
+          <mat-progress-spinner mode="indeterminate" diameter="56"></mat-progress-spinner>
+          <p>Chargement des profils...</p>
+        </div>
+      }
+    </div>
+
+    @if (!isEmpty) {
       <mat-paginator
         [length]="totalElements"
         [pageSize]="size"
@@ -206,7 +226,6 @@
         showFirstLastButtons>
       </mat-paginator>
     }
-
-  </mat-card>
+  </section>
 
 </div>

@@ -1,135 +1,190 @@
 <!-- src/app/environments/application-list/application-list.component.html -->
 
-<div class="application-list-container">
-  <div class="header">
+<div class="applications-page">
+
+  <!-- Header -->
+  <header class="page-header">
     <div class="header-left">
-      <button mat-icon-button (click)="goBack()" matTooltip="Retour aux environnements">
+      <button mat-icon-button class="ghost-btn" (click)="goBack()" matTooltip="Retour aux environnements">
         <mat-icon>arrow_back</mat-icon>
       </button>
-      <h2>Applications</h2>
+      <div class="header-text">
+        <p class="eyebrow">Environnement {{ environmentId }}</p>
+        <h1>Applications</h1>
+        <p class="subtitle">Configurez les endpoints et accès applicatifs.</p>
+      </div>
     </div>
 
-    <button
-      mat-raised-button
-      color="primary"
-      (click)="addApplication()"
-      *ngIf="canCreateApplication()">
-      <mat-icon>add</mat-icon>
-      Ajouter une application
-    </button>
-  </div>
+    <div class="header-actions">
+      <button mat-icon-button class="ghost-btn" (click)="loadApplications()" matTooltip="Actualiser">
+        <mat-icon>refresh</mat-icon>
+      </button>
+      <button
+        mat-raised-button
+        class="primary-btn"
+        (click)="addApplication()"
+        *ngIf="canCreateApplication()">
+        <mat-icon>add</mat-icon>
+        <span>Nouvelle application</span>
+      </button>
+    </div>
+  </header>
 
-  <!-- Barre de recherche -->
-  <mat-form-field appearance="outline" class="search-field">
-    <mat-label>Rechercher...</mat-label>
-    <input
-      matInput
-      [value]="searchTerm"
-      (input)="onSearchChange($any($event.target).value)"
-      placeholder="Application, protocole, host, URL...">
-    <button
-      mat-icon-button
-      matSuffix
-      *ngIf="searchTerm"
-      (click)="clearSearch()">
-      <mat-icon>close</mat-icon>
-    </button>
-    <mat-icon matPrefix>search</mat-icon>
-  </mat-form-field>
+  <!-- Filters -->
+  <section class="filters-card">
+    <div class="search-box">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input
+        type="text"
+        placeholder="Rechercher par nom, protocole, host, URL..."
+        [value]="searchTerm"
+        (input)="onSearchChange($any($event.target).value)" />
+      @if (searchTerm) {
+        <button class="clear-search-btn" (click)="clearSearch()" matTooltip="Effacer">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </div>
+    <div class="results-chip" *ngIf="!loading">
+      <mat-icon>insights</mat-icon>
+      <span>{{ applications.length }} application(s)</span>
+    </div>
+  </section>
 
-  <!-- Table -->
-  <div class="table-container">
-    <table
-      mat-table
-      [dataSource]="applications"
-      class="mat-elevation-z2">
+  <!-- Content -->
+  <section class="content-card">
+    <div class="table-wrapper" [class.blurred]="loading">
+      <table mat-table [dataSource]="applications" class="applications-table">
 
-      <ng-container matColumnDef="application">
-        <th mat-header-cell *matHeaderCellDef>Application</th>
-        <td mat-cell *matCellDef="let app">{{ app.applicationLibelle }}</td>
-      </ng-container>
+        <ng-container matColumnDef="application">
+          <th mat-header-cell *matHeaderCellDef>Application</th>
+          <td mat-cell *matCellDef="let app">
+            <strong>{{ app.applicationLibelle }}</strong>
+          </td>
+        </ng-container>
 
-      <ng-container matColumnDef="protocole">
-        <th mat-header-cell *matHeaderCellDef>Protocole</th>
-        <td mat-cell *matCellDef="let app">{{ app.protocole || '-' }}</td>
-      </ng-container>
+        <ng-container matColumnDef="protocole">
+          <th mat-header-cell *matHeaderCellDef>Protocole</th>
+          <td mat-cell *matCellDef="let app">
+            <span class="pill">{{ app.protocole || '—' }}</span>
+          </td>
+        </ng-container>
 
-      <ng-container matColumnDef="host">
-        <th mat-header-cell *matHeaderCellDef>Host</th>
-        <td mat-cell *matCellDef="let app">{{ app.host || '-' }}</td>
-      </ng-container>
+        <ng-container matColumnDef="host">
+          <th mat-header-cell *matHeaderCellDef>Host</th>
+          <td mat-cell *matCellDef="let app">{{ app.host || '—' }}</td>
+        </ng-container>
 
-      <ng-container matColumnDef="port">
-        <th mat-header-cell *matHeaderCellDef>Port</th>
-        <td mat-cell *matCellDef="let app">{{ app.port || '-' }}</td>
-      </ng-container>
+        <ng-container matColumnDef="port">
+          <th mat-header-cell *matHeaderCellDef>Port</th>
+          <td mat-cell *matCellDef="let app">{{ app.port || '—' }}</td>
+        </ng-container>
 
-      <ng-container matColumnDef="username">
-        <th mat-header-cell *matHeaderCellDef>Username</th>
-        <td mat-cell *matCellDef="let app">{{ app.username || '-' }}</td>
-      </ng-container>
+        <ng-container matColumnDef="username">
+          <th mat-header-cell *matHeaderCellDef>Username</th>
+          <td mat-cell *matCellDef="let app">{{ app.username || '—' }}</td>
+        </ng-container>
 
-      <ng-container matColumnDef="password">
-        <th mat-header-cell *matHeaderCellDef>Password</th>
-        <td mat-cell *matCellDef="let app">
-          <span *ngIf="app.passwordMasked; else noPass">
-            {{ app.passwordMasked }}
-          </span>
-          <ng-template #noPass>-</ng-template>
-        </td>
-      </ng-container>
+        <ng-container matColumnDef="password">
+          <th mat-header-cell *matHeaderCellDef>Password</th>
+          <td mat-cell *matCellDef="let app">
+            <span>{{ app.passwordMasked || '—' }}</span>
+          </td>
+        </ng-container>
 
-      <ng-container matColumnDef="url">
-        <th mat-header-cell *matHeaderCellDef>URL</th>
-        <td mat-cell *matCellDef="let app">
-          <a *ngIf="app.url" [href]="app.url" target="_blank" (click)="$event.stopPropagation()">
-            {{ app.url }}
-          </a>
-          <span *ngIf="!app.url">-</span>
-        </td>
-      </ng-container>
+        <ng-container matColumnDef="url">
+          <th mat-header-cell *matHeaderCellDef>URL</th>
+          <td mat-cell *matCellDef="let app">
+            @if (app.url) {
+              <a [href]="app.url" target="_blank" (click)="$event.stopPropagation()" class="link">
+                {{ app.url }}
+              </a>
+            } @else {
+              <span>—</span>
+            }
+          </td>
+        </ng-container>
 
-      <ng-container matColumnDef="dateDerniereLivraison">
-        <th mat-header-cell *matHeaderCellDef>Derniere livraison</th>
-        <td mat-cell *matCellDef="let app">
-          {{ app.dateDerniereLivraison ? (app.dateDerniereLivraison | date:'dd/MM/yyyy') : '-' }}
-        </td>
-      </ng-container>
+        <ng-container matColumnDef="dateDerniereLivraison">
+          <th mat-header-cell *matHeaderCellDef>Dernière livraison</th>
+          <td mat-cell *matCellDef="let app">
+            {{ app.dateDerniereLivraison ? (app.dateDerniereLivraison | date:'dd/MM/yyyy') : '—' }}
+          </td>
+        </ng-container>
 
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef>Actions</th>
-        <td mat-cell *matCellDef="let app">
-          <button
-            mat-icon-button
-            color="primary"
-            matTooltip="Modifier"
-            *ngIf="canUpdateApplication()"
-            (click)="editApplication(app); $event.stopPropagation()">
-            <mat-icon>edit</mat-icon>
-          </button>
+        <ng-container matColumnDef="actif">
+          <th mat-header-cell *matHeaderCellDef>Statut</th>
+          <td mat-cell *matCellDef="let app">
+            <span class="status-chip" [class.active]="app.actif" [class.inactive]="!app.actif">
+              <mat-icon>{{ app.actif ? 'check_circle' : 'pause_circle' }}</mat-icon>
+              {{ app.actif ? 'Actif' : 'Inactif' }}
+            </span>
+          </td>
+        </ng-container>
 
-          <button
-            mat-icon-button
-            color="warn"
-            matTooltip="Supprimer"
-            *ngIf="canDeleteApplication()"
-            (click)="deleteApplication(app); $event.stopPropagation()">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </td>
-      </ng-container>
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let app">
+            <div class="inline-actions">
+              <button
+                mat-icon-button
+                class="ghost-btn success"
+                matTooltip="Modifier"
+                *ngIf="canUpdateApplication()"
+                (click)="editApplication(app); $event.stopPropagation()">
+                <mat-icon>edit</mat-icon>
+              </button>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
-  </div>
+              <button
+                mat-icon-button
+                class="ghost-btn danger"
+                matTooltip="Supprimer"
+                *ngIf="canDeleteApplication()"
+                (click)="deleteApplication(app); $event.stopPropagation()">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </td>
+        </ng-container>
 
-  <div *ngIf="loading" class="loading-overlay">
-    <mat-spinner></mat-spinner>
-  </div>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
 
-  <div *ngIf="!loading && applications.length === 0" class="no-data">
-    <mat-icon>inbox</mat-icon>
-    <p>Aucune application trouvee</p>
-  </div>
+      @if (!loading && applications.length === 0) {
+        <div class="empty-state">
+          <div class="empty-icon"><mat-icon>inbox</mat-icon></div>
+          <h3>Aucune application trouvée</h3>
+          <p>
+            @if (searchTerm) {
+              Aucun résultat pour cette recherche.
+            } @else {
+              Ajoutez votre première application.
+            }
+          </p>
+          <div class="empty-actions">
+            @if (searchTerm) {
+              <button mat-stroked-button class="ghost-btn" (click)="clearSearch()">
+                <mat-icon>refresh</mat-icon>
+                Réinitialiser
+              </button>
+            }
+            @if (canCreateApplication()) {
+              <button mat-raised-button class="primary-btn" (click)="addApplication()">
+                <mat-icon>add</mat-icon>
+                Nouvelle application
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      @if (loading) {
+        <div class="loading-overlay">
+          <mat-progress-spinner mode="indeterminate" diameter="56"></mat-progress-spinner>
+          <p>Chargement des applications...</p>
+        </div>
+      }
+    </div>
+  </section>
 </div>

@@ -15,4 +15,5 @@ public class ProfilDTO {
     private Boolean actif;
 
     private Integer nbUsers;
+    private Integer nbActiveUsers;
 }

@@ -1,183 +1,159 @@
+<!-- src/app/profils/components/profil-form/profil-form.component.html -->
+
 <div class="profil-form-page">
 
-  <!-- HEADER -->
-  <div class="profil-form-header">
-    <div class="title-block">
-      <div class="avatar" [ngClass]="{ 'edit': isEdit, 'create': !isEdit }">
+  <!-- Header -->
+  <header class="page-header">
+    <div class="header-left">
+      <div class="header-icon">
         <mat-icon>{{ isEdit ? 'badge' : 'add_moderator' }}</mat-icon>
       </div>
-      <div class="title-text">
+      <div class="header-text">
+        <p class="eyebrow">{{ isEdit ? 'Edition' : 'Création' }}</p>
         <h1>{{ isEdit ? 'Modifier un profil' : 'Nouveau profil' }}</h1>
-        <p class="subtitle">
-          {{ isEdit
-          ? 'Mettez à jour le libellé, la description et les droits du profil.'
-          : 'Créez un nouveau profil avec ses droits et son statut.' }}
-        </p>
+        <div class="meta-row">
+          <span class="chip mode-chip">
+            <mat-icon>layers</mat-icon>
+            {{ isEdit ? 'Edition' : 'Nouveau' }}
+          </span>
+          <span class="chip status-chip" [class.active]="form.get('actif')?.value" [class.inactive]="!form.get('actif')?.value">
+            <mat-icon>{{ form.get('actif')?.value ? 'check_circle' : 'pause_circle' }}</mat-icon>
+            {{ form.get('actif')?.value ? 'Actif' : 'Inactif' }}
+          </span>
+          <span class="chip admin-chip" [class.on]="form.get('admin')?.value">
+            <mat-icon>{{ form.get('admin')?.value ? 'workspace_premium' : 'person' }}</mat-icon>
+            {{ form.get('admin')?.value ? 'Administrateur' : 'Standard' }}
+          </span>
+        </div>
       </div>
     </div>
-
-    <button
-      mat-icon-button
-      type="button"
-      class="close-button"
-      (click)="cancel()">
-      <mat-icon>close</mat-icon>
-    </button>
-  </div>
+    <div class="header-actions">
+      <button
+        mat-icon-button
+        type="button"
+        class="ghost-btn"
+        (click)="cancel()"
+        matTooltip="Fermer">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </header>
 
   @if (loading) {
-    <mat-progress-bar
-      mode="indeterminate"
-      color="primary"
-      class="loading-bar">
-    </mat-progress-bar>
+    <mat-progress-bar mode="indeterminate" color="primary" class="loading-bar"></mat-progress-bar>
   }
 
-  <!-- CONTENU -->
-  <div class="profil-form-content">
+  <div class="form-shell" [class.blurred]="saving">
     <form [formGroup]="form" (ngSubmit)="submit()">
 
-      <div class="sections-grid">
+      <div class="grid">
 
-        <!-- SECTION 1 : Infos profil -->
-        <section class="form-section">
+        <!-- Infos -->
+        <section class="form-card">
           <div class="section-header">
-            <div class="section-icon">
+            <div class="section-icon primary">
               <mat-icon>description</mat-icon>
             </div>
             <div>
-              <h2>Informations du profil</h2>
-              <p>Identifiant fonctionnel et description de ce profil.</p>
+              <h2>Informations</h2>
+              <p>Identifiants fonctionnels et description du profil.</p>
             </div>
           </div>
 
-          <div class="section-body">
+          <div class="fields two-cols">
+            <mat-form-field appearance="outline">
+              <mat-label>Code</mat-label>
+              <mat-icon matPrefix>qr_code_2</mat-icon>
+              <input matInput formControlName="code" />
+              @if (form.get('code')?.hasError('required')) {
+                <mat-error>Code obligatoire</mat-error>
+              }
+            </mat-form-field>
 
-            <div class="fields-row two-cols">
-              <mat-form-field appearance="outline">
-                <mat-label>Code</mat-label>
-                <mat-icon matPrefix>qr_code_2</mat-icon>
-                <input matInput formControlName="code" />
+            <mat-form-field appearance="outline">
+              <mat-label>Libellé</mat-label>
+              <mat-icon matPrefix>label</mat-icon>
+              <input matInput formControlName="libelle" />
+              @if (form.get('libelle')?.hasError('required')) {
+                <mat-error>Libellé obligatoire</mat-error>
+              }
+            </mat-form-field>
+          </div>
 
-                @if (form.get('code')?.hasError('required')) {
-                  <mat-error>Code obligatoire</mat-error>
-                }
-              </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>Libellé</mat-label>
-                <mat-icon matPrefix>label</mat-icon>
-                <input matInput formControlName="libelle" />
-
-                @if (form.get('libelle')?.hasError('required')) {
-                  <mat-error>Libellé obligatoire</mat-error>
-                }
-              </mat-form-field>
-            </div>
-
-            <div class="fields-row">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Description</mat-label>
-                <textarea
-                  matInput
-                  rows="3"
-                  formControlName="description"
-                  placeholder="Décrivez le rôle de ce profil dans la plateforme">
-                </textarea>
-              </mat-form-field>
-            </div>
+          <div class="fields">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Description</mat-label>
+              <textarea
+                matInput
+                rows="3"
+                formControlName="description"
+                placeholder="Décrivez le rôle et le périmètre de ce profil">
+              </textarea>
+            </mat-form-field>
           </div>
         </section>
 
-        <!-- SECTION 2 : Paramètres & statut -->
-        <section class="form-section">
+        <!-- Statut & droits -->
+        <section class="form-card">
           <div class="section-header">
-            <div class="section-icon section-icon-secondary">
+            <div class="section-icon secondary">
               <mat-icon>admin_panel_settings</mat-icon>
             </div>
             <div>
-              <h2>Paramètres & statut</h2>
-              <p>Définissez si ce profil est administrateur et s’il est actif.</p>
+              <h2>Statut & droits</h2>
+              <p>Activez ou non l'accès administrateur et le statut d'utilisation.</p>
             </div>
           </div>
 
-          <div class="section-body">
-
-            <!-- Bloc admin -->
-            <div class="admin-block">
-              <div class="admin-header">
-                <div
-                  class="admin-badge"
-                  [ngClass]="{ 'admin-on': form.get('admin')?.value, 'admin-off': !form.get('admin')?.value }">
-                  <mat-icon>
-                    {{ form.get('admin')?.value ? 'workspace_premium' : 'person' }}
-                  </mat-icon>
-                </div>
-                <div class="admin-text">
-                  <span class="admin-title">Profil administrateur</span>
-                  <span class="admin-sub">
-                    {{ form.get('admin')?.value
-                    ? 'Ce profil dispose des droits administrateur sur la plateforme.'
-                    : 'Profil standard avec périmètre de droits limité.' }}
-                  </span>
-                </div>
+          <div class="stack">
+            <button
+              type="button"
+              class="toggle-card admin-toggle"
+              [class.on]="form.get('admin')?.value"
+              (click)="form.get('admin')?.setValue(!form.get('admin')?.value)">
+              <div class="toggle-icon">
+                <mat-icon>{{ form.get('admin')?.value ? 'workspace_premium' : 'person' }}</mat-icon>
               </div>
-
-              <div class="admin-toggle">
-                <button
-                  type="button"
-                  class="admin-chip"
-                  [class.admin-chip-on]="form.get('admin')?.value"
-                  (click)="form.get('admin')?.setValue(!form.get('admin')?.value)">
-                  <mat-icon>
-                    {{ form.get('admin')?.value ? 'toggle_on' : 'toggle_off' }}
-                  </mat-icon>
-                  <span>{{ form.get('admin')?.value ? 'Administrateur' : 'Profil standard' }}</span>
-                </button>
-              </div>
-
-              <div class="admin-hint-row">
-                <mat-icon>info</mat-icon>
-                <span>
-                  Réservez les profils administrateurs à un nombre réduit de comptes de confiance.
+              <div class="toggle-text">
+                <span class="toggle-title">Profil administrateur</span>
+                <span class="toggle-sub">
+                  {{ form.get('admin')?.value
+                  ? 'Accès complet aux paramètres et permissions.'
+                  : 'Profil standard avec périmètre limité.' }}
                 </span>
               </div>
-            </div>
+              <div class="toggle-switch">
+                <mat-icon>{{ form.get('admin')?.value ? 'toggle_on' : 'toggle_off' }}</mat-icon>
+              </div>
+            </button>
 
-            <!-- Statut actif / inactif -->
-            <div class="status-block">
+            <div class="status-card">
               <div class="status-header">
-                <div
-                  class="status-badge"
-                  [ngClass]="{ 'badge-active': form.get('actif')?.value, 'badge-inactive': !form.get('actif')?.value }">
-                  <mat-icon>
-                    {{ form.get('actif')?.value ? 'verified_user' : 'lock_person' }}
-                  </mat-icon>
+                <div class="status-icon" [class.active]="form.get('actif')?.value" [class.inactive]="!form.get('actif')?.value">
+                  <mat-icon>{{ form.get('actif')?.value ? 'verified_user' : 'lock_person' }}</mat-icon>
                 </div>
                 <div class="status-text">
                   <span class="status-title">Statut du profil</span>
                   <span class="status-sub">
                     {{ form.get('actif')?.value
-                    ? 'Ce profil est actif et peut être attribué à des utilisateurs.'
-                    : 'Ce profil est désactivé et ne doit plus être utilisé.' }}
+                    ? 'Ce profil peut être attribué à des utilisateurs.'
+                    : 'Profil désactivé, non attribuable.' }}
                   </span>
                 </div>
               </div>
 
-              <!-- Toggle pill -->
-              <div class="status-toggle-pill">
+              <div class="pill-toggle">
                 <button
                   type="button"
-                  class="pill-button pill-active"
+                  class="pill active-pill"
                   [class.selected]="form.get('actif')?.value"
                   (click)="form.get('actif')?.setValue(true)">
                   <mat-icon>check_circle</mat-icon>
                   <span>Actif</span>
                 </button>
-
                 <button
                   type="button"
-                  class="pill-button pill-inactive"
+                  class="pill inactive-pill"
                   [class.selected]="!form.get('actif')?.value"
                   (click)="form.get('actif')?.setValue(false)">
                   <mat-icon>pause_circle</mat-icon>
@@ -185,46 +161,31 @@
                 </button>
               </div>
             </div>
-
           </div>
         </section>
 
       </div>
 
-      <!-- FOOTER -->
+      <!-- Footer -->
       <div class="form-footer">
-        <div class="footer-info">
-          <mat-icon class="info-icon">info</mat-icon>
-          <span class="info-text">
-            {{ isEdit
-            ? 'Les changements de statut et de type de profil seront appliqués immédiatement.'
-            : 'Vous pourrez modifier les droits et le statut de ce profil à tout moment.' }}
-          </span>
-        </div>
-
         <div class="footer-actions">
           <button
             mat-stroked-button
             type="button"
             (click)="cancel()"
             [disabled]="saving"
-            class="cancel-button">
+            class="cancel-btn">
             <mat-icon>close</mat-icon>
-            <span>Annuler</span>
+            Annuler
           </button>
-
           <button
             mat-raised-button
             color="primary"
             type="submit"
             [disabled]="saving || form.invalid"
-            class="submit-button">
+            class="save-btn">
             @if (saving) {
-              <mat-spinner
-                diameter="20"
-                strokeWidth="3"
-                class="button-spinner">
-              </mat-spinner>
+              <mat-spinner diameter="18" strokeWidth="3" class="button-spinner"></mat-spinner>
               <span>Enregistrement...</span>
             } @else {
               <mat-icon>{{ isEdit ? 'save' : 'add' }}</mat-icon>
@@ -235,5 +196,12 @@
       </div>
 
     </form>
+
+    @if (saving) {
+      <div class="saving-overlay">
+        <mat-progress-spinner mode="indeterminate" diameter="56"></mat-progress-spinner>
+        <p>Sauvegarde en cours...</p>
+      </div>
+    }
   </div>
 </div>

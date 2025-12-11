@@ -1,124 +1,173 @@
 <!-- src/app/environments/environment-list/environment-list.component.html -->
 
-<div class="environment-list-container">
-  <div class="header">
+<div class="environments-page">
+
+  <!-- Header -->
+  <header class="page-header">
     <div class="header-left">
-      <button mat-icon-button (click)="goBack()" matTooltip="Retour aux projets">
+      <button mat-icon-button class="ghost-btn" (click)="goBack()" matTooltip="Retour aux projets">
         <mat-icon>arrow_back</mat-icon>
       </button>
-      <div class="title-section">
-        <h2>Environnements - {{ typeCode }}</h2>
-        <p class="project-info" *ngIf="project">{{ project.libelle }}</p>
+      <div class="header-text">
+        <p class="eyebrow">Projet {{ project?.code || '' }} · {{ typeCode }}</p>
+        <h1>Environnements</h1>
+        <p class="subtitle">{{ project?.libelle }}</p>
       </div>
     </div>
 
-    <button
-      mat-raised-button
-      color="primary"
-      (click)="addEnvironment()"
-      *ngIf="canCreateEnvironment()">
-      <mat-icon>add</mat-icon>
-      Ajouter un environnement
-    </button>
-  </div>
+    <div class="header-actions">
+      <button mat-icon-button class="ghost-btn" (click)="loadEnvironments()" matTooltip="Actualiser">
+        <mat-icon>refresh</mat-icon>
+      </button>
+      <button
+        mat-raised-button
+        class="primary-btn"
+        (click)="addEnvironment()"
+        *ngIf="canCreateEnvironment()">
+        <mat-icon>add</mat-icon>
+        <span>Nouvel environnement</span>
+      </button>
+    </div>
+  </header>
 
-  <!-- Barre de recherche -->
-  <mat-form-field appearance="outline" class="search-field">
-    <mat-label>Rechercher...</mat-label>
-    <input
-      matInput
-      [value]="searchTerm"
-      (input)="onSearchChange($any($event.target).value)"
-      placeholder="Code, libellé, description...">
-    <button
-      mat-icon-button
-      matSuffix
-      *ngIf="searchTerm"
-      (click)="clearSearch()">
-      <mat-icon>close</mat-icon>
-    </button>
-    <mat-icon matPrefix>search</mat-icon>
-  </mat-form-field>
+  <!-- Filters -->
+  <section class="filters-card">
+    <div class="search-box">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input
+        type="text"
+        placeholder="Rechercher par code, libellé ou description..."
+        [value]="searchTerm"
+        (input)="onSearchChange($any($event.target).value)" />
+      @if (searchTerm) {
+        <button class="clear-search-btn" (click)="clearSearch()" matTooltip="Effacer">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </div>
+    <div class="results-chip" *ngIf="!loading">
+      <mat-icon>insights</mat-icon>
+      <span>{{ totalElements || environments.length }} environnement(s)</span>
+    </div>
+  </section>
 
-  <!-- Table -->
-  <div class="table-container">
-    <table
-      mat-table
-      [dataSource]="environments"
-      matSort
-      (matSortChange)="onSortChange($event)"
-      class="mat-elevation-z2">
+  <!-- Content -->
+  <section class="content-card">
+    <div class="table-wrapper" [class.blurred]="loading">
+      <table mat-table [dataSource]="environments" class="environments-table" matSort (matSortChange)="onSortChange($event)">
 
-      <ng-container matColumnDef="code">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Code</th>
-        <td mat-cell *matCellDef="let env">{{ env.code }}</td>
-      </ng-container>
+        <ng-container matColumnDef="code">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Code</th>
+          <td mat-cell *matCellDef="let env">
+            <span class="code-badge">{{ env.code }}</span>
+          </td>
+        </ng-container>
 
-      <ng-container matColumnDef="libelle">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Libellé</th>
-        <td mat-cell *matCellDef="let env">{{ env.libelle }}</td>
-      </ng-container>
+        <ng-container matColumnDef="libelle">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Libellé</th>
+          <td mat-cell *matCellDef="let env">
+            <strong>{{ env.libelle }}</strong>
+          </td>
+        </ng-container>
 
-      <ng-container matColumnDef="description">
-        <th mat-header-cell *matHeaderCellDef>Description</th>
-        <td mat-cell *matCellDef="let env">{{ env.description }}</td>
-      </ng-container>
+        <ng-container matColumnDef="description">
+          <th mat-header-cell *matHeaderCellDef>Description</th>
+          <td mat-cell *matCellDef="let env">
+            {{ env.description || '—' }}
+          </td>
+        </ng-container>
 
-      <ng-container matColumnDef="actif">
-        <th mat-header-cell *matHeaderCellDef>Statut</th>
-        <td mat-cell *matCellDef="let env">
-          <mat-chip [class.active-chip]="env.actif" [class.inactive-chip]="!env.actif">
-            {{ env.actif ? 'Actif' : 'Inactif' }}
-          </mat-chip>
-        </td>
-      </ng-container>
+        <ng-container matColumnDef="actif">
+          <th mat-header-cell *matHeaderCellDef>Statut</th>
+          <td mat-cell *matCellDef="let env">
+            <span class="status-chip" [class.active]="env.actif" [class.inactive]="!env.actif">
+              <mat-icon>{{ env.actif ? 'check_circle' : 'pause_circle' }}</mat-icon>
+              {{ env.actif ? 'Actif' : 'Inactif' }}
+            </span>
+          </td>
+        </ng-container>
 
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef>Actions</th>
-        <td mat-cell *matCellDef="let env">
-          <button
-            mat-icon-button
-            matTooltip="Consulter"
-            *ngIf="canConsultEnvironment()"
-            (click)="openEnvironment(env)">
-            <mat-icon>visibility</mat-icon>
-          </button>
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let env">
+            <div class="inline-actions">
+              <button
+                mat-icon-button
+                class="ghost-btn"
+                matTooltip="Consulter"
+                *ngIf="canConsultEnvironment()"
+                (click)="openEnvironment(env)">
+                <mat-icon>visibility</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                class="ghost-btn success"
+                matTooltip="Modifier"
+                *ngIf="canUpdateEnvironment()"
+                (click)="editEnvironment(env); $event.stopPropagation()">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                class="ghost-btn danger"
+                matTooltip="Supprimer"
+                *ngIf="canDeleteEnvironment()"
+                (click)="deleteEnvironment(env); $event.stopPropagation()">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </td>
+        </ng-container>
 
-          <button
-            mat-icon-button
-            color="primary"
-            matTooltip="Modifier"
-            *ngIf="canUpdateEnvironment()"
-            (click)="editEnvironment(env); $event.stopPropagation()">
-            <mat-icon>edit</mat-icon>
-          </button>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
 
-          <button
-            mat-icon-button
-            color="warn"
-            matTooltip="Supprimer"
-            *ngIf="canDeleteEnvironment()"
-            (click)="deleteEnvironment(env); $event.stopPropagation()">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </td>
-      </ng-container>
+      @if (!loading && environments.length === 0) {
+        <div class="empty-state">
+          <div class="empty-icon"><mat-icon>public_off</mat-icon></div>
+          <h3>Aucun environnement</h3>
+          <p>
+            @if (searchTerm) {
+              Aucun résultat pour cette recherche.
+            } @else {
+              Créez votre premier environnement pour ce projet.
+            }
+          </p>
+          <div class="empty-actions">
+            @if (searchTerm) {
+              <button mat-stroked-button class="ghost-btn" (click)="clearSearch()">
+                <mat-icon>refresh</mat-icon>
+                Réinitialiser
+              </button>
+            }
+            @if (canCreateEnvironment()) {
+              <button mat-raised-button class="primary-btn" (click)="addEnvironment()">
+                <mat-icon>add</mat-icon>
+                Nouvel environnement
+              </button>
+            }
+          </div>
+        </div>
+      }
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
+      @if (loading) {
+        <div class="loading-overlay">
+          <mat-progress-spinner mode="indeterminate" diameter="56"></mat-progress-spinner>
+          <p>Chargement des environnements...</p>
+        </div>
+      }
+    </div>
 
-    <mat-paginator
-      [length]="totalElements"
-      [pageSize]="size"
-      [pageSizeOptions]="pageSizeOptions"
-      [pageIndex]="page"
-      (page)="onPageChange($event)"
-      showFirstLastButtons>
-    </mat-paginator>
-  </div>
-
-  <div *ngIf="loading" class="loading-overlay">
-    <mat-spinner></mat-spinner>
-  </div>
+    @if (!loading && environments.length > 0) {
+      <mat-paginator
+        [length]="totalElements"
+        [pageSize]="size"
+        [pageSizeOptions]="pageSizeOptions"
+        [pageIndex]="page"
+        showFirstLastButtons
+        (page)="onPageChange($event)">
+      </mat-paginator>
+    }
+  </section>
 </div>

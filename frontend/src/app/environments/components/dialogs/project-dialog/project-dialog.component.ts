@@ -19,7 +19,7 @@ export class ProjectDialogComponent implements OnInit {
   form: FormGroup;
   isEdit = false;
   saving = false;
-  envTypeOptions: { code: string; libelle: string; disabled: boolean }[] = [];
+  envTypeOptions: { code: string; libelle: string }[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -34,7 +34,7 @@ export class ProjectDialogComponent implements OnInit {
       libelle: ['', Validators.required],
       description: [''],
       actif: [true],
-      envTypeCodes: [[], Validators.required]
+      envTypeCodes: [{ value: [], disabled: true }, Validators.required]
     });
   }
 
@@ -52,6 +52,8 @@ export class ProjectDialogComponent implements OnInit {
     if (this.data.project) {
       this.isEdit = true;
       this.form.patchValue(this.data.project);
+    } else if (this.data.typeCode) {
+      this.form.patchValue({ envTypeCodes: [this.data.typeCode] });
     }
   }
 
@@ -62,8 +64,8 @@ export class ProjectDialogComponent implements OnInit {
     }
 
     this.saving = true;
-    const envTypeCodes: string[] = this.form.value.envTypeCodes ?? [];
-    const primaryType = envTypeCodes.length > 0 ? envTypeCodes[0] : this.data.typeCode;
+    const envTypeCodes: string[] = [this.data.typeCode].filter(Boolean) as string[];
+    const primaryType = this.data.typeCode;
     const payload = {
       ...this.form.value,
       envTypeCode: primaryType,
@@ -94,27 +96,15 @@ export class ProjectDialogComponent implements OnInit {
     this.dialogRef.close(false);
   }
 
-  // =========================================================
-  // Types d'environnement
-  // =========================================================
-  isTypeSelected(code: string): boolean {
-    const selected: string[] = this.form.value.envTypeCodes ?? [];
-    return selected.includes(code);
-  }
-
-  toggleEnvType(code: string, checked: boolean): void {
-    const current: string[] = [...(this.form.value.envTypeCodes ?? [])];
-    const next = checked ? Array.from(new Set([...current, code])) : current.filter(c => c !== code);
-    this.form.patchValue({ envTypeCodes: next });
-  }
-
   private buildEnvTypeOptions(): void {
     const ctx = this.authContext.getCurrentContext();
-    const isAdmin = ctx?.user?.admin;
-    this.envTypeOptions = (ctx?.environmentTypes ?? []).map(t => ({
-      code: t.code,
-      libelle: t.libelle,
-      disabled: !isAdmin && !t.allowedActions.includes('CREATE')
-    }));
+    const current = ctx?.environmentTypes?.find(t => t.code?.toUpperCase() === this.data.typeCode?.toUpperCase());
+    if (current) {
+      this.envTypeOptions = [{ code: current.code, libelle: current.libelle }];
+    } else if (this.data.typeCode) {
+      this.envTypeOptions = [{ code: this.data.typeCode, libelle: this.data.typeCode }];
+    } else {
+      this.envTypeOptions = [];
+    }
   }
 }

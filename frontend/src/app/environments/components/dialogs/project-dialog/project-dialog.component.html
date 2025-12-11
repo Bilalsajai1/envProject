@@ -1,111 +1,82 @@
-<div class="dialog-wrapper">
+<div class="project-dialog">
+
+  <!-- Header -->
   <div class="dialog-header">
-    <div class="header-content">
-      <mat-icon class="header-icon">{{ isEdit ? 'edit' : 'add_circle' }}</mat-icon>
-      <div class="header-text">
-        <h2 mat-dialog-title>
-          {{ isEdit ? 'Modifier le projet' : 'Nouveau projet' }}
-        </h2>
-        <p class="header-subtitle">
-          {{ isEdit ? 'Mettez à jour les informations' : 'Créez un nouveau projet' }}
-        </p>
-      </div>
+    <div class="header-icon">
+      <mat-icon>{{ isEdit ? 'edit' : 'add_circle' }}</mat-icon>
+    </div>
+    <div class="header-text">
+      <p class="eyebrow">{{ isEdit ? 'Edition' : 'Création' }}</p>
+      <h2>{{ isEdit ? 'Modifier le projet' : 'Nouveau projet' }}</h2>
+      <p class="subtitle">{{ isEdit ? 'Mettez à jour les informations du projet.' : 'Créez un projet pour ce type d’environnement.' }}</p>
     </div>
   </div>
 
   <mat-dialog-content>
     <form [formGroup]="form" class="dialog-form">
 
-      <div class="form-section">
-        <div class="section-header">
-          <mat-icon class="section-icon">folder</mat-icon>
-          <div class="section-title-text">
-            <h3>Informations du projet</h3>
-            <p class="section-subtitle">Identifiants et description</p>
-          </div>
-        </div>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>
-            <mat-icon class="label-icon">qr_code_2</mat-icon>
-            Code
-          </mat-label>
-          <input matInput formControlName="code" placeholder="Ex: PROJET-001" />
+      <div class="form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Code projet</mat-label>
+          <mat-icon matPrefix>qr_code_2</mat-icon>
+          <input matInput formControlName="code" placeholder="Ex: PROJ-001" />
           @if (form.get('code')?.hasError('required')) {
             <mat-error>Code obligatoire</mat-error>
           }
         </mat-form-field>
 
-        <div class="section-header">
-          <mat-icon class="section-icon">category</mat-icon>
-          <div class="section-title-text">
-            <h3>Types d'environnement</h3>
-            <p class="section-subtitle">Associez le projet aux types autorisés</p>
-          </div>
-        </div>
-
-        <div class="env-types-grid">
-          @for (opt of envTypeOptions; track opt.code) {
-            <mat-checkbox
-              [checked]="isTypeSelected(opt.code)"
-              (change)="toggleEnvType(opt.code, $event.checked)"
-              [disabled]="opt.disabled && !isTypeSelected(opt.code)">
-              {{ opt.libelle || opt.code }}
-            </mat-checkbox>
-          }
-        </div>
-        @if (form.get('envTypeCodes')?.invalid && form.get('envTypeCodes')?.touched) {
-          <mat-error>Sélectionnez au moins un type</mat-error>
-        }
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>
-            <mat-icon class="label-icon">label</mat-icon>
-            Libellé
-          </mat-label>
+        <mat-form-field appearance="outline">
+          <mat-label>Libellé</mat-label>
+          <mat-icon matPrefix>label</mat-icon>
           <input matInput formControlName="libelle" placeholder="Ex: Projet principal" />
           @if (form.get('libelle')?.hasError('required')) {
             <mat-error>Libellé obligatoire</mat-error>
           }
         </mat-form-field>
+      </div>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>
-            <mat-icon class="label-icon">description</mat-icon>
-            Description
-          </mat-label>
-          <textarea
-            matInput
-            rows="3"
-            formControlName="description"
-            placeholder="Ajoutez une description..."></textarea>
-        </mat-form-field>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Description</mat-label>
+        <textarea
+          matInput
+          rows="3"
+          formControlName="description"
+          placeholder="Décrivez le projet..."></textarea>
+      </mat-form-field>
 
-        <div class="toggle-section">
-          <div class="toggle-container">
-            <div class="toggle-info">
-              <mat-icon class="toggle-icon">{{ form.get('actif')?.value ? 'check_circle' : 'cancel' }}</mat-icon>
-              <div class="toggle-text">
-                <p class="toggle-label">État du projet</p>
-                <p class="toggle-sublabel">
-                  {{ form.get('actif')?.value ? 'Projet actif' : 'Projet inactif' }}
-                </p>
-              </div>
-            </div>
-            <mat-slide-toggle
-              formControlName="actif"
-              color="primary"
-              class="custom-toggle">
-            </mat-slide-toggle>
+      <div class="section">
+        <div class="section-header">
+          <mat-icon>category</mat-icon>
+          <div>
+            <h3>Type d'environnement</h3>
+            <p>Le projet sera créé dans ce type.</p>
           </div>
         </div>
+        <div class="type-chip">
+          <mat-icon>label</mat-icon>
+          <span class="type-code">{{ envTypeOptions[0]?.code || data.typeCode }}</span>
+          <span class="type-libelle" *ngIf="envTypeOptions[0]?.libelle">{{ envTypeOptions[0]?.libelle }}</span>
+        </div>
+      </div>
+
+      <div class="status-row">
+        <div class="status-info">
+          <div class="status-icon" [class.active]="form.get('actif')?.value">
+            <mat-icon>{{ form.get('actif')?.value ? 'check_circle' : 'pause_circle' }}</mat-icon>
+          </div>
+          <div>
+            <p class="status-title">Statut du projet</p>
+            <p class="status-sub">{{ form.get('actif')?.value ? 'Projet actif' : 'Projet inactif' }}</p>
+          </div>
+        </div>
+        <mat-slide-toggle formControlName="actif" color="primary"></mat-slide-toggle>
       </div>
 
     </form>
   </mat-dialog-content>
 
   <mat-dialog-actions align="end">
-    <button mat-button (click)="cancel()" [disabled]="saving" class="cancel-btn">
+    <button mat-stroked-button (click)="cancel()" [disabled]="saving" class="ghost-btn">
       <mat-icon>close</mat-icon>
       Annuler
     </button>
@@ -114,13 +85,9 @@
       color="primary"
       (click)="save()"
       [disabled]="saving || form.invalid"
-      class="save-btn">
+      class="primary-btn">
       @if (saving) {
-        <mat-progress-spinner
-          mode="indeterminate"
-          diameter="16"
-          strokeWidth="2">
-        </mat-progress-spinner>
+        <mat-progress-spinner mode="indeterminate" diameter="18" strokeWidth="3"></mat-progress-spinner>
         <span>Sauvegarde...</span>
       } @else {
         <mat-icon>{{ isEdit ? 'save' : 'add' }}</mat-icon>

@@ -36,6 +36,11 @@ export class PermissionManagementComponent implements OnInit {
   // Étape 2 : Map<projectId, Set<ActionType>>
   projectActionsMap = new Map<number, Set<ActionType>>();
 
+  get selectedProfil(): ProfilSimple | undefined {
+    if (!this.selectedProfilId) return undefined;
+    return this.profils.find(p => p.id === this.selectedProfilId);
+  }
+
   constructor(
     private permissionService: PermissionService,
     private snackBar: MatSnackBar,
@@ -166,6 +171,10 @@ export class PermissionManagementComponent implements OnInit {
     return this.projectActionsMap.get(projectId)?.has(action) ?? false;
   }
 
+  get selectedEnvTypesCount(): number {
+    return Array.from(this.envTypeActionsMap.values()).filter(set => set.size > 0).length;
+  }
+
   toggleProjectAction(projectId: number, action: ActionType): void {
     if (this.isAdminProfile) {
       this.snackBar.open('Les administrateurs ont automatiquement tous les droits', 'Fermer', { duration: 3000 });
@@ -183,17 +192,14 @@ export class PermissionManagementComponent implements OnInit {
   }
 
   nextStep(): void {
-    if (this.currentStep < 1) {
-      this.currentStep++;
-      this.cdr.markForCheck();
-    }
+    if (!this.canProceedToStep2() || this.isAdminProfile) return;
+    this.currentStep = 1;
+    this.cdr.markForCheck();
   }
 
   previousStep(): void {
-    if (this.currentStep > 0) {
-      this.currentStep--;
-      this.cdr.markForCheck();
-    }
+    this.currentStep = 0;
+    this.cdr.markForCheck();
   }
 
   save(): void {

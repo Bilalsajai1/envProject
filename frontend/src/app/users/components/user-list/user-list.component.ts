@@ -34,13 +34,6 @@ interface UserSearchRequest {
   filters: Record<string, any>;
 }
 
-interface UserStatistics {
-  total: number;
-  active: number;
-  inactive: number;
-  withProfiles: number;
-}
-
 @Component({
   selector: 'app-user-list',
   standalone: false,
@@ -55,14 +48,6 @@ export class UserListComponent implements OnInit, OnDestroy {
 
   users: UserDTO[] = [];
   totalElements = 0;
-
-  // Statistics
-  statistics: UserStatistics = {
-    total: 0,
-    active: 0,
-    inactive: 0,
-    withProfiles: 0
-  };
 
   displayedColumns = [
     'code',
@@ -157,22 +142,11 @@ export class UserListComponent implements OnInit, OnDestroy {
         next: res => {
           this.users = res.content ?? [];
           this.totalElements = res.totalElements ?? 0;
-          this.calculateStatistics();
         },
         error: () => {
           this.showSnackBar('❌ Erreur lors du chargement des utilisateurs', 'error-snackbar');
         }
       });
-  }
-
-  private calculateStatistics(): void {
-    // Calculate from current loaded users
-    this.statistics = {
-      total: this.totalElements,
-      active: this.users.filter(u => u.actif).length,
-      inactive: this.users.filter(u => !u.actif).length,
-      withProfiles: this.users.filter(u => u.profilLibelle).length
-    };
   }
 
   refresh(): void {

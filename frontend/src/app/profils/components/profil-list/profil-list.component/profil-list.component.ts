@@ -109,6 +109,8 @@ export class ProfilListComponent implements OnInit, OnDestroy {
     if (this.searchTerm && this.searchTerm.trim() !== '') {
       filters['search'] = this.searchTerm.trim();
     }
+    // Request only active users count per profil if supported by backend
+    filters['onlyActiveUsers'] = true;
     return filters;
   }
 
@@ -235,8 +237,9 @@ export class ProfilListComponent implements OnInit, OnDestroy {
             this.showSnackBar('Profil supprime avec succes', 'success-snackbar');
             this.loadProfils();
           },
-          error: () => {
-            this.showSnackBar('Erreur lors de la suppression', 'error-snackbar');
+          error: (err) => {
+            const message = err?.error?.message || 'Impossible de supprimer ce profil (des utilisateurs actifs y sont peut-être associés).';
+            this.showSnackBar(message, 'error-snackbar');
           }
         });
       });

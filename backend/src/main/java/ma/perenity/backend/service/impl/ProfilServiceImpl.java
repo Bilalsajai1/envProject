@@ -10,6 +10,7 @@ import ma.perenity.backend.repository.*;
 import ma.perenity.backend.service.KeycloakService;
 import ma.perenity.backend.service.PermissionService;
 import ma.perenity.backend.service.ProfilService;
+import ma.perenity.backend.repository.UtilisateurRepository;
 import ma.perenity.backend.specification.EntitySpecification;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
@@ -37,6 +38,7 @@ public class ProfilServiceImpl implements ProfilService {
     private final EnvironmentTypeRepository environmentTypeRepository;
     private final ProjetRepository projetRepository;
     private final KeycloakService keycloakService;
+    private final UtilisateurRepository utilisateurRepository;
 
     private void checkAdmin() {
         if (!permissionService.isAdmin()) {
@@ -127,6 +129,14 @@ public class ProfilServiceImpl implements ProfilService {
 
         ProfilEntity profil = profilRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Profil introuvable"));
+
+        long activeUsers = utilisateurRepository.countByProfil_IdAndActifTrueAndIsDeletedFalse(id);
+        if (activeUsers > 0) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Impossible de supprimer ce profil : des utilisateurs actifs y sont associés."
+            );
+        }
 
         if (profil.getKeycloakGroupId() != null) {
             keycloakService.deleteGroup(profil.getKeycloakGroupId());
