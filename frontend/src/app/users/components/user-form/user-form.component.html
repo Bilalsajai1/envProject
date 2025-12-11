@@ -223,7 +223,7 @@
                 <div class="status-text">
                   <span class="status-title">Statut du compte</span>
                   <span class="status-sub">
-                    {{ actifControl?.value }}
+                    {{ actifControl?.value ? 'Compte actif et opérationnel' : 'Compte désactivé' }}
                   </span>
                 </div>
               </div>

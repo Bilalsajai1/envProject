@@ -170,10 +170,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
             ? '✅ Utilisateur modifié avec succès'
             : '✅ Utilisateur créé avec succès';
           this.showSuccess(message);
-
-          setTimeout(() => {
-            this.dialogRef.close(true);
-          }, 500);
+          this.dialogRef.close(true);
         },
         error: (error) => {
           console.error('Erreur lors de l\'enregistrement:', error);

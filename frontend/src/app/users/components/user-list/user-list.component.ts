@@ -11,7 +11,6 @@ import { MatSort, Sort } from '@angular/material/sort';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import {
-  debounceTime,
   distinctUntilChanged,
   Subject,
   takeUntil,
@@ -24,6 +23,8 @@ import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog.comp
 import { UserFormComponent } from '../user-form/user-form.component';
 
 type SortDirection = 'asc' | 'desc';
+type ViewMode = 'table' | 'grid';
+type FilterStatus = 'all' | 'active' | 'inactive';
 
 interface UserSearchRequest {
   page: number;
@@ -31,6 +32,13 @@ interface UserSearchRequest {
   sortField: string;
   sortDirection: SortDirection;
   filters: Record<string, any>;
+}
+
+interface UserStatistics {
+  total: number;
+  active: number;
+  inactive: number;
+  withProfiles: number;
 }
 
 @Component({
@@ -48,6 +56,14 @@ export class UserListComponent implements OnInit, OnDestroy {
   users: UserDTO[] = [];
   totalElements = 0;
 
+  // Statistics
+  statistics: UserStatistics = {
+    total: 0,
+    active: 0,
+    inactive: 0,
+    withProfiles: 0
+  };
+
   displayedColumns = [
     'code',
     'firstName',
@@ -64,6 +80,8 @@ export class UserListComponent implements OnInit, OnDestroy {
 
   searchTerm = '';
   loading = false;
+  viewMode: ViewMode = 'table';
+  filterStatus: FilterStatus = 'all';
 
   sortField = 'id';
   sortDirection: SortDirection = 'asc';
@@ -91,7 +109,6 @@ export class UserListComponent implements OnInit, OnDestroy {
   private setupSearchListener(): void {
     this.searchSubject
       .pipe(
-        debounceTime(300),
         distinctUntilChanged(),
         takeUntil(this.destroy$)
       )
@@ -102,9 +119,18 @@ export class UserListComponent implements OnInit, OnDestroy {
   }
 
   private buildFilters(): Record<string, any> {
-    return this.searchTerm.trim()
-      ? { search: this.searchTerm.trim() }
-      : {};
+    const filters: Record<string, any> = {};
+
+    if (this.searchTerm.trim()) {
+      filters['search'] = this.searchTerm.trim();
+    }
+
+    // Filter by status if not 'all'
+    if (this.filterStatus !== 'all') {
+      filters['actif'] = this.filterStatus === 'active';
+    }
+
+    return filters;
   }
 
   loadUsers(): void {
@@ -131,11 +157,22 @@ export class UserListComponent implements OnInit, OnDestroy {
         next: res => {
           this.users = res.content ?? [];
           this.totalElements = res.totalElements ?? 0;
+          this.calculateStatistics();
         },
         error: () => {
-          this.showSnackBar('Erreur lors du chargement des utilisateurs', 'error-snackbar');
+          this.showSnackBar('❌ Erreur lors du chargement des utilisateurs', 'error-snackbar');
         }
       });
+  }
+
+  private calculateStatistics(): void {
+    // Calculate from current loaded users
+    this.statistics = {
+      total: this.totalElements,
+      active: this.users.filter(u => u.actif).length,
+      inactive: this.users.filter(u => !u.actif).length,
+      withProfiles: this.users.filter(u => u.profilLibelle).length
+    };
   }
 
   refresh(): void {
@@ -149,6 +186,7 @@ export class UserListComponent implements OnInit, OnDestroy {
 
   clearSearch(): void {
     this.searchTerm = '';
+    this.filterStatus = 'all';
     this.searchSubject.next('');
   }
 
@@ -161,6 +199,16 @@ export class UserListComponent implements OnInit, OnDestroy {
   onSortChange(sort: Sort): void {
     this.sortField = sort.active || 'id';
     this.sortDirection = (sort.direction as SortDirection) || 'asc';
+    this.loadUsers();
+  }
+
+  toggleViewMode(): void {
+    this.viewMode = this.viewMode === 'table' ? 'grid' : 'table';
+  }
+
+  setFilterStatus(status: FilterStatus): void {
+    this.filterStatus = status;
+    this.page = 0;
     this.loadUsers();
   }
 
@@ -191,12 +239,13 @@ export class UserListComponent implements OnInit, OnDestroy {
 
   deleteUser(user: UserDTO): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '400px',
+      width: '480px',
       data: {
-        title: 'Confirmer la suppression',
-        message: `Supprimer l'utilisateur "${user.firstName} ${user.lastName}" ?`,
+        title: 'Supprimer l\'utilisateur',
+        message: `Êtes-vous sûr de vouloir supprimer "${user.firstName} ${user.lastName}" ? Cette action est irréversible.`,
         confirmText: 'Supprimer',
-        cancelText: 'Annuler'
+        cancelText: 'Annuler',
+        type: 'danger'
       }
     });
 
@@ -207,11 +256,11 @@ export class UserListComponent implements OnInit, OnDestroy {
 
         this.userService.delete(user.id).subscribe({
           next: () => {
-            this.showSnackBar('Utilisateur supprime avec succes', 'success-snackbar');
+            this.showSnackBar('✅ Utilisateur supprimé avec succès', 'success-snackbar');
             this.loadUsers();
           },
           error: () => {
-            this.showSnackBar('Erreur lors de la suppression', 'error-snackbar');
+            this.showSnackBar('❌ Erreur lors de la suppression', 'error-snackbar');
           }
         });
       });
@@ -221,21 +270,31 @@ export class UserListComponent implements OnInit, OnDestroy {
     return !this.loading && this.users.length === 0;
   }
 
+  get hasFilters(): boolean {
+    return this.searchTerm.trim().length > 0 || this.filterStatus !== 'all';
+  }
+
   trackByUser(_: number, user: UserDTO): number | undefined {
     return user.id;
   }
 
   get resultsLabel(): string {
-    return this.totalElements === 0
-      ? 'Aucun utilisateur'
-      : this.totalElements === 1
-        ? '1 utilisateur'
-        : `${this.totalElements} utilisateurs`;
+    if (this.totalElements === 0) return 'Aucun utilisateur';
+    if (this.totalElements === 1) return '1 utilisateur';
+    return `${this.totalElements} utilisateur${this.totalElements > 1 ? 's' : ''}`;
+  }
+
+  getUserInitials(user: UserDTO): string {
+    const first = user.firstName?.charAt(0) || '';
+    const last = user.lastName?.charAt(0) || '';
+    return (first + last).toUpperCase() || '??';
   }
 
   private showSnackBar(message: string, panelClass: string): void {
     this.snackBar.open(message, 'Fermer', {
-      duration: 3000,
+      duration: 3500,
+      horizontalPosition: 'end',
+      verticalPosition: 'top',
       panelClass: [panelClass]
     });
   }
