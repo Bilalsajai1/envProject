@@ -1,4 +1,3 @@
-// src/app/environments/environment-type-layout/environment-type-layout.component.ts
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';

@@ -1,12 +1,6 @@
-// ========================================
-// VARIABLES
-// ========================================
 $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 $transition-fast: all 0.15s ease;
 
-// ========================================
-// LAYOUT
-// ========================================
 .users-page {
   display: flex;
   flex-direction: column;
@@ -15,9 +9,6 @@ $transition-fast: all 0.15s ease;
   min-height: 100vh;
 }
 
-// ========================================
-// HEADER
-// ========================================
 .page-header {
   display: flex;
   align-items: center;
@@ -120,9 +111,6 @@ $transition-fast: all 0.15s ease;
   }
 }
 
-// ========================================
-// FILTERS SECTION
-// ========================================
 .filters-section {
   display: flex;
   flex-direction: column;
@@ -141,7 +129,6 @@ $transition-fast: all 0.15s ease;
   flex-wrap: wrap;
 }
 
-// Search Box
 .search-box {
   flex: 1;
   min-width: 280px;
@@ -206,7 +193,6 @@ $transition-fast: all 0.15s ease;
   }
 }
 
-// Status Tabs
 .status-tabs {
   display: inline-flex;
   gap: 6px;
@@ -249,7 +235,6 @@ $transition-fast: all 0.15s ease;
   }
 }
 
-// View Toggle
 .view-toggle-btn {
   border: 1px solid #e5e7eb;
   background: #f9fafb;
@@ -269,7 +254,6 @@ $transition-fast: all 0.15s ease;
   }
 }
 
-// Results Info
 .results-info {
   display: inline-flex;
   align-items: center;
@@ -315,16 +299,10 @@ $transition-fast: all 0.15s ease;
   }
 }
 
-// ========================================
-// CONTENT SECTION
-// ========================================
 .content-section {
   flex: 1;
 }
 
-// ========================================
-// TABLE VIEW
-// ========================================
 .table-container {
   background: #ffffff;
   border: 1px solid #e5e7eb;
@@ -407,7 +385,6 @@ $transition-fast: all 0.15s ease;
   }
 }
 
-// Table Elements
 .code-badge {
   font-family: 'JetBrains Mono', 'Courier New', monospace;
   font-weight: 600;
@@ -488,7 +465,6 @@ $transition-fast: all 0.15s ease;
   }
 }
 
-// Inline Actions
 .inline-actions {
   display: flex;
   gap: 4px;
@@ -545,9 +521,6 @@ $transition-fast: all 0.15s ease;
   }
 }
 
-// ========================================
-// GRID VIEW
-// ========================================
 .grid-container {
   position: relative;
   min-height: 400px;
@@ -672,9 +645,6 @@ $transition-fast: all 0.15s ease;
   border-top: 1px solid #e5e7eb;
 }
 
-// ========================================
-// EMPTY STATES
-// ========================================
 .empty-state,
 .empty-state-grid {
   display: flex;
@@ -725,9 +695,6 @@ $transition-fast: all 0.15s ease;
   }
 }
 
-// ========================================
-// LOADING OVERLAY
-// ========================================
 .loading-overlay {
   position: absolute;
   inset: 0;
@@ -748,9 +715,6 @@ $transition-fast: all 0.15s ease;
   }
 }
 
-// ========================================
-// PAGINATION
-// ========================================
 ::ng-deep .mat-mdc-paginator {
   background: #f9fafb !important;
   border-top: 1px solid #e5e7eb !important;
@@ -766,9 +730,6 @@ $transition-fast: all 0.15s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
-// ========================================
-// RESPONSIVE
-// ========================================
 @media (max-width: 1024px) {
   .users-page {
     padding: 16px;
@@ -814,9 +775,6 @@ $transition-fast: all 0.15s ease;
   }
 }
 
-// ========================================
-// DARK MODE
-// ========================================
 :host-context([data-theme="dark"]),
 :host-context(body[data-theme="dark"]),
 :host-context(html[data-theme="dark"]) {

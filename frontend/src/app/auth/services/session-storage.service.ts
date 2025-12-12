@@ -5,11 +5,11 @@ const USER_DETAILS_KEY = 'envmgmt_user';
 export interface StoredUser {
   accessToken: string;
   refreshToken?: string;
-  tokenType?: string;  // ex: "Bearer"
+  tokenType?: string;
   expiresIn?: number;
-  expiresAt?: number;  // timestamp in ms
+  expiresAt?: number;
   username: string;
-  roles: string[];     // can stay empty if fetched via /auth/me
+  roles: string[];
 }
 
 @Injectable({

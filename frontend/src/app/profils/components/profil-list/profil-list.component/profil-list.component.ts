@@ -1,4 +1,3 @@
-// src/app/profils/components/profil-list/profil-list.component.ts
 
 import {
   ChangeDetectionStrategy,
@@ -88,7 +87,6 @@ export class ProfilListComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // --- Recherche avec debounce ---
   private initSearchListener(): void {
     this.searchSubject
       .pipe(
@@ -107,7 +105,6 @@ export class ProfilListComponent implements OnInit, OnDestroy {
     if (this.searchTerm && this.searchTerm.trim() !== '') {
       filters['search'] = this.searchTerm.trim();
     }
-    // Request only active users count per profil if supported by backend
     filters['onlyActiveUsers'] = true;
     return filters;
   }

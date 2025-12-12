@@ -1,12 +1,6 @@
-// ========================================
-// VARIABLES
-// ========================================
 $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 $transition-fast: all 0.15s ease;
 
-// ========================================
-// HOST
-// ========================================
 :host {
   display: block;
 }
@@ -17,9 +11,6 @@ $transition-fast: all 0.15s ease;
   padding: 24px;
 }
 
-// ========================================
-// HEADER
-// ========================================
 .user-form-header {
   display: flex;
   align-items: center;
@@ -115,16 +106,10 @@ $transition-fast: all 0.15s ease;
   }
 }
 
-// ========================================
-// LOADING BAR
-// ========================================
 .loading-bar {
   margin: 0 24px 20px;
 }
 
-// ========================================
-// CONTENT
-// ========================================
 .user-form-content {
   background: #ffffff;
   border: 1px solid #e5e7eb;
@@ -137,9 +122,6 @@ form {
   padding: 24px;
 }
 
-// ========================================
-// SECTIONS
-// ========================================
 .sections-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -214,9 +196,6 @@ form {
   gap: 16px;
 }
 
-// ========================================
-// FIELDS
-// ========================================
 .fields-row {
   display: grid;
   grid-template-columns: 1fr;
@@ -231,7 +210,6 @@ form {
   width: 100%;
 }
 
-// Material form field styling
 ::ng-deep .user-form-content {
   .mat-mdc-form-field {
     width: 100%;
@@ -262,7 +240,6 @@ form {
   }
 }
 
-// Profil dropdown options
 .profil-option {
   display: flex;
   align-items: center;
@@ -321,9 +298,6 @@ form {
   }
 }
 
-// ========================================
-// STATUS BLOCK
-// ========================================
 .status-block {
   padding: 20px;
   border: 1px solid #e5e7eb;
@@ -441,9 +415,6 @@ form {
   }
 }
 
-// ========================================
-// FOOTER
-// ========================================
 .form-footer {
   margin-top: 24px;
   padding-top: 20px;
@@ -544,9 +515,6 @@ form {
   margin-right: 8px;
 }
 
-// ========================================
-// RESPONSIVE
-// ========================================
 @media (max-width: 768px) {
   .user-form-page {
     padding: 16px;
@@ -591,9 +559,6 @@ form {
   }
 }
 
-// ========================================
-// DARK MODE
-// ========================================
 :host-context([data-theme="dark"]),
 :host-context(body[data-theme="dark"]),
 :host-context(html[data-theme="dark"]) {

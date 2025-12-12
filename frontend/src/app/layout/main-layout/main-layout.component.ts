@@ -114,9 +114,6 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     localStorage.setItem(this.THEME_KEY, theme);
   }
 
-  /* -----------------------------------------------
-     ENV MENU BUILDING
-  ------------------------------------------------ */
   private buildEnvMenu(): void {
     if (!this.context?.environmentTypes) {
       this.envMenu = [];
@@ -143,9 +140,6 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     });
   }
 
-  /* -----------------------------------------------
-     USER + ROLE HELPERS
-  ------------------------------------------------ */
   isAdmin(): boolean {
     return this.context?.user?.admin ?? false;
   }

@@ -59,9 +59,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
 
     this.isEdit = this.data.mode === 'edit' && !!this.data.userId;
 
-    // Ajouter la validation conditionnelle pour le password
     if (!this.isEdit) {
-      // En mode création, le password est obligatoire
       this.form.get('password')?.setValidators([
         Validators.required,
         Validators.minLength(8)
@@ -91,7 +89,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
       email: ['', [Validators.required, Validators.email]],
       actif: [true],
       profilId: [null, Validators.required],
-      password: [''] // Validators ajoutés dynamiquement dans ngOnInit
+      password: ['']
     });
   }
 
@@ -104,8 +102,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
           this.profils = profils;
           this.profilsLoading = false;
         },
-        error: (error) => {
-          console.error('Erreur lors du chargement des profils:', error);
+        error: () => {
           this.showError('Impossible de charger les profils');
           this.profilsLoading = false;
         }
@@ -132,8 +129,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
           this.initialFormValue = this.form.value;
           this.loading = false;
         },
-        error: (error) => {
-          console.error('Erreur lors du chargement de l\'utilisateur:', error);
+        error: () => {
           this.showError('Impossible de charger l\'utilisateur');
           this.loading = false;
           this.dialogRef.close(false);
@@ -151,8 +147,6 @@ export class UserFormComponent implements OnInit, OnDestroy {
     this.saving = true;
     const payload = this.form.getRawValue();
 
-
-    // En mode édition, ne pas envoyer le password s'il est vide
     if (this.isEdit && !payload.password) {
       delete payload.password;
     }
@@ -167,17 +161,16 @@ export class UserFormComponent implements OnInit, OnDestroy {
         next: () => {
           this.saving = false;
           const message = this.isEdit
-            ? '✅ Utilisateur modifié avec succès'
-            : '✅ Utilisateur créé avec succès';
+            ? 'Utilisateur modifie avec succes'
+            : 'Utilisateur cree avec succes';
           this.showSuccess(message);
           this.dialogRef.close(true);
         },
-        error: (error) => {
-          console.error('Erreur lors de l\'enregistrement:', error);
+        error: () => {
           this.saving = false;
           const message = this.isEdit
             ? 'Erreur lors de la modification de l\'utilisateur'
-            : 'Erreur lors de la création de l\'utilisateur';
+            : 'Erreur lors de la creation de l\'utilisateur';
           this.showError(message);
         }
       });
@@ -196,7 +189,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
         width: '450px',
         data: {
           title: 'Abandonner les modifications',
-          message: 'Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter ?',
+          message: 'Vous avez des modifications non enregistrees. Êtes-vous sur de vouloir quitter ?',
           confirmText: 'Quitter',
           cancelText: 'Rester',
           type: 'warning'
@@ -220,7 +213,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
   private hasFormChanged(): boolean {
     if (!this.initialFormValue) return false;
     return JSON.stringify(this.form.value) !== JSON.stringify(this.initialFormValue);
-  }
+    }
 
   private showSuccess(message: string): void {
     this.snackBar.open(message, '', {
@@ -262,11 +255,11 @@ export class UserFormComponent implements OnInit, OnDestroy {
     }
     if (control.hasError('minlength')) {
       const minLength = control.errors['minlength'].requiredLength;
-      return `Minimum ${minLength} caractères requis`;
+      return `Minimum ${minLength} caracteres requis`;
     }
     if (control.hasError('maxlength')) {
       const maxLength = control.errors['maxlength'].requiredLength;
-      return `Maximum ${maxLength} caractères autorisés`;
+      return `Maximum ${maxLength} caracteres autorises`;
     }
 
     return 'Valeur invalide';

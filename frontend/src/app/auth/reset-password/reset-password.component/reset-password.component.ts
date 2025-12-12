@@ -1,5 +1,3 @@
-// src/app/auth/reset-password/reset-password.component.ts
-
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -110,7 +108,6 @@ export class ResetPasswordComponent implements OnInit, OnDestroy {
             'Fermer',
             { duration: 3000 }
           );
-          console.error(err);
           return of(void 0);
         })
       )

@@ -1,6 +1,3 @@
-// ========================================
-// VARIABLES
-// ========================================
 $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 $transition-fast: all 0.15s ease;
 
@@ -422,9 +419,6 @@ $transition-fast: all 0.15s ease;
   }
 }
 
-// ========================================
-// DARK MODE
-// ========================================
 :host-context([data-theme="dark"]),
 :host-context(body[data-theme="dark"]),
 :host-context(html[data-theme="dark"]) {
@@ -590,9 +584,6 @@ $transition-fast: all 0.15s ease;
   }
 }
 
-// ========================================
-// RESPONSIVE
-// ========================================
 @media (max-width: 960px) {
   .applications-page {
     padding: 16px;

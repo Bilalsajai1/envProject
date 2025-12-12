@@ -1,12 +1,6 @@
-// ========================================
-// VARIABLES
-// ========================================
 $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 $transition-fast: all 0.15s ease;
 
-// ========================================
-// DIALOG CONTAINER
-// ========================================
 .confirm-dialog {
   display: flex;
   flex-direction: column;
@@ -14,9 +8,6 @@ $transition-fast: all 0.15s ease;
   max-width: 560px;
 }
 
-// ========================================
-// HEADER
-// ========================================
 .dialog-header {
   display: flex;
   align-items: center;
@@ -42,7 +33,6 @@ $transition-fast: all 0.15s ease;
     height: 32px;
   }
 
-  // Type icons
   &.icon-confirm {
     background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
     color: #667eea;
@@ -116,9 +106,6 @@ $transition-fast: all 0.15s ease;
   }
 }
 
-// ========================================
-// CONTENT
-// ========================================
 .dialog-content {
   padding: 24px;
   max-height: 400px;
@@ -151,9 +138,6 @@ $transition-fast: all 0.15s ease;
   font-weight: 400;
 }
 
-// ========================================
-// ACTIONS
-// ========================================
 .dialog-actions {
   padding: 20px 24px;
   background: #f9fafb;
@@ -212,7 +196,6 @@ $transition-fast: all 0.15s ease;
     height: 20px;
   }
 
-  // Default (confirm type)
   &.confirm-confirm {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #ffffff;
@@ -229,7 +212,6 @@ $transition-fast: all 0.15s ease;
     }
   }
 
-  // Warning type
   &.confirm-warning {
     background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
     color: #ffffff;
@@ -246,7 +228,6 @@ $transition-fast: all 0.15s ease;
     }
   }
 
-  // Danger type
   &.confirm-danger {
     background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
     color: #ffffff;
@@ -263,7 +244,6 @@ $transition-fast: all 0.15s ease;
     }
   }
 
-  // Info type
   &.confirm-info {
     background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     color: #ffffff;
@@ -281,9 +261,6 @@ $transition-fast: all 0.15s ease;
   }
 }
 
-// ========================================
-// MATERIAL DIALOG OVERRIDES
-// ========================================
 ::ng-deep .mat-mdc-dialog-container {
   .mdc-dialog__surface {
     border-radius: 20px;
@@ -293,9 +270,6 @@ $transition-fast: all 0.15s ease;
   }
 }
 
-// ========================================
-// RESPONSIVE
-// ========================================
 @media (max-width: 768px) {
   .confirm-dialog {
     min-width: 280px;
@@ -320,9 +294,6 @@ $transition-fast: all 0.15s ease;
   }
 }
 
-// ========================================
-// ACCESSIBILITY
-// ========================================
 .close-button:focus-visible,
 .cancel-button:focus-visible,
 .confirm-button:focus-visible {
@@ -330,9 +301,6 @@ $transition-fast: all 0.15s ease;
   outline-offset: 2px;
 }
 
-// ========================================
-// DARK MODE
-// ========================================
 :host-context([data-theme="dark"]),
 :host-context(body[data-theme="dark"]),
 :host-context(html[data-theme="dark"]) {

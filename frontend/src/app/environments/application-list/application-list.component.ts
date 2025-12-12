@@ -1,4 +1,3 @@
-// src/app/environments/application-list/application-list.component.ts
 
 import {
   ChangeDetectorRef,
@@ -76,9 +75,6 @@ export class ApplicationListComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // ============================================
-  // PERMISSION CHECKS
-  // ============================================
   canCreateApplication(): boolean {
     return this.authContext.canAccessProject(this.projectId, 'CREATE');
   }
@@ -91,9 +87,6 @@ export class ApplicationListComponent implements OnInit, OnDestroy {
     return this.authContext.canAccessProject(this.projectId, 'DELETE');
   }
 
-  // ============================================
-  // SEARCH
-  // ============================================
   private initSearchListener(): void {
     this.searchSubject
       .pipe(
@@ -121,9 +114,6 @@ export class ApplicationListComponent implements OnInit, OnDestroy {
     this.searchSubject.next('');
   }
 
-  // ============================================
-  // INIT
-  // ============================================
   private initializeComponent(): void {
     const typeParamRoute =
       this.route.parent?.parent?.parent ||
@@ -142,9 +132,6 @@ export class ApplicationListComponent implements OnInit, OnDestroy {
     this.loadApplications();
   }
 
-  // ============================================
-  // LOAD
-  // ============================================
   loadApplications(): void {
     this.loading = true;
     this.cdr.markForCheck();
@@ -169,9 +156,6 @@ export class ApplicationListComponent implements OnInit, OnDestroy {
       });
   }
 
-  // ============================================
-  // ACTIONS
-  // ============================================
   addApplication(): void {
     const dialogRef = this.dialog.open(ApplicationDialogComponent, {
       width: '900px',

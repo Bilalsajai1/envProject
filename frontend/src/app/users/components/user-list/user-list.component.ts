@@ -110,7 +110,6 @@ export class UserListComponent implements OnInit, OnDestroy {
       filters['search'] = this.searchTerm.trim();
     }
 
-    // Filter by status if not 'all'
     if (this.filterStatus !== 'all') {
       filters['actif'] = this.filterStatus === 'active';
     }

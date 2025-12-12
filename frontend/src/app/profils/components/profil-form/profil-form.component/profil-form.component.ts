@@ -1,4 +1,3 @@
-// src/app/profils/components/profil-form/profil-form.component.ts
 
 import { Component, OnInit, Inject, Optional } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -41,13 +40,11 @@ export class ProfilFormComponent implements OnInit {
   ngOnInit(): void {
     this.buildForm();
 
-    // Dialog usage
     if (this.data) {
       this.isDialog = true;
       this.isEdit = this.data.mode === 'edit';
       this.profilId = this.data.profilId;
     } else {
-      // Routed usage
       const idParam = this.route.snapshot.paramMap.get('id');
       if (idParam) {
         this.isEdit = true;

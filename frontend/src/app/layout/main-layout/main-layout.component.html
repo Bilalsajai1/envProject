@@ -1,6 +1,6 @@
 <mat-sidenav-container class="layout-container" autosize>
 
-  <!-- SIDEBAR -->
+  
   <mat-sidenav
     mode="side"
     opened
@@ -9,7 +9,7 @@
     role="navigation"
     aria-label="Navigation principale">
 
-    <!-- Sidebar Header with Logo -->
+    
     <div class="sidebar-header">
       <div class="logo-wrapper">
         @if (!isSidebarCollapsed) {
@@ -28,7 +28,7 @@
       </button>
     </div>
 
-    <!-- User Block -->
+    
     @if (context?.user; as u) {
       <div class="user-block">
         <div class="user-avatar">
@@ -46,7 +46,7 @@
       </div>
     }
 
-    <!-- Navigation Menu -->
+    
     <nav class="nav-container" aria-label="Menu principal">
       <mat-nav-list class="menu-list">
 
@@ -102,7 +102,7 @@
       </mat-nav-list>
     </nav>
 
-    <!-- Sidebar Footer -->
+    
     <div class="sidebar-footer">
       <button
         mat-button
@@ -130,9 +130,9 @@
 
   </mat-sidenav>
 
-  <!-- MAIN CONTENT -->
+  
   <mat-sidenav-content>
-    <!-- Top Toolbar -->
+    
     <mat-toolbar class="top-toolbar">
       <div class="toolbar-content">
         <div class="toolbar-left">
@@ -164,7 +164,7 @@
       </div>
     </mat-toolbar>
 
-    <!-- Page Content -->
+    
     <main class="page-content">
       <div class="content-wrapper">
         <router-outlet></router-outlet>
@@ -173,3 +173,4 @@
   </mat-sidenav-content>
 
 </mat-sidenav-container>
+

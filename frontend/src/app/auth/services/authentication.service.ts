@@ -1,5 +1,3 @@
-// src/app/auth/services/authentication.service.ts
-
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -15,7 +13,7 @@ export interface LoginRequest {
 export interface LoginResponse {
   accessToken: string;
   refreshToken?: string;
-  tokenType?: string;   // "Bearer"
+  tokenType?: string;
   expiresIn?: number;
   username: string;
   roles?: string[];
@@ -23,7 +21,6 @@ export interface LoginResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthenticationService {
-
   private readonly loginUrl = `${environment.apiUrl}/auth`;
   private readonly changePasswordUrl = `${environment.apiUrl}/auth/change-password`;
 
@@ -32,9 +29,6 @@ export class AuthenticationService {
     private session: SessionStorageService
   ) {}
 
-  /**
-   * Appelle /auth/login et stocke le token dans localStorage
-   */
   login(req: LoginRequest): Observable<void> {
     return this.http.post<LoginResponse>(this.loginUrl, req).pipe(
       tap(res => {
@@ -56,9 +50,6 @@ export class AuthenticationService {
     );
   }
 
-  /**
-   * Déconnexion : on nettoie le storage
-   */
   logout(): void {
     this.session.clear();
   }

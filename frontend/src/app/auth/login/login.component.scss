@@ -1,14 +1,7 @@
-// ========================================
-// CREATIVE MODERN AUTH DESIGN
-// ========================================
 
-// Variables
 $transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 $transition-fast: all 0.2s ease;
 
-// ========================================
-// CONTAINER & BACKGROUND
-// ========================================
 .auth-container {
   min-height: 100vh;
   display: flex;
@@ -19,7 +12,6 @@ $transition-fast: all 0.2s ease;
   overflow: hidden;
 }
 
-// Background Image
 .background-image {
   position: absolute;
   width: 100%;
@@ -33,7 +25,6 @@ $transition-fast: all 0.2s ease;
   z-index: 0;
 }
 
-// Background Overlay (for better readability)
 .background-overlay {
   position: absolute;
   width: 100%;
@@ -44,9 +35,6 @@ $transition-fast: all 0.2s ease;
   z-index: 1;
 }
 
-// ========================================
-// THEME TOGGLE
-// ========================================
 .theme-toggle-btn {
   position: absolute;
   top: 30px;
@@ -85,9 +73,6 @@ $transition-fast: all 0.2s ease;
   }
 }
 
-// ========================================
-// MAIN AUTH CARD
-// ========================================
 .auth-card {
   position: relative;
   z-index: 10;
@@ -114,9 +99,6 @@ $transition-fast: all 0.2s ease;
   }
 }
 
-// ========================================
-// FORM SECTION
-// ========================================
 .auth-form-section {
   padding: 50px 40px;
   display: flex;
@@ -164,9 +146,6 @@ $transition-fast: all 0.2s ease;
   font-weight: 400;
 }
 
-// ========================================
-// ALERT
-// ========================================
 .alert {
   display: flex;
   align-items: flex-start;
@@ -234,9 +213,6 @@ $transition-fast: all 0.2s ease;
   }
 }
 
-// ========================================
-// FORM
-// ========================================
 .login-form {
   display: flex;
   flex-direction: column;
@@ -297,7 +273,6 @@ $transition-fast: all 0.2s ease;
   }
 }
 
-// Input with action button (like password field)
 .input-wrapper:has(.input-action-btn) .form-input {
   padding-right: 42px;
 }
@@ -357,9 +332,6 @@ $transition-fast: all 0.2s ease;
   75% { transform: translateX(5px); }
 }
 
-// ========================================
-// FORM OPTIONS
-// ========================================
 .form-options {
   display: flex;
   align-items: center;
@@ -433,9 +405,6 @@ $transition-fast: all 0.2s ease;
   }
 }
 
-// ========================================
-// SUBMIT BUTTON
-// ========================================
 .btn-submit {
   width: 100%;
   padding: 12px 24px;
@@ -527,9 +496,6 @@ $transition-fast: all 0.2s ease;
   to { transform: rotate(360deg); }
 }
 
-// ========================================
-// FOOTER
-// ========================================
 .form-footer {
   margin-top: 32px;
   text-align: center;
@@ -541,9 +507,6 @@ $transition-fast: all 0.2s ease;
   margin: 0;
 }
 
-// ========================================
-// RESPONSIVE
-// ========================================
 @media (max-width: 968px) {
   .auth-container {
     justify-content: center;
@@ -584,9 +547,6 @@ $transition-fast: all 0.2s ease;
   }
 }
 
-// ========================================
-// DARK MODE
-// ========================================
 :host-context([data-theme="dark"]),
 :host-context(body[data-theme="dark"]),
 :host-context(html[data-theme="dark"]) {

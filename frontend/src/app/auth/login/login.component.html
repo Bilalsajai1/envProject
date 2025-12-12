@@ -1,11 +1,11 @@
 <div class="auth-container">
-  <!-- Background Image -->
+  
   <div class="background-image"></div>
 
-  <!-- Background Overlay -->
+  
   <div class="background-overlay"></div>
 
-  <!-- Theme Toggle -->
+  
   <button class="theme-toggle-btn" (click)="toggleTheme()" type="button">
     <div class="toggle-icon-wrapper">
       @if (currentTheme === 'light') {
@@ -16,7 +16,7 @@
     </div>
   </button>
 
-  <!-- Main Auth Card (Right Aligned) -->
+  
   <div class="auth-card">
     <div class="auth-form-section">
       <div class="logo-header">
@@ -42,7 +42,7 @@
       }
 
       <form [formGroup]="form" (ngSubmit)="submit()" class="login-form">
-        <!-- Username Field -->
+        
         <div class="form-group">
           <label class="form-label">
             <mat-icon class="label-icon">person</mat-icon>
@@ -63,7 +63,7 @@
           }
         </div>
 
-        <!-- Password Field -->
+        
         <div class="form-group">
           <label class="form-label">
             <mat-icon class="label-icon">lock</mat-icon>
@@ -92,7 +92,7 @@
           }
         </div>
 
-        <!-- Remember & Forgot -->
+        
         <div class="form-options">
           <label class="checkbox-label">
             <input type="checkbox" formControlName="rememberMe" />
@@ -104,7 +104,7 @@
           </a>
         </div>
 
-        <!-- Submit Button -->
+        
         <button
           type="submit"
           class="btn-submit"
@@ -123,10 +123,11 @@
         </button>
       </form>
 
-      <!-- Footer -->
+      
       <div class="form-footer">
         <p class="copyright">© 2025 Perenity Software</p>
       </div>
     </div>
   </div>
 </div>
+

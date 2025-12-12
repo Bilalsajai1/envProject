@@ -16,7 +16,6 @@ import { environment } from '../../config/environment';
   providedIn: 'root'
 })
 export class PermissionService {
-
   private readonly baseUrl = `${environment.apiUrl}/profils`;
 
   constructor(private http: HttpClient) {}
@@ -30,9 +29,6 @@ export class PermissionService {
       .get<any>(`${this.baseUrl}/${profilId}/permissions`)
       .pipe(
         map((res: any) => {
-          console.log('🔍 Réponse backend GET /profils/{id}/permissions:', res);
-
-          // ✅ Types d'environnement avec allowedActions
           const rawEnvTypes = res.environmentTypes ?? [];
           const envTypePermissions: EnvTypePermission[] = rawEnvTypes.map((et: any) => ({
             typeCode: et.code,
@@ -40,7 +36,6 @@ export class PermissionService {
             allowedActions: (et.allowedActions ?? []) as ActionType[]
           }));
 
-          // ✅ Projets
           const rawProjects = res.projects ?? [];
           const projectPermissions: ProjectPermission[] = rawProjects.map((p: any) => ({
             projectId: p.id,
@@ -54,12 +49,11 @@ export class PermissionService {
             profilId: res.profilId,
             profilCode: res.profilCode,
             profilLibelle: res.profilLibelle,
-            isAdmin: res.isAdmin ?? false, // ✅ AJOUTER cette ligne
+            isAdmin: res.isAdmin ?? false,
             envTypePermissions,
             projectPermissions
           };
 
-          console.log('✅ ProfilPermissions normalisé:', profilPermissions);
           return profilPermissions;
         })
       );
@@ -75,8 +69,6 @@ export class PermissionService {
       envTypePermissions: envUpdates,
       projectPermissions: projUpdates
     };
-
-    console.log('📤 Envoi PUT /profils/{id}/permissions:', payload);
 
     return this.http.put<void>(
       `${this.baseUrl}/${profilId}/permissions`,

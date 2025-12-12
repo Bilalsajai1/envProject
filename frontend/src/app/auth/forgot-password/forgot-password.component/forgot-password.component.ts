@@ -86,7 +86,6 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
             duration: 4000,
             panelClass: ['error-snackbar']
           });
-          console.error('[ForgotPassword] Erreur:', err);
         }
       });
   }

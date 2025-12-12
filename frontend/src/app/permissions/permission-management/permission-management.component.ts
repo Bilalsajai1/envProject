@@ -1,4 +1,3 @@
-// src/app/permissions/components/permission-management/permission-management.component.ts
 
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -31,9 +30,7 @@ export class PermissionManagementComponent implements OnInit {
   currentStep = 0;
   allActions: ActionType[] = ['CONSULT', 'CREATE', 'UPDATE', 'DELETE'];
 
-  // Étape 1 : Map<envTypeCode, Set<ActionType>>
   envTypeActionsMap = new Map<string, Set<ActionType>>();
-  // Étape 2 : Map<projectId, Set<ActionType>>
   projectActionsMap = new Map<number, Set<ActionType>>();
 
   get selectedProfil(): ProfilSimple | undefined {
@@ -73,7 +70,6 @@ export class PermissionManagementComponent implements OnInit {
         this.cdr.markForCheck();
       },
       error: err => {
-        console.error('Erreur chargement profils:', err);
         this.snackBar.open('Erreur lors du chargement des profils', 'Fermer', { duration: 3000 });
         this.loading = false;
       }
@@ -99,7 +95,6 @@ export class PermissionManagementComponent implements OnInit {
         this.cdr.markForCheck();
       },
       error: err => {
-        console.error('Erreur chargement permissions:', err);
         this.snackBar.open('Erreur lors du chargement des permissions', 'Fermer', { duration: 3000 });
         this.loading = false;
       }
@@ -112,14 +107,12 @@ export class PermissionManagementComponent implements OnInit {
     this.envTypeActionsMap.clear();
     this.projectActionsMap.clear();
 
-    // Types d'environnement: charger les actions autorisées
     if (this.permissions.envTypePermissions) {
       this.permissions.envTypePermissions.forEach(envType => {
         this.envTypeActionsMap.set(envType.typeCode, new Set(envType.allowedActions ?? []));
       });
     }
 
-    // Projets: initialiser les actions
     if (this.permissions.projectPermissions) {
       this.permissions.projectPermissions.forEach(proj => {
         this.projectActionsMap.set(proj.projectId, new Set(proj.actions ?? []));
@@ -127,7 +120,6 @@ export class PermissionManagementComponent implements OnInit {
     }
   }
 
-  // Étape 1 : actions par type d'environnement
   isEnvActionChecked(typeCode: string, action: ActionType): boolean {
     return this.envTypeActionsMap.get(typeCode)?.has(action) ?? false;
   }
@@ -148,11 +140,9 @@ export class PermissionManagementComponent implements OnInit {
     }
   }
 
-  // Étape 2 : filtrer les projets selon CONSULT sur les types
   get filteredProjects(): ProjectPermission[] {
     if (!this.permissions) return [];
 
-    // Un projet est affiché si au moins une action a été cochée sur son type
     const selectedTypes = new Set(
       Array.from(this.envTypeActionsMap.entries())
         .filter(([_, actions]) => actions.size > 0)
@@ -241,8 +231,7 @@ export class PermissionManagementComponent implements OnInit {
         this.saving = false;
         this.onProfilChange(this.selectedProfilId!);
       },
-      error: (err) => {
-        console.error('Erreur sauvegarde permissions:', err);
+      error: () => {
         this.snackBar.open('Erreur lors de la sauvegarde', 'Fermer', {
           duration: 3000,
           panelClass: ['error-snackbar']
@@ -260,7 +249,6 @@ export class PermissionManagementComponent implements OnInit {
   }
 
   canProceedToStep2(): boolean {
-    // Au moins un type avec au moins une action cochée
     return Array.from(this.envTypeActionsMap.values()).some(set => set.size > 0);
   }
 }

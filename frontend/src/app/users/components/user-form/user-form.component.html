@@ -1,6 +1,6 @@
 <div class="user-form-page">
 
-  <!-- HEADER -->
+  
   <div class="user-form-header">
     <div class="title-block">
       <div class="avatar" [ngClass]="{ 'edit': isEdit, 'create': !isEdit }">
@@ -33,13 +33,13 @@
     </mat-progress-bar>
   }
 
-  <!-- CONTENU SCROLLABLE -->
+  
   <div class="user-form-content">
     <form [formGroup]="form" (ngSubmit)="submit()">
 
       <div class="sections-grid">
 
-        <!-- SECTION 1 : INFOS PERSO -->
+        
         <section class="form-section">
           <div class="section-header">
             <div class="section-icon">
@@ -52,7 +52,7 @@
           </div>
 
           <div class="section-body">
-            <!-- CODE UTILISATEUR -->
+            
             <div class="fields-row">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Code utilisateur</mat-label>
@@ -76,7 +76,7 @@
               </mat-form-field>
             </div>
 
-            <!-- PRÉNOM & NOM -->
+            
             <div class="fields-row two-cols">
               <mat-form-field appearance="outline">
                 <mat-label>Prénom</mat-label>
@@ -101,7 +101,7 @@
               </mat-form-field>
             </div>
 
-            <!-- EMAIL -->
+            
             <div class="fields-row">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Adresse email</mat-label>
@@ -120,7 +120,7 @@
           </div>
         </section>
 
-        <!-- SECTION 2 : COMPTE & PROFIL -->
+        
         <section class="form-section">
           <div class="section-header">
             <div class="section-icon section-icon-secondary">
@@ -134,7 +134,7 @@
 
           <div class="section-body">
 
-            <!-- PROFIL -->
+            
             <div class="fields-row">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Profil</mat-label>
@@ -145,7 +145,7 @@
                   panelClass="profil-panel"
                   [attr.aria-label]="'Profil utilisateur'">
 
-                  <!-- Ce qui s'affiche DANS LE CHAMP quand un profil est sélectionné -->
+                  
                   <mat-select-trigger>
                     {{ getSelectedProfilCode() }}
                   </mat-select-trigger>
@@ -175,7 +175,7 @@
               </mat-form-field>
             </div>
 
-            <!-- MOT DE PASSE (uniquement en création) -->
+            
             @if (!isEdit) {
               <div class="fields-row password-field">
                 <mat-form-field appearance="outline" class="full-width">
@@ -210,7 +210,7 @@
               </div>
             }
 
-            <!-- STATUT DU COMPTE -->
+            
             <div class="status-block">
               <div class="status-header">
                 <div
@@ -228,7 +228,7 @@
                 </div>
               </div>
 
-              <!-- Toggle custom -->
+              
               <div class="status-toggle-pill" role="group" aria-label="Statut du compte">
                 <button
                   type="button"
@@ -259,7 +259,7 @@
 
       </div>
 
-      <!-- FOOTER -->
+      
       <div class="form-footer">
         <div class="footer-info">
           <mat-icon class="info-icon">info</mat-icon>
@@ -307,3 +307,4 @@
     </form>
   </div>
 </div>
+

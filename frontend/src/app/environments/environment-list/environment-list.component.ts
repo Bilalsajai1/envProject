@@ -1,4 +1,3 @@
-// src/app/environments/environment-list/environment-list.component.ts
 
 import {
   Component, OnInit, ChangeDetectorRef, OnDestroy, ViewChild
@@ -40,13 +39,11 @@ export class EnvironmentListComponent implements OnInit, OnDestroy {
   environments: EnvironmentDTO[] = [];
   displayedColumns = ['code', 'libelle', 'description', 'actif', 'actions'];
 
-  // Pagination
   page = 0;
   size = 10;
   pageSizeOptions = [5, 10, 20, 50];
   totalElements = 0;
 
-  // Tri
   sortField = 'id';
   sortDirection: SortDirection = 'asc';
 
@@ -72,7 +69,6 @@ export class EnvironmentListComponent implements OnInit, OnDestroy {
 
     this.projectId = Number(this.route.snapshot.paramMap.get('projectId'));
 
-    // typeCode depuis route parent
     let r = this.route.parent;
     while (r) {
       const tc = r.snapshot.paramMap.get('typeCode');
@@ -92,9 +88,6 @@ export class EnvironmentListComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // ============================================
-  // PERMISSION CHECKS
-  // ============================================
   canCreateEnvironment(): boolean {
     return this.authContext.canAccessProject(this.projectId, 'CREATE');
   }
@@ -111,9 +104,6 @@ export class EnvironmentListComponent implements OnInit, OnDestroy {
     return this.authContext.canAccessProject(this.projectId, 'CONSULT');
   }
 
-  // ============================================
-  // SEARCH
-  // ============================================
   private initSearchListener(): void {
     this.searchSubject
       .pipe(
@@ -136,9 +126,6 @@ export class EnvironmentListComponent implements OnInit, OnDestroy {
     this.searchSubject.next('');
   }
 
-  // ============================================
-  // LOAD
-  // ============================================
   loadProject() {
     this.projectService.getById(this.projectId).subscribe({
       next: p => {
@@ -213,9 +200,6 @@ export class EnvironmentListComponent implements OnInit, OnDestroy {
     this.loadEnvironments();
   }
 
-  // ============================================
-  // ACTIONS
-  // ============================================
   openEnvironment(env: EnvironmentDTO) {
     this.router.navigate([env.id, 'applications'], { relativeTo: this.route });
   }

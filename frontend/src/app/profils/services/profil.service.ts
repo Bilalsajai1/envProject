@@ -1,5 +1,3 @@
-// src/app/profils/services/profil.service.ts
-
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -13,14 +11,7 @@ export interface ProfilDTO {
   description?: string;
   admin: boolean;
   actif: boolean;
-  /**
-   * Total users attached to this profile (all statuses).
-   * nbActiveUsers is preferred when available.
-   */
   nbUsers?: number;
-  /**
-   * Active users attached to this profile.
-   */
   nbActiveUsers?: number;
 }
 

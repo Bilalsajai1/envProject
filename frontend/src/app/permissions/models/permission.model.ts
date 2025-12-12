@@ -1,14 +1,9 @@
-// src/app/permissions/models/permission.model.ts
-
 export type ActionType = 'CONSULT' | 'CREATE' | 'UPDATE' | 'DELETE';
 
-/**
- * ✅ CORRECTION: Ajouter allowedActions pour savoir si le type est coché
- */
 export interface EnvTypePermission {
   typeCode: string;
   typeLibelle: string;
-  allowedActions: ActionType[]; // ✅ AJOUTÉ
+  allowedActions: ActionType[];
 }
 
 export interface ProjectPermission {

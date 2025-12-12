@@ -1,10 +1,5 @@
-// src/app/auth/models/auth-context.model.ts
-
 export type ActionType = 'CONSULT' | 'CREATE' | 'UPDATE' | 'DELETE';
 
-/**
- * ✅ Permissions utilisateur
- */
 export interface UserPermissions {
   userId: number;
   code: string;
@@ -17,9 +12,6 @@ export interface UserPermissions {
   roles: string[];
 }
 
-/**
- * ✅ NOUVEAU : Projet avec ses actions autorisées
- */
 export interface ProjectWithActions {
   id: number;
   code: string;
@@ -29,9 +21,6 @@ export interface ProjectWithActions {
   allowedActions: ActionType[];
 }
 
-/**
- * ✅ NOUVEAU : Type d'environnement avec ses projets accessibles
- */
 export interface EnvironmentTypeWithProjects {
   id: number;
   code: string;
@@ -41,9 +30,6 @@ export interface EnvironmentTypeWithProjects {
   projects: ProjectWithActions[];
 }
 
-/**
- * ✅ Contexte d'authentification complet
- */
 export interface AuthContext {
   user: UserPermissions;
   environmentTypes: EnvironmentTypeWithProjects[];

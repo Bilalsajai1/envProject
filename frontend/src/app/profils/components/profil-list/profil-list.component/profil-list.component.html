@@ -1,8 +1,8 @@
-<!-- src/app/profils/components/profil-list/profil-list.component.html -->
+
 
 <div class="profiles-page">
 
-  <!-- Header -->
+  
   <header class="page-header">
     <div class="header-content">
       <div class="header-icon">
@@ -31,7 +31,7 @@
     </div>
   </header>
 
-  <!-- Filters -->
+  
   <section class="filters-card">
     <div class="filters-row">
       <div class="search-box">
@@ -63,7 +63,7 @@
     </div>
   </section>
 
-  <!-- Content -->
+  
   <section class="content-card">
     <div class="table-wrapper" [class.blurred]="loading">
       <table
@@ -73,7 +73,7 @@
         (matSortChange)="onSortChange($event)"
         class="profils-table">
 
-        <!-- Code -->
+        
         <ng-container matColumnDef="code">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Code</th>
           <td mat-cell *matCellDef="let profil">
@@ -81,7 +81,7 @@
           </td>
         </ng-container>
 
-        <!-- Libellé -->
+        
         <ng-container matColumnDef="libelle">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Libellé</th>
           <td mat-cell *matCellDef="let profil">
@@ -89,7 +89,7 @@
           </td>
         </ng-container>
 
-        <!-- Description -->
+        
         <ng-container matColumnDef="description">
           <th mat-header-cell *matHeaderCellDef>Description</th>
           <td mat-cell *matCellDef="let profil">
@@ -101,7 +101,7 @@
           </td>
         </ng-container>
 
-        <!-- Admin -->
+        
         <ng-container matColumnDef="admin">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Admin</th>
           <td mat-cell *matCellDef="let profil">
@@ -119,7 +119,7 @@
           </td>
         </ng-container>
 
-          <!-- Nb users (actifs) -->
+          
           <ng-container matColumnDef="nbUsers">
             <th mat-header-cell *matHeaderCellDef>Utilisateurs actifs</th>
             <td mat-cell *matCellDef="let profil">
@@ -130,7 +130,7 @@
             </td>
           </ng-container>
 
-        <!-- Statut -->
+        
         <ng-container matColumnDef="actif">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Statut</th>
           <td mat-cell *matCellDef="let profil">
@@ -141,7 +141,7 @@
           </td>
         </ng-container>
 
-        <!-- Actions -->
+        
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef>Actions</th>
           <td mat-cell *matCellDef="let profil">
@@ -229,3 +229,4 @@
   </section>
 
 </div>
+

@@ -90,7 +90,6 @@ export class LoginComponent implements OnInit, OnDestroy {
         } else {
           this.error = 'Une erreur est survenue. Veuillez reessayer plus tard.';
         }
-        console.error('Erreur login/contexte:', err);
         return of(null);
       })
     ).subscribe(ctx => {
