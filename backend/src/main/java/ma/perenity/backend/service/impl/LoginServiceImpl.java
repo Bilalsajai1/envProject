@@ -8,6 +8,7 @@ import ma.perenity.backend.service.LoginService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import ma.perenity.backend.excepion.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -60,7 +61,7 @@ public class LoginServiceImpl implements LoginService {
         KeycloakTokenResponse token = response.getBody();
 
         if (token == null || token.getAccessToken() == null) {
-            throw new RuntimeException("Erreur d'authentification Keycloak");
+            throw new UnauthorizedException(ErrorMessage.AUTHENTICATION_ERROR);
         }
 
         return LoginResponse.builder()

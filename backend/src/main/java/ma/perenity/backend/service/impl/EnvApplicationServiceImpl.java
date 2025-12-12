@@ -8,7 +8,7 @@ import ma.perenity.backend.entities.ApplicationEntity;
 import ma.perenity.backend.entities.EnvApplicationEntity;
 import ma.perenity.backend.entities.EnvironnementEntity;
 import ma.perenity.backend.entities.enums.ActionType;
-import ma.perenity.backend.excepion.ResourceNotFoundException;
+import ma.perenity.backend.excepion.*;
 import ma.perenity.backend.mapper.EnvApplicationMapper;
 import ma.perenity.backend.repository.ApplicationRepository;
 import ma.perenity.backend.repository.EnvApplicationRepository;
@@ -20,9 +20,7 @@ import ma.perenity.backend.utilities.AdminGuard;
 import ma.perenity.backend.utilities.PaginationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -43,8 +41,7 @@ public class EnvApplicationServiceImpl implements EnvApplicationService {
                 .orElseThrow(() -> new ResourceNotFoundException("Environnement not found with id = " + envId));
 
         if (!permissionService.canAccessEnv(env, ActionType.CONSULT)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Vous n'avez pas le droit de consulter les applications de cet environnement");
+            throw new ForbiddenException(ErrorMessage.NO_READ_PERMISSION);
         }
 
         List<EnvApplicationEntity> apps = repository.findByEnvironnementId(envId)
@@ -75,10 +72,10 @@ public class EnvApplicationServiceImpl implements EnvApplicationService {
     public EnvApplicationDTO create(EnvApplicationDTO dto) {
 
         if (dto.getEnvironnementId() == null) {
-            throw new IllegalStateException("EnvironnementId est obligatoire");
+            throw new BadRequestException(ErrorMessage.ENVIRONMENT_ID_REQUIRED);
         }
         if (dto.getApplicationId() == null) {
-            throw new IllegalStateException("ApplicationId est obligatoire");
+            throw new BadRequestException(ErrorMessage.APPLICATION_ID_REQUIRED);
         }
 
         EnvironnementEntity env = environnementRepository.findById(dto.getEnvironnementId())
@@ -87,8 +84,7 @@ public class EnvApplicationServiceImpl implements EnvApplicationService {
                 ));
 
         if (!permissionService.canAccessEnv(env, ActionType.CREATE)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Vous n'avez pas le droit d'ajouter des applications a cet environnement");
+            throw new ForbiddenException(ErrorMessage.NO_CREATE_PERMISSION);
         }
 
         ApplicationEntity app = applicationRepository.findById(dto.getApplicationId())
@@ -102,7 +98,7 @@ public class EnvApplicationServiceImpl implements EnvApplicationService {
                 .anyMatch(a -> a.getApplication().getId().equals(dto.getApplicationId()));
 
         if (exists) {
-            throw new IllegalStateException("Cette application existe deja dans cet environnement.");
+            throw new BadRequestException(ErrorMessage.APPLICATION_ALREADY_EXISTS_IN_ENV);
         }
 
         EnvApplicationEntity entity = mapper.toEntity(dto);
@@ -124,8 +120,7 @@ public class EnvApplicationServiceImpl implements EnvApplicationService {
                 .orElseThrow(() -> new ResourceNotFoundException("EnvApplication not found with id = " + id));
 
         if (!permissionService.canAccessEnv(entity.getEnvironnement(), ActionType.UPDATE)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Vous n'avez pas le droit de modifier cette application d'environnement");
+            throw new ForbiddenException(ErrorMessage.NO_UPDATE_PERMISSION_FOR_RECORD);
         }
 
         mapper.updateEntityFromDto(dto, entity);
@@ -143,8 +138,7 @@ public class EnvApplicationServiceImpl implements EnvApplicationService {
                         new ResourceNotFoundException("EnvApplication not found with id = " + id));
 
         if (!permissionService.canAccessEnv(entity.getEnvironnement(), ActionType.DELETE)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Vous n'avez pas le droit de supprimer cette application d'environnement");
+            throw new ForbiddenException(ErrorMessage.NO_DELETE_PERMISSION_FOR_RECORD);
         }
 
         entity.setActif(false);

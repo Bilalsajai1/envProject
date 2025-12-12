@@ -1,4 +1,3 @@
-
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
@@ -6,7 +5,6 @@ import { MainLayoutComponent } from './layout/main-layout/main-layout.component'
 import { AuthGuard } from './auth/guards/auth-guard';
 import { EnvironmentAccessGuard } from './environments/guards/environment-access.guard';
 
-// === Administration ===
 import { UserListComponent } from './users/components/user-list/user-list.component';
 import { UserFormComponent } from './users/components/user-form/user-form.component';
 
@@ -15,7 +13,6 @@ import { PermissionManagementComponent } from './permissions/permission-manageme
 import {ProfilListComponent} from './profils/components/profil-list/profil-list.component/profil-list.component';
 import {ProfilFormComponent} from './profils/components/profil-form/profil-form.component/profil-form.component';
 
-// === Environnements ===
 import { EnvironmentTypeLayoutComponent } from './environments/environment-type-layout/environment-type-layout.component';
 import { ProjectListComponent } from './environments/project-list/project-list.component';
 import { EnvironmentListComponent } from './environments/environment-list/environment-list.component';
@@ -30,26 +27,22 @@ const routes: Routes = [
     pathMatch: 'full'
   },
 
-  // Auth (lazy)
   {
     path: 'auth',
     loadChildren: () =>
       import('./auth/auth-module').then(m => m.AuthModule)
   },
 
-  // Layout principal protégé
   {
     path: '',
     component: MainLayoutComponent,
     canActivate: [AuthGuard],
     children: [
-      // ==========================
-      // ADMINISTRATION
-      // ==========================
+
       {
         path: 'admin',
         children: [
-          // --- Profils ---
+
           {
             path: 'profils',
             component: ProfilListComponent,
@@ -69,7 +62,7 @@ const routes: Routes = [
             data: { roles: ['ADMIN'] }
           },
 
-          // --- Utilisateurs ---
+
           {
             path: 'users',
             component: UserListComponent,
@@ -89,7 +82,7 @@ const routes: Routes = [
             data: { roles: ['ADMIN', 'ROLE_USERS_EDIT'] }
           },
 
-          // --- Permissions ---
+
           {
             path: 'permissions',
             component: PermissionManagementComponent,
@@ -99,25 +92,23 @@ const routes: Routes = [
         ]
       },
 
-      // ==========================
-      // ENVIRONNEMENTS
-      // ==========================
+
       {
         path: 'env/:typeCode',
         component: EnvironmentTypeLayoutComponent,
         canActivate: [AuthGuard, EnvironmentAccessGuard],
         children: [
-          // Liste des projets
+
           {
             path: '',
             component: ProjectListComponent
           },
-          // Liste des environnements d'un projet
+
           {
             path: ':projectId/environments',
             component: EnvironmentListComponent
           },
-          // Liste des applications d'un environnement
+
           {
             path: ':projectId/environments/:environmentId/applications',
             component: ApplicationListComponent
@@ -132,7 +123,7 @@ const routes: Routes = [
     ]
   },
 
-  // Fallback
+
   { path: '**', redirectTo: 'auth/login' }
 ];
 

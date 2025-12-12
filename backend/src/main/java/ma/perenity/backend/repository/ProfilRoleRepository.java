@@ -14,6 +14,7 @@ public interface ProfilRoleRepository extends JpaRepository<ProfilRoleEntity, Lo
     @Query("""
                 SELECT pr.role
                 FROM ProfilRoleEntity pr
+                LEFT JOIN FETCH pr.role.projet
                 WHERE pr.profil.id = :profilId
             """)
     List<RoleEntity> findRolesByProfil(@Param("profilId") Long profilId);

@@ -22,7 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
+import ma.perenity.backend.excepion.*;
 
 import java.util.List;
 
@@ -50,7 +50,7 @@ public class RoleServiceImpl implements RoleService {
     public RoleDTO getById(Long id) {
         AdminGuard.requireAdmin(permissionService, "Administration des roles reservee a l'administrateur");
         RoleEntity role = roleRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Role introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessage.ROLE_NOT_FOUND.getMessage()));
         return roleMapper.toDto(role);
     }
 
@@ -59,7 +59,7 @@ public class RoleServiceImpl implements RoleService {
         AdminGuard.requireAdmin(permissionService, "Administration des roles reservee a l'administrateur");
 
         roleRepository.findByCode(dto.getCode()).ifPresent(r -> {
-            throw new ResponseStatusException(BAD_REQUEST, "Code de role deja utilise");
+            throw new BadRequestException(ErrorMessage.ROLE_CODE_ALREADY_EXISTS);
         });
 
         ActionType actionType = parseAction(dto.getAction());
@@ -67,15 +67,13 @@ public class RoleServiceImpl implements RoleService {
         EnvironnementEntity env = null;
         if (dto.getEnvironnementId() != null) {
             env = environnementRepository.findById(dto.getEnvironnementId())
-                    .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST,
-                            "Environnement introuvable : " + dto.getEnvironnementId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Environnement introuvable : " + dto.getEnvironnementId()));
         }
 
         ProjetEntity projet = null;
         if (dto.getProjetId() != null) {
             projet = projetRepository.findById(dto.getProjetId())
-                    .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST,
-                            "Projet introuvable : " + dto.getProjetId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Projet introuvable : " + dto.getProjetId()));
         }
 
         RoleEntity role = RoleEntity.builder()
@@ -96,11 +94,11 @@ public class RoleServiceImpl implements RoleService {
         AdminGuard.requireAdmin(permissionService, "Administration des roles reservee a l'administrateur");
 
         RoleEntity role = roleRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Role introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessage.ROLE_NOT_FOUND.getMessage()));
 
         if (!role.getCode().equals(dto.getCode())) {
             roleRepository.findByCode(dto.getCode()).ifPresent(r -> {
-                throw new ResponseStatusException(BAD_REQUEST, "Code de role deja utilise");
+                throw new BadRequestException(ErrorMessage.ROLE_CODE_ALREADY_EXISTS);
             });
         }
 
@@ -109,15 +107,13 @@ public class RoleServiceImpl implements RoleService {
         EnvironnementEntity env = null;
         if (dto.getEnvironnementId() != null) {
             env = environnementRepository.findById(dto.getEnvironnementId())
-                    .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST,
-                            "Environnement introuvable : " + dto.getEnvironnementId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Environnement introuvable : " + dto.getEnvironnementId()));
         }
 
         ProjetEntity projet = null;
         if (dto.getProjetId() != null) {
             projet = projetRepository.findById(dto.getProjetId())
-                    .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST,
-                            "Projet introuvable : " + dto.getProjetId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Projet introuvable : " + dto.getProjetId()));
         }
 
         role.setCode(dto.getCode());
@@ -136,7 +132,7 @@ public class RoleServiceImpl implements RoleService {
         AdminGuard.requireAdmin(permissionService, "Administration des roles reservee a l'administrateur");
 
         RoleEntity role = roleRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Role introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessage.ROLE_NOT_FOUND.getMessage()));
 
         role.setActif(false);
         roleRepository.save(role);
@@ -169,7 +165,7 @@ public class RoleServiceImpl implements RoleService {
         try {
             return ActionType.valueOf(value);
         } catch (IllegalArgumentException ex) {
-            throw new ResponseStatusException(BAD_REQUEST, "Action invalide : " + value);
+            throw new BadRequestException(ErrorMessage.INVALID_ACTION, value);
         }
     }
 }

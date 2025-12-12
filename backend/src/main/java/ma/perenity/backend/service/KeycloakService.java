@@ -15,6 +15,7 @@ import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.stereotype.Service;
+import ma.perenity.backend.excepion.*;
 
 import java.util.List;
 
@@ -82,7 +83,7 @@ public class KeycloakService {
         Response response = usersResource.create(user);
 
         if (response.getStatus() != 201) {
-            throw new RuntimeException("Failed to create user in Keycloak. Status: " + response.getStatus());
+            throw new BadRequestException(ErrorMessage.KEYCLOAK_USER_CREATION_FAILED, response.getStatus());
         }
 
         String userId = usersResource.search(username).get(0).getId();
@@ -103,7 +104,7 @@ public class KeycloakService {
         UserRepresentation user = usersResource.get(keycloakId).toRepresentation();
 
         if (user == null) {
-            throw new RuntimeException("Keycloak user not found: " + keycloakId);
+            throw new ResourceNotFoundException(ErrorMessage.KEYCLOAK_USER_NOT_FOUND.format(keycloakId));
         }
 
         user.setFirstName(firstName);
@@ -146,10 +147,10 @@ public class KeycloakService {
             if (existingGroupId != null) {
                 return existingGroupId;
             }
-            throw new RuntimeException("Group already exists but could not retrieve ID: " + profilDTO.getLibelle());
+            throw new BadRequestException(ErrorMessage.KEYCLOAK_GROUP_EXISTS_BUT_NO_ID, profilDTO.getLibelle());
         }
 
-        throw new RuntimeException("Failed to create group. HTTP Status: " + response.getStatus());
+        throw new BadRequestException(ErrorMessage.KEYCLOAK_GROUP_CREATION_FAILED, response.getStatus());
     }
 
     public void updateGroup(String groupId, List<RoleKeycloakDTO> roles) {

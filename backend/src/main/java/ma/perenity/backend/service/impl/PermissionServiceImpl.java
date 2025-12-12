@@ -13,7 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+import ma.perenity.backend.excepion.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -253,22 +253,20 @@ public class PermissionServiceImpl implements PermissionService {
     private UserContext loadCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !(auth.getPrincipal() instanceof Jwt jwt)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Utilisateur non authentifie");
+            throw new UnauthorizedException(ErrorMessage.USER_NOT_AUTHENTICATED);
         }
 
         String email = jwt.getClaimAsString("email");
         if (email == null || email.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email introuvable dans le token");
+            throw new UnauthorizedException(ErrorMessage.EMAIL_NOT_FOUND_IN_TOKEN);
         }
 
         UtilisateurEntity user = utilisateurRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.UNAUTHORIZED, "Utilisateur introuvable : " + email));
+                .orElseThrow(() -> new UnauthorizedException(ErrorMessage.USER_NOT_FOUND_WITH_EMAIL, email));
 
         ProfilEntity profil = user.getProfil();
         if (profil == null) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Aucun profil associe a l'utilisateur");
+            throw new ForbiddenException(ErrorMessage.PROFILE_NOT_FOUND);
         }
 
         Set<String> roleCodes = profilRoleRepository.findRolesByProfil(profil.getId())

@@ -22,7 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+import ma.perenity.backend.excepion.*;
 
 import java.util.List;
 import java.util.Map;
@@ -43,14 +43,14 @@ public class EnvironnementServiceImpl implements EnvironnementService {
     public List<EnvironnementDTO> getEnvironmentsByProjetAndType(Long projetId, String typeCode, String search) {
 
         if (!permissionService.canAccessEnvType(typeCode, ActionType.CONSULT)) {
-            throw new ResponseStatusException(FORBIDDEN);
+            throw new ForbiddenException(ErrorMessage.NO_PERMISSION);
         }
 
         ProjetEntity projet = projetRepository.findById(projetId)
                 .orElseThrow(() -> new ResourceNotFoundException("Projet not found"));
 
         if (!permissionService.canAccessProject(projet, ActionType.CONSULT)) {
-            throw new ResponseStatusException(FORBIDDEN);
+            throw new ForbiddenException(ErrorMessage.NO_PERMISSION);
         }
 
         List<EnvironnementEntity> list =
@@ -92,9 +92,7 @@ public class EnvironnementServiceImpl implements EnvironnementService {
 
         if (!permissionService.canAccessEnvType(type.getCode(), ActionType.CREATE)
                 || !permissionService.canAccessProject(projet, ActionType.CREATE)) {
-            throw new ResponseStatusException(FORBIDDEN,
-                    "Vous n'avez pas le droit de creer des environnements pour le projet " +
-                            projet.getCode() + " et le type " + type.getCode());
+            throw new ForbiddenException(ErrorMessage.NO_CREATE_PERMISSION);
         }
 
         EnvironnementEntity env = mapper.toEntity(dto);
@@ -115,8 +113,7 @@ public class EnvironnementServiceImpl implements EnvironnementService {
         EnvironnementEntity env = getByIdOrThrow(id);
 
         if (!permissionService.canAccessEnv(env, ActionType.UPDATE)) {
-            throw new ResponseStatusException(FORBIDDEN,
-                    "Vous n'avez pas le droit de modifier cet environnement");
+            throw new ForbiddenException(ErrorMessage.NO_UPDATE_PERMISSION_FOR_RECORD);
         }
 
         mapper.updateEntityFromDto(dto, env);
@@ -131,8 +128,7 @@ public class EnvironnementServiceImpl implements EnvironnementService {
         EnvironnementEntity entity = getByIdOrThrow(id);
 
         if (!permissionService.canAccessEnv(entity, ActionType.DELETE)) {
-            throw new ResponseStatusException(FORBIDDEN,
-                    "Vous n'avez pas le droit de supprimer cet environnement");
+            throw new ForbiddenException(ErrorMessage.NO_DELETE_PERMISSION_FOR_RECORD);
         }
 
         entity.setActif(false);
@@ -163,13 +159,11 @@ public class EnvironnementServiceImpl implements EnvironnementService {
 
         if (!isAdmin) {
             if (projetId == null || typeCode == null) {
-                throw new ResponseStatusException(FORBIDDEN,
-                        "Recherche restreinte aux environnements autorises");
+                throw new ForbiddenException(ErrorMessage.NO_READ_PERMISSION);
             }
             if (!permissionService.canAccessEnvType(typeCode, ActionType.CONSULT)
                     || !permissionService.canAccessProjectById(projetId, ActionType.CONSULT)) {
-                throw new ResponseStatusException(FORBIDDEN,
-                        "Vous n'avez pas les droits pour consulter ces environnements");
+                throw new ForbiddenException(ErrorMessage.NO_READ_PERMISSION);
             }
             rawFilters.clear();
         }

@@ -14,6 +14,10 @@ public interface ProfilMapper {
     @Mapping(target = "nbActiveUsers", expression = "java(countActiveUsers(entity))")
     ProfilDTO toDto(ProfilEntity entity);
 
+    @Mapping(target = "nbUsers", source = "userCount")
+    @Mapping(target = "nbActiveUsers", source = "userCount")
+    ProfilDTO toDto(ProfilEntity entity, int userCount);
+
     List<ProfilDTO> toDtoList(List<ProfilEntity> entities);
 
     default int countActiveUsers(ProfilEntity entity) {

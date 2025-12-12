@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Set;
 
 public interface ProjetRepository extends
         JpaRepository<ProjetEntity, Long>,
@@ -23,5 +24,17 @@ public interface ProjetRepository extends
     List<ProjetEntity> findByEnvironmentTypeCode(@Param("typeCode") String typeCode);
 
     List<ProjetEntity> findByActifTrue();
+
+    @Query("""
+            SELECT DISTINCT p
+            FROM ProjetEntity p
+            LEFT JOIN FETCH p.environnements e
+            LEFT JOIN FETCH e.type
+            LEFT JOIN FETCH p.environmentTypes
+            WHERE p.actif = true
+            """)
+    List<ProjetEntity> findByActifTrueWithEnvironments();
+
+    List<ProjetEntity> findByIdInAndActifTrue(Set<Long> ids);
 
 }

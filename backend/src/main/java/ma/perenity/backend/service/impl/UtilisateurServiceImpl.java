@@ -18,13 +18,12 @@ import ma.perenity.backend.utilities.PaginationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
+import ma.perenity.backend.excepion.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collections;
 import java.util.List;
@@ -42,52 +41,71 @@ public class UtilisateurServiceImpl implements UtilisateurService {
     private final KeycloakService keycloakService;
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserDTO> getAll() {
-        AdminGuard.requireAdmin(permissionService, "Administration des utilisateurs reservee a l'administrateur");
+        AdminGuard.requireAdmin(permissionService, ErrorMessage.USER_ADMIN_REQUIRED.getMessage());
         return userMapper.toDtoList(utilisateurRepository.findByActifTrueAndIsDeletedFalse());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserDTO getById(Long id) {
-        AdminGuard.requireAdmin(permissionService, "Administration des utilisateurs reservee a l'administrateur");
+        AdminGuard.requireAdmin(permissionService, ErrorMessage.USER_ADMIN_REQUIRED.getMessage());
         return userMapper.toDto(findUserById(id));
     }
 
     @Override
     public UserDTO create(UserCreateUpdateDTO dto) {
-        AdminGuard.requireAdmin(permissionService, "Administration des utilisateurs reservee a l'administrateur");
+        AdminGuard.requireAdmin(permissionService, ErrorMessage.USER_ADMIN_REQUIRED.getMessage());
         validatePassword(dto.getPassword());
+
+        if (utilisateurRepository.findByEmail(dto.getEmail()).isPresent()) {
+            throw new BadRequestException(ErrorMessage.USER_EMAIL_ALREADY_EXISTS);
+        }
+
+        if (utilisateurRepository.findByCode(dto.getCode()).isPresent()) {
+            throw new BadRequestException(ErrorMessage.USER_CODE_ALREADY_EXISTS);
+        }
 
         ProfilEntity profil = findProfilById(dto.getProfilId());
         ensureKeycloakGroupExists(profil);
 
-        String keycloakUserId = keycloakService.createUser(
-                dto.getCode(),
-                dto.getFirstName(),
-                dto.getLastName(),
-                dto.getEmail(),
-                dto.getPassword(),
-                dto.getActif() != null ? dto.getActif() : true,
-                profil.getKeycloakGroupId()
-        );
+        String keycloakUserId = null;
+        try {
+            keycloakUserId = keycloakService.createUser(
+                    dto.getCode(),
+                    dto.getFirstName(),
+                    dto.getLastName(),
+                    dto.getEmail(),
+                    dto.getPassword(),
+                    dto.getActif() != null ? dto.getActif() : true,
+                    profil.getKeycloakGroupId()
+            );
 
-        UtilisateurEntity entity = UtilisateurEntity.builder()
-                .code(dto.getCode())
-                .firstName(dto.getFirstName())
-                .lastName(dto.getLastName())
-                .email(dto.getEmail())
-                .keycloakId(keycloakUserId)
-                .actif(dto.getActif() != null ? dto.getActif() : true)
-                .profil(profil)
-                .isDeleted(false)
-                .build();
+            UtilisateurEntity entity = UtilisateurEntity.builder()
+                    .code(dto.getCode())
+                    .firstName(dto.getFirstName())
+                    .lastName(dto.getLastName())
+                    .email(dto.getEmail())
+                    .keycloakId(keycloakUserId)
+                    .actif(dto.getActif() != null ? dto.getActif() : true)
+                    .profil(profil)
+                    .isDeleted(false)
+                    .build();
 
-        return userMapper.toDto(utilisateurRepository.save(entity));
+            return userMapper.toDto(utilisateurRepository.save(entity));
+
+        } catch (Exception ex) {
+            if (keycloakUserId != null) {
+                keycloakService.deleteUser(keycloakUserId);
+            }
+            throw ex;
+        }
     }
 
     @Override
     public UserDTO update(Long id, UserCreateUpdateDTO dto) {
-        AdminGuard.requireAdmin(permissionService, "Administration des utilisateurs reservee a l'administrateur");
+        AdminGuard.requireAdmin(permissionService, ErrorMessage.USER_ADMIN_REQUIRED.getMessage());
 
         UtilisateurEntity entity = findUserById(id);
         ProfilEntity profil = findProfilById(dto.getProfilId());
@@ -96,7 +114,7 @@ public class UtilisateurServiceImpl implements UtilisateurService {
         if (entity.getKeycloakId() != null) {
             keycloakService.updateUser(
                     entity.getKeycloakId(),
-                    entity.getCode(),
+                    dto.getCode(),
                     dto.getFirstName(),
                     dto.getLastName(),
                     dto.getEmail(),
@@ -115,8 +133,7 @@ public class UtilisateurServiceImpl implements UtilisateurService {
         if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
             validatePassword(dto.getPassword());
             if (entity.getKeycloakId() == null) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        "Impossible de mettre a jour le mot de passe : compte Keycloak manquant");
+                throw new BadRequestException(ErrorMessage.PASSWORD_CHANGE_FAILED_MISSING_KEYCLOAK);
             }
             keycloakService.setPassword(entity.getKeycloakId(), dto.getPassword());
         }
@@ -126,14 +143,15 @@ public class UtilisateurServiceImpl implements UtilisateurService {
 
     @Override
     public void delete(Long id) {
-        AdminGuard.requireAdmin(permissionService, "Administration des utilisateurs reservee a l'administrateur");
+        AdminGuard.requireAdmin(permissionService, ErrorMessage.USER_ADMIN_REQUIRED.getMessage());
 
         UtilisateurEntity entity = findUserById(id);
 
         if (entity.getKeycloakId() != null) {
             try {
                 keycloakService.deleteUser(entity.getKeycloakId());
-            } catch (Exception ignored) {
+            } catch (Exception ex) {
+                throw new BadRequestException(ErrorMessage.KEYCLOAK_USER_DELETION_FAILED);
             }
         }
 
@@ -143,8 +161,9 @@ public class UtilisateurServiceImpl implements UtilisateurService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PaginatedResponse<UserDTO> search(PaginationRequest req) {
-        AdminGuard.requireAdmin(permissionService, "Administration des utilisateurs reservee a l'administrateur");
+        AdminGuard.requireAdmin(permissionService, ErrorMessage.USER_ADMIN_REQUIRED.getMessage());
 
         Pageable pageable = PaginationUtils.buildPageable(req);
         Map<String, Object> rawFilters = PaginationUtils.extractFilters(req);
@@ -178,33 +197,34 @@ public class UtilisateurServiceImpl implements UtilisateurService {
 
     @Override
     public void updatePassword(Long userId, String newPassword) {
-        AdminGuard.requireAdmin(permissionService, "Administration des utilisateurs reservee a l'administrateur");
+        AdminGuard.requireAdmin(permissionService, ErrorMessage.USER_ADMIN_REQUIRED.getMessage());
         validatePassword(newPassword);
 
         UtilisateurEntity entity = findUserById(userId);
 
-        if (entity.getKeycloakId() != null) {
-            keycloakService.setPassword(entity.getKeycloakId(), newPassword);
+        if (entity.getKeycloakId() == null) {
+            throw new BadRequestException(ErrorMessage.PASSWORD_CHANGE_FAILED_MISSING_KEYCLOAK);
         }
+
+        keycloakService.setPassword(entity.getKeycloakId(), newPassword);
     }
 
     @Override
     public void changeOwnPassword(String currentPassword, String newPassword) {
         if (currentPassword == null || currentPassword.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Le mot de passe actuel est requis");
+            throw new BadRequestException(ErrorMessage.CURRENT_PASSWORD_REQUIRED);
         }
         validatePassword(newPassword);
 
         UtilisateurEntity currentUser = getCurrentAuthenticatedUser();
 
         if (currentUser.getKeycloakId() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Impossible de changer le mot de passe : compte Keycloak manquant");
+            throw new BadRequestException(ErrorMessage.PASSWORD_CHANGE_FAILED_MISSING_KEYCLOAK);
         }
 
         boolean valid = keycloakService.verifyPassword(currentUser.getCode(), currentPassword);
         if (!valid) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mot de passe actuel incorrect");
+            throw new BadRequestException(ErrorMessage.CURRENT_PASSWORD_INCORRECT);
         }
 
         keycloakService.setPassword(currentUser.getKeycloakId(), newPassword);
@@ -212,22 +232,23 @@ public class UtilisateurServiceImpl implements UtilisateurService {
 
     private UtilisateurEntity findUserById(Long id) {
         return utilisateurRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessage.USER_NOT_FOUND.getMessage()));
     }
 
     private ProfilEntity findProfilById(Long id) {
         return profilRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Profil introuvable"));
+                .orElseThrow(() -> new BadRequestException(ErrorMessage.PROFILE_NOT_FOUND));
     }
 
     private void validatePassword(String password) {
         if (password == null || password.length() < 8) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Le mot de passe doit contenir au moins 8 caracteres");
+            throw new BadRequestException(ErrorMessage.PASSWORD_MIN_LENGTH);
         }
     }
 
-    private void ensureKeycloakGroupExists(ProfilEntity profil) {
+    private synchronized void ensureKeycloakGroupExists(ProfilEntity profil) {
+        profil = profilRepository.findById(profil.getId()).orElse(profil);
+
         if (profil.getKeycloakGroupId() == null) {
             ProfilKeycloakDTO keycloakGroupDto = ProfilKeycloakDTO.builder()
                     .code(profil.getCode())
@@ -245,20 +266,19 @@ public class UtilisateurServiceImpl implements UtilisateurService {
     private UtilisateurEntity getCurrentAuthenticatedUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !(auth.getPrincipal() instanceof Jwt jwt)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Utilisateur non authentifie");
+            throw new UnauthorizedException(ErrorMessage.USER_NOT_AUTHENTICATED);
         }
 
         String email = jwt.getClaimAsString("email");
         if (email == null || email.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email introuvable dans le token");
+            throw new UnauthorizedException(ErrorMessage.EMAIL_NOT_FOUND_IN_TOKEN);
         }
 
-        UtilisateurEntity user = utilisateurRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.UNAUTHORIZED, "Utilisateur introuvable : " + email));
+        UtilisateurEntity user = utilisateurRepository.findByEmailWithProfil(email)
+                .orElseThrow(() -> new UnauthorizedException(ErrorMessage.USER_NOT_FOUND_WITH_EMAIL, email));
 
         if (Boolean.TRUE.equals(user.getIsDeleted()) || Boolean.FALSE.equals(user.getActif())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Utilisateur inactif ou supprime");
+            throw new ForbiddenException(ErrorMessage.USER_INACTIVE_OR_DELETED);
         }
 
         return user;
