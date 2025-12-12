@@ -12,7 +12,4 @@ public interface EnvApplicationRepository extends
 
     List<EnvApplicationEntity> findByEnvironnementId(Long environnementId);
 
-    long countByActifTrue();
-
-
 }

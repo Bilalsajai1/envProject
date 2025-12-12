@@ -1,7 +1,10 @@
 package ma.perenity.backend.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import ma.perenity.backend.dto.*;
+import ma.perenity.backend.dto.AuthContextDTO;
+import ma.perenity.backend.dto.EnvironmentTypeWithProjectsDTO;
+import ma.perenity.backend.dto.ProjectWithActionsDTO;
+import ma.perenity.backend.dto.UserPermissionsDTO;
 import ma.perenity.backend.entities.EnvironmentTypeEntity;
 import ma.perenity.backend.entities.ProjetEntity;
 import ma.perenity.backend.entities.enums.ActionType;
@@ -30,18 +33,18 @@ public class AuthContextServiceImpl implements AuthContextService {
 
         List<EnvironmentTypeWithProjectsDTO> environmentTypes = envTypes.stream()
                 .filter(type -> permissionService.canViewEnvironmentType(type.getCode()))
-            .map(type -> {
-                List<ProjetEntity> allProjects = projetRepository.findByEnvironmentTypeCode(type.getCode());
+                .map(type -> {
+                    List<ProjetEntity> allProjects = projetRepository.findByEnvironmentTypeCode(type.getCode());
 
-                List<ActionType> envActions = java.util.Arrays.stream(ActionType.values())
-                        .filter(action -> permissionService.canAccessEnvType(type.getCode(), action))
-                        .toList();
+                    List<ActionType> envActions = java.util.Arrays.stream(ActionType.values())
+                            .filter(action -> permissionService.canAccessEnvType(type.getCode(), action))
+                            .toList();
 
-                List<ProjectWithActionsDTO> accessibleProjects = allProjects.stream()
-                        .filter(ProjetEntity::getActif)
-                        .map(projet -> {
-                            List<ma.perenity.backend.entities.enums.ActionType> actions =
-                                    permissionService.getProjectActions(projet.getId());
+                    List<ProjectWithActionsDTO> accessibleProjects = allProjects.stream()
+                            .filter(ProjetEntity::getActif)
+                            .map(projet -> {
+                                List<ma.perenity.backend.entities.enums.ActionType> actions =
+                                        permissionService.getProjectActions(projet.getId());
 
                                 if (actions.isEmpty()) {
                                     return null;
@@ -67,7 +70,7 @@ public class AuthContextServiceImpl implements AuthContextService {
                             .allowedActions(envActions)
                             .projects(accessibleProjects)
                             .build();
-            })
+                })
                 .collect(Collectors.toList());
 
         return AuthContextDTO.builder()

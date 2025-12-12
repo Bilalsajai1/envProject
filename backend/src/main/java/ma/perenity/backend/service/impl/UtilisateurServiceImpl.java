@@ -3,11 +3,7 @@ package ma.perenity.backend.service.impl;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import lombok.RequiredArgsConstructor;
-import ma.perenity.backend.dto.PaginatedResponse;
-import ma.perenity.backend.dto.PaginationRequest;
-import ma.perenity.backend.dto.ProfilKeycloakDTO;
-import ma.perenity.backend.dto.UserCreateUpdateDTO;
-import ma.perenity.backend.dto.UserDTO;
+import ma.perenity.backend.dto.*;
 import ma.perenity.backend.entities.ProfilEntity;
 import ma.perenity.backend.entities.UtilisateurEntity;
 import ma.perenity.backend.mapper.UserMapper;
@@ -16,9 +12,9 @@ import ma.perenity.backend.repository.UtilisateurRepository;
 import ma.perenity.backend.service.KeycloakService;
 import ma.perenity.backend.service.PermissionService;
 import ma.perenity.backend.service.UtilisateurService;
-import ma.perenity.backend.service.util.AdminGuard;
-import ma.perenity.backend.service.util.PaginationUtils;
 import ma.perenity.backend.specification.EntitySpecification;
+import ma.perenity.backend.utilities.AdminGuard;
+import ma.perenity.backend.utilities.PaginationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -99,13 +95,13 @@ public class UtilisateurServiceImpl implements UtilisateurService {
 
         if (entity.getKeycloakId() != null) {
             keycloakService.updateUser(
-                entity.getKeycloakId(),
-                entity.getCode(),
-                dto.getFirstName(),
-                dto.getLastName(),
-                dto.getEmail(),
-                dto.getActif() != null ? dto.getActif() : true,
-                profil.getKeycloakGroupId()
+                    entity.getKeycloakId(),
+                    entity.getCode(),
+                    dto.getFirstName(),
+                    dto.getLastName(),
+                    dto.getEmail(),
+                    dto.getActif() != null ? dto.getActif() : true,
+                    profil.getKeycloakGroupId()
             );
         }
 

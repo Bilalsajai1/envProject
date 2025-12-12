@@ -30,10 +30,10 @@ public interface ProfilRoleRepository extends JpaRepository<ProfilRoleEntity, Lo
     void deleteByProfilId(@Param("profilId") Long profilId);
     @Modifying
     @Query("""
-        DELETE FROM ProfilRoleEntity pr
-        WHERE pr.profil.id = :profilId
-          AND pr.role.code LIKE CONCAT(:prefix, '%')
-    """)
+                DELETE FROM ProfilRoleEntity pr
+                WHERE pr.profil.id = :profilId
+                  AND pr.role.code LIKE CONCAT(:prefix, '%')
+            """)
     void deleteByProfilIdAndRoleCodePrefix(@Param("profilId") Long profilId,
                                            @Param("prefix") String prefix);
 

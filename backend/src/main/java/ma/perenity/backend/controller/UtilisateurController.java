@@ -21,6 +21,7 @@ public class UtilisateurController {
     public ResponseEntity<List<UserDTO>> getAll() {
         return ResponseEntity.ok(service.getAll());
     }
+
     @PutMapping("/{id}/password")
     public ResponseEntity<Void> updatePassword(
             @PathVariable Long id,
@@ -28,6 +29,7 @@ public class UtilisateurController {
         service.updatePassword(id, request.getNewPassword());
         return ResponseEntity.ok().build();
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getById(@PathVariable Long id) {
         return ResponseEntity.ok(service.getById(id));

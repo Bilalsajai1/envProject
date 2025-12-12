@@ -23,7 +23,6 @@ public interface ProfilService {
     PaginatedResponse<ProfilDTO> search(PaginationRequest req);
 
 
-
     ProfilPermissionsDTO getPermissions(Long profilId);
 
     void updateEnvTypePermissions(Long profilId, List<EnvTypePermissionUpdateDTO> envPermissions);

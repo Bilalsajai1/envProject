@@ -3,11 +3,7 @@ package ma.perenity.backend.mapper;
 import ma.perenity.backend.dto.UserCreateUpdateDTO;
 import ma.perenity.backend.dto.UserDTO;
 import ma.perenity.backend.entities.UtilisateurEntity;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.BeanMapping;
-import org.mapstruct.NullValuePropertyMappingStrategy;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 
 import java.util.List;
 

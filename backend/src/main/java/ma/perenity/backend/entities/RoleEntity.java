@@ -6,6 +6,7 @@ import ma.perenity.backend.entities.enums.ActionType;
 import ma.perenity.backend.entities.enums.RoleScope;
 
 import java.util.List;
+
 @Entity
 @Table(name = "ROLE")
 @Getter

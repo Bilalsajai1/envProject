@@ -14,9 +14,9 @@ import ma.perenity.backend.repository.EnvironmentTypeRepository;
 import ma.perenity.backend.repository.ProjetRepository;
 import ma.perenity.backend.service.PermissionService;
 import ma.perenity.backend.service.ProjetService;
-import ma.perenity.backend.service.util.AdminGuard;
-import ma.perenity.backend.service.util.PaginationUtils;
 import ma.perenity.backend.specification.EntitySpecification;
+import ma.perenity.backend.utilities.AdminGuard;
+import ma.perenity.backend.utilities.PaginationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -25,7 +25,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service

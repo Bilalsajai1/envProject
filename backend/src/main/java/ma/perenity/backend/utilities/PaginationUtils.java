@@ -1,4 +1,4 @@
-package ma.perenity.backend.service.util;
+package ma.perenity.backend.utilities;
 
 import ma.perenity.backend.dto.PaginationRequest;
 import org.springframework.data.domain.PageRequest;

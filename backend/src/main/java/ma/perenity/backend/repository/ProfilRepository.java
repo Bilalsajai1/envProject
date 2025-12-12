@@ -10,6 +10,5 @@ public interface ProfilRepository extends JpaRepository<ProfilEntity, Long>,
         JpaSpecificationExecutor<ProfilEntity> {
     List<ProfilEntity> findByActifTrueAndIsDeletedFalse();
 
-
     boolean existsByCode(String code);
 }

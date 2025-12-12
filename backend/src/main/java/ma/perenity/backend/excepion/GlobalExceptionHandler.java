@@ -26,7 +26,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleIllegalState(IllegalStateException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(Map.of(
-                        "timestamp",  LocalDateTime.now().toString(),
+                        "timestamp", LocalDateTime.now().toString(),
                         "status", HttpStatus.BAD_REQUEST.value(),
                         "error", "Bad Request",
                         "message", ex.getMessage()

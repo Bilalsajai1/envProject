@@ -18,7 +18,10 @@ public interface UtilisateurService {
     UserDTO update(Long id, UserCreateUpdateDTO dto);
 
     void delete(Long id);
+
     PaginatedResponse<UserDTO> search(PaginationRequest req);
+
     void updatePassword(Long userId, String newPassword);
+
     void changeOwnPassword(String currentPassword, String newPassword);
 }

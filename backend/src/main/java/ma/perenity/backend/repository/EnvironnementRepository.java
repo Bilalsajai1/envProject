@@ -10,8 +10,5 @@ public interface EnvironnementRepository extends
         JpaRepository<EnvironnementEntity, Long>,
         JpaSpecificationExecutor<EnvironnementEntity> {
 
-    long countByActifTrue();
-
-
     List<EnvironnementEntity> findByProjet_IdAndType_CodeAndActifTrue(Long projetId, String typeCode);
 }
