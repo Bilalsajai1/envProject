@@ -8,8 +8,8 @@ export interface ConfirmDialogData {
   message: string;
   confirmText?: string;
   cancelText?: string;
-  type?: 'confirm' | 'warning' | 'danger' | 'info'; // Type de dialogue
-  icon?: string; // Icône Material optionnelle
+  type?: 'confirm' | 'warning' | 'danger' | 'info';
+  icon?: string;
 }
 
 @Component({
@@ -24,12 +24,12 @@ export class ConfirmDialogComponent {
     public dialogRef: MatDialogRef<ConfirmDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: ConfirmDialogData
   ) {
-    // Définir les valeurs par défaut
+
     this.data.type = this.data.type || 'confirm';
     this.data.confirmText = this.data.confirmText || 'Confirmer';
     this.data.cancelText = this.data.cancelText || 'Annuler';
 
-    // Définir l'icône par défaut selon le type
+
     if (!this.data.icon) {
       this.data.icon = this.getDefaultIcon();
     }
@@ -56,7 +56,7 @@ export class ConfirmDialogComponent {
     this.dialogRef.close(true);
   }
 
-  // Getter pour la classe CSS du type
+
   get dialogTypeClass(): string {
     return `dialog-${this.data.type}`;
   }

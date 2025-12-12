@@ -16,7 +16,6 @@ import {
   Subject,
   takeUntil,
   finalize,
-  debounceTime,
   distinctUntilChanged
 } from 'rxjs';
 import { Router } from '@angular/router';
@@ -93,7 +92,6 @@ export class ProfilListComponent implements OnInit, OnDestroy {
   private initSearchListener(): void {
     this.searchSubject
       .pipe(
-        debounceTime(300),
         distinctUntilChanged(),
         takeUntil(this.destroy$)
       )

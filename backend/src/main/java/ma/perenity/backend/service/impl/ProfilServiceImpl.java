@@ -191,11 +191,28 @@ public class ProfilServiceImpl implements ProfilService {
 
         Pageable pageable = PaginationUtils.buildPageable(req);
 
-        EntitySpecification<ProfilEntity> specBuilder = new EntitySpecification<>();
-        Specification<ProfilEntity> spec = specBuilder.getSpecification(req.getFilters());
+        Map<String, Object> rawFilters = PaginationUtils.extractFilters(req);
+        String search = PaginationUtils.extractSearch(rawFilters);
+        boolean hasActifFilter = rawFilters.containsKey("actif");
+        rawFilters.remove("onlyActiveUsers");
 
-        spec = spec.and((root, query, cb) -> cb.equal(root.get("actif"), true));
+        EntitySpecification<ProfilEntity> specBuilder = new EntitySpecification<>();
+        Specification<ProfilEntity> spec = specBuilder.getSpecification(rawFilters);
+
         spec = spec.and((root, query, cb) -> cb.isFalse(root.get("isDeleted")));
+        if (!hasActifFilter) {
+            spec = spec.and((root, query, cb) -> cb.isTrue(root.get("actif")));
+        }
+
+        if (search != null) {
+            final String term = "%" + search.toLowerCase() + "%";
+
+            spec = spec.and((root, query, cb) -> cb.or(
+                    cb.like(cb.lower(root.get("code")), term),
+                    cb.like(cb.lower(root.get("libelle")), term),
+                    cb.like(cb.lower(root.get("description")), term)
+            ));
+        }
 
         Page<ProfilEntity> page = profilRepository.findAll(spec, pageable);
 

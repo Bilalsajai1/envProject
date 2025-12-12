@@ -169,6 +169,10 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     this.router.navigate(['/auth/login']);
   }
 
+  goToChangePassword(): void {
+    this.router.navigate(['/account/change-password']);
+  }
+
   getUserInitials(): string {
     const u = this.context?.user;
     return ((u?.firstName?.[0] ?? '') + (u?.lastName?.[0] ?? '')).toUpperCase() || '??';

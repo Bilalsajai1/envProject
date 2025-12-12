@@ -1,5 +1,3 @@
-// src/app/environments/project-list/project-list.component.ts
-
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -13,7 +11,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import {
   Subject,
-  debounceTime,
   distinctUntilChanged,
   takeUntil,
   finalize
@@ -50,17 +47,15 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   projects: ProjectDTO[] = [];
   displayedColumns: string[] = ['code', 'libelle', 'description', 'actif', 'actions'];
 
-  // Pagination
+
   page = 0;
   size = 10;
   readonly pageSizeOptions: number[] = [5, 10, 20, 50];
   totalElements = 0;
 
-  // Tri
   sortField = 'id';
   sortDirection: SortDirection = 'asc';
 
-  // Recherche
   searchTerm = '';
   private readonly searchSubject = new Subject<string>();
 
@@ -94,9 +89,6 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // ============================================
-  // PERMISSION CHECKS
-  // ============================================
   canCreateProject(): boolean {
     const ctx = this.authContext.getCurrentContext();
     if (ctx?.user?.admin) return true;
@@ -116,13 +108,9 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     return this.authContext.canAccessProject(projectId, 'CONSULT');
   }
 
-  // ============================================
-  // SEARCH
-  // ============================================
   private initSearchListener(): void {
     this.searchSubject
       .pipe(
-        debounceTime(300),
         distinctUntilChanged(),
         takeUntil(this.destroy$)
       )
@@ -156,9 +144,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     return filters;
   }
 
-  // ============================================
-  // LOAD PROJECTS
-  // ============================================
+
   loadProjects(): void {
     if (!this.typeCode) {
       return;
@@ -191,7 +177,6 @@ export class ProjectListComponent implements OnInit, OnDestroy {
           this.size = res.size ?? this.size;
         },
         error: (err) => {
-          console.error('❌ Erreur lors du chargement des projets', err);
           this.snackBar.open('❌ Erreur lors du chargement des projets', 'Fermer', {
             duration: 3000
           });
@@ -199,9 +184,6 @@ export class ProjectListComponent implements OnInit, OnDestroy {
       });
   }
 
-  // ============================================
-  // PAGINATION & SORTING
-  // ============================================
   onPageChange(event: PageEvent): void {
     this.page = event.pageIndex;
     this.size = event.pageSize;
@@ -219,9 +201,6 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     this.loadProjects();
   }
 
-  // ============================================
-  // ACTIONS
-  // ============================================
   openProject(project: ProjectDTO): void {
     this.router.navigate([project.id, 'environments'], {
       relativeTo: this.route

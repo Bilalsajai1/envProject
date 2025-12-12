@@ -57,46 +57,53 @@
   <!-- Content -->
   <section class="content-card">
     <div class="table-wrapper" [class.blurred]="loading">
-      <table mat-table [dataSource]="applications" class="applications-table">
+      <table
+        mat-table
+        [dataSource]="applications"
+        class="applications-table"
+        matSort
+        [matSortActive]="sortActive"
+        [matSortDirection]="sortDirection"
+        (matSortChange)="onSortChange($event)">
 
         <ng-container matColumnDef="application">
-          <th mat-header-cell *matHeaderCellDef>Application</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Application</th>
           <td mat-cell *matCellDef="let app">
             <strong>{{ app.applicationLibelle }}</strong>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="protocole">
-          <th mat-header-cell *matHeaderCellDef>Protocole</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Protocole</th>
           <td mat-cell *matCellDef="let app">
-            <span class="pill">{{ app.protocole || '—' }}</span>
+            <span class="pill">{{ app.protocole || '-' }}</span>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="host">
-          <th mat-header-cell *matHeaderCellDef>Host</th>
-          <td mat-cell *matCellDef="let app">{{ app.host || '—' }}</td>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Host</th>
+          <td mat-cell *matCellDef="let app">{{ app.host || '-' }}</td>
         </ng-container>
 
         <ng-container matColumnDef="port">
-          <th mat-header-cell *matHeaderCellDef>Port</th>
-          <td mat-cell *matCellDef="let app">{{ app.port || '—' }}</td>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Port</th>
+          <td mat-cell *matCellDef="let app">{{ app.port || '-' }}</td>
         </ng-container>
 
         <ng-container matColumnDef="username">
-          <th mat-header-cell *matHeaderCellDef>Username</th>
-          <td mat-cell *matCellDef="let app">{{ app.username || '—' }}</td>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Username</th>
+          <td mat-cell *matCellDef="let app">{{ app.username || '-' }}</td>
         </ng-container>
 
         <ng-container matColumnDef="password">
-          <th mat-header-cell *matHeaderCellDef>Password</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Password</th>
           <td mat-cell *matCellDef="let app">
             <span>{{ app.passwordMasked || '--' }}</span>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="url">
-          <th mat-header-cell *matHeaderCellDef>URL</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>URL</th>
           <td mat-cell *matCellDef="let app">
             @if (app.url) {
               <a [href]="app.url" target="_blank" (click)="$event.stopPropagation()" class="link">
@@ -109,9 +116,9 @@
         </ng-container>
 
         <ng-container matColumnDef="dateDerniereLivraison">
-          <th mat-header-cell *matHeaderCellDef>Derniere livraison</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Derniere livraison</th>
           <td mat-cell *matCellDef="let app">
-            {{ app.dateDerniereLivraison ? (app.dateDerniereLivraison | date:'dd/MM/yyyy') : '—' }}
+            {{ app.dateDerniereLivraison ? (app.dateDerniereLivraison | date:'dd/MM/yyyy') : '-' }}
           </td>
         </ng-container>
 

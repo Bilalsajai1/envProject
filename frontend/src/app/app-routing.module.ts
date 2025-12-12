@@ -20,6 +20,7 @@ import { EnvironmentTypeLayoutComponent } from './environments/environment-type-
 import { ProjectListComponent } from './environments/project-list/project-list.component';
 import { EnvironmentListComponent } from './environments/environment-list/environment-list.component';
 import { ApplicationListComponent } from './environments/application-list/application-list.component';
+import { ChangePasswordComponent } from './account/change-password/change-password.component';
 
 
 const routes: Routes = [
@@ -101,11 +102,11 @@ const routes: Routes = [
       // ==========================
       // ENVIRONNEMENTS
       // ==========================
-  {
-    path: 'env/:typeCode',
-    component: EnvironmentTypeLayoutComponent,
-    canActivate: [AuthGuard, EnvironmentAccessGuard],
-    children: [
+      {
+        path: 'env/:typeCode',
+        component: EnvironmentTypeLayoutComponent,
+        canActivate: [AuthGuard, EnvironmentAccessGuard],
+        children: [
           // Liste des projets
           {
             path: '',
@@ -122,6 +123,11 @@ const routes: Routes = [
             component: ApplicationListComponent
           }
         ]
+      },
+      {
+        path: 'account/change-password',
+        component: ChangePasswordComponent,
+        canActivate: [AuthGuard]
       }
     ]
   },

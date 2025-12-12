@@ -4,13 +4,15 @@ import {
   ChangeDetectorRef,
   Component,
   OnInit,
-  OnDestroy
+  OnDestroy,
+  ViewChild
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSort, Sort } from '@angular/material/sort';
 
-  import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
+  import { Subject,distinctUntilChanged, takeUntil } from 'rxjs';
 
 import { ApplicationService } from '../services/application.service';
 import { EnvApplicationDTO } from '../models/environment.model';
@@ -26,6 +28,8 @@ import { AuthContextService } from '../../auth/services/auth-context.service';
   styleUrls: ['./application-list.component.scss']
 })
 export class ApplicationListComponent implements OnInit, OnDestroy {
+
+  @ViewChild(MatSort) sort!: MatSort;
 
   typeCode: string = '';
   projectId!: number;
@@ -49,6 +53,8 @@ export class ApplicationListComponent implements OnInit, OnDestroy {
     'dateDerniereLivraison',
     'actions'
   ];
+  sortActive: string = 'application';
+  sortDirection: 'asc' | 'desc' | '' = 'asc';
 
   constructor(
     private route: ActivatedRoute,
@@ -91,7 +97,6 @@ export class ApplicationListComponent implements OnInit, OnDestroy {
   private initSearchListener(): void {
     this.searchSubject
       .pipe(
-        debounceTime(300),
         distinctUntilChanged(),
         takeUntil(this.destroy$)
       )
@@ -99,6 +104,12 @@ export class ApplicationListComponent implements OnInit, OnDestroy {
         this.searchTerm = term.trim();
         this.loadApplications();
       });
+  }
+
+  onSortChange(sort: Sort): void {
+    this.sortActive = sort.active;
+    this.sortDirection = (sort.direction as 'asc' | 'desc' | '');
+    this.applySorting();
   }
 
   onSearchChange(value: string): void {
@@ -146,6 +157,7 @@ export class ApplicationListComponent implements OnInit, OnDestroy {
             ...a,
             password: undefined
           }));
+          this.applySorting();
           this.loading = false;
           this.cdr.detectChanges();
         },
@@ -219,5 +231,54 @@ export class ApplicationListComponent implements OnInit, OnDestroy {
 
   goBack(): void {
     this.router.navigate(['../../'], { relativeTo: this.route });
+  }
+
+  private applySorting(): void {
+    if (!this.sortDirection) {
+      return;
+    }
+
+    const directionFactor = this.sortDirection === 'asc' ? 1 : -1;
+
+    const sorted = [...this.applications].sort((a, b) => {
+      const aVal = this.getSortableValue(a, this.sortActive);
+      const bVal = this.getSortableValue(b, this.sortActive);
+
+      if (aVal === bVal) return 0;
+      if (aVal === undefined || aVal === null) return -1 * directionFactor;
+      if (bVal === undefined || bVal === null) return 1 * directionFactor;
+
+      if (typeof aVal === 'number' && typeof bVal === 'number') {
+        return (aVal - bVal) * directionFactor;
+      }
+
+      return aVal.toString().localeCompare(bVal.toString()) * directionFactor;
+    });
+
+    this.applications = sorted;
+    this.cdr.markForCheck();
+  }
+
+  private getSortableValue(app: EnvApplicationDTO, column: string): any {
+    switch (column) {
+      case 'application':
+        return app.applicationLibelle ?? '';
+      case 'protocole':
+        return app.protocole ?? '';
+      case 'host':
+        return app.host ?? '';
+      case 'port':
+        return app.port ?? 0;
+      case 'username':
+        return app.username ?? '';
+      case 'password':
+        return app.passwordMasked ?? '';
+      case 'url':
+        return app.url ?? '';
+      case 'dateDerniereLivraison':
+        return app.dateDerniereLivraison ? new Date(app.dateDerniereLivraison).getTime() : 0;
+      default:
+        return '';
+    }
   }
 }

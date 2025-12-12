@@ -23,6 +23,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -113,6 +116,15 @@ public class UtilisateurServiceImpl implements UtilisateurService {
         entity.setActif(dto.getActif() != null ? dto.getActif() : entity.getActif());
         entity.setProfil(profil);
 
+        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+            validatePassword(dto.getPassword());
+            if (entity.getKeycloakId() == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Impossible de mettre a jour le mot de passe : compte Keycloak manquant");
+            }
+            keycloakService.setPassword(entity.getKeycloakId(), dto.getPassword());
+        }
+
         return userMapper.toDto(utilisateurRepository.save(entity));
     }
 
@@ -145,7 +157,6 @@ public class UtilisateurServiceImpl implements UtilisateurService {
         EntitySpecification<UtilisateurEntity> specBuilder = new EntitySpecification<>();
         Specification<UtilisateurEntity> spec = specBuilder.getSpecification(rawFilters);
 
-        spec = spec.and((root, query, cb) -> cb.equal(root.get("actif"), true));
         spec = spec.and((root, query, cb) -> cb.isFalse(root.get("isDeleted")));
 
         if (search != null) {
@@ -181,6 +192,28 @@ public class UtilisateurServiceImpl implements UtilisateurService {
         }
     }
 
+    @Override
+    public void changeOwnPassword(String currentPassword, String newPassword) {
+        if (currentPassword == null || currentPassword.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Le mot de passe actuel est requis");
+        }
+        validatePassword(newPassword);
+
+        UtilisateurEntity currentUser = getCurrentAuthenticatedUser();
+
+        if (currentUser.getKeycloakId() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Impossible de changer le mot de passe : compte Keycloak manquant");
+        }
+
+        boolean valid = keycloakService.verifyPassword(currentUser.getCode(), currentPassword);
+        if (!valid) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mot de passe actuel incorrect");
+        }
+
+        keycloakService.setPassword(currentUser.getKeycloakId(), newPassword);
+    }
+
     private UtilisateurEntity findUserById(Long id) {
         return utilisateurRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
@@ -211,5 +244,27 @@ public class UtilisateurServiceImpl implements UtilisateurService {
             profil.setKeycloakGroupId(keycloakGroupId);
             profilRepository.save(profil);
         }
+    }
+
+    private UtilisateurEntity getCurrentAuthenticatedUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !(auth.getPrincipal() instanceof Jwt jwt)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Utilisateur non authentifie");
+        }
+
+        String email = jwt.getClaimAsString("email");
+        if (email == null || email.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email introuvable dans le token");
+        }
+
+        UtilisateurEntity user = utilisateurRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.UNAUTHORIZED, "Utilisateur introuvable : " + email));
+
+        if (Boolean.TRUE.equals(user.getIsDeleted()) || Boolean.FALSE.equals(user.getActif())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Utilisateur inactif ou supprime");
+        }
+
+        return user;
     }
 }

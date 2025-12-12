@@ -16,7 +16,7 @@ export interface UserCreateUpdateDTO {
   email: string;
   actif?: boolean;
   profilId: number;
-  password?: string; // Requis en création, optionnel en modification
+  password?: string;
 }
 
 export interface ProfilDTO {

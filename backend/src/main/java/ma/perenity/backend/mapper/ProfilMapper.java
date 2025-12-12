@@ -2,7 +2,6 @@ package ma.perenity.backend.mapper;
 
 import ma.perenity.backend.dto.ProfilDTO;
 import ma.perenity.backend.entities.ProfilEntity;
-import ma.perenity.backend.entities.UtilisateurEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

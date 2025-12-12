@@ -25,6 +25,7 @@ export interface LoginResponse {
 export class AuthenticationService {
 
   private readonly loginUrl = `${environment.apiUrl}/auth`;
+  private readonly changePasswordUrl = `${environment.apiUrl}/auth/change-password`;
 
   constructor(
     private http: HttpClient,
@@ -60,5 +61,12 @@ export class AuthenticationService {
    */
   logout(): void {
     this.session.clear();
+  }
+
+  changePassword(currentPassword: string, newPassword: string): Observable<void> {
+    return this.http.post<void>(this.changePasswordUrl, {
+      currentPassword,
+      newPassword
+    });
   }
 }

@@ -15,6 +15,7 @@ import { UsersModule } from './users/users-module';
 import { PermissionsModule } from './permissions/permissions-module';
 import { EnvironmentsModule } from './environments/environments-module';
 import { ProfilsModule } from './profils/profils-module';
+import { AccountModule } from './account/account-module';
 
 import { AuthInterceptor } from './auth/interceptors/auth.interceptor';
 
@@ -35,6 +36,7 @@ import { AuthInterceptor } from './auth/interceptors/auth.interceptor';
     PermissionsModule,
     EnvironmentsModule,
     ProfilsModule,
+    AccountModule,
 
     AppRoutingModule
   ],

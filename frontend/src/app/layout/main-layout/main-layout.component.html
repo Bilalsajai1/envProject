@@ -152,6 +152,13 @@
                 <span class="chip-email">{{ userEmail }}</span>
               </div>
             </div>
+            <button
+              mat-icon-button
+              class="toolbar-action"
+              matTooltip="Changer le mot de passe"
+              (click)="goToChangePassword()">
+              <mat-icon>key</mat-icon>
+            </button>
           }
         </div>
       </div>

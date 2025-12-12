@@ -1,13 +1,11 @@
-// src/app/environments/models/environment.model.ts
-
 export interface ProjectDTO {
   id: number;
   code: string;
   libelle: string;
   description?: string;
   actif: boolean;
-  envTypeCode?: string;       // compat mono-type (ancien)
-  envTypeCodes?: string[];    // multi types
+  envTypeCode?: string;
+  envTypeCodes?: string[];
 }
 
 export interface EnvironmentDTO {

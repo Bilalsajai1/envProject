@@ -1,4 +1,3 @@
-// src/app/auth/access-denied/access-denied.component.ts
 
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';

@@ -6,8 +6,7 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import {
-  debounceTime, distinctUntilChanged, Subject, takeUntil, finalize
+import {distinctUntilChanged, Subject, takeUntil, finalize
 } from 'rxjs';
 
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
@@ -118,7 +117,6 @@ export class EnvironmentListComponent implements OnInit, OnDestroy {
   private initSearchListener(): void {
     this.searchSubject
       .pipe(
-        debounceTime(300),
         distinctUntilChanged(),
         takeUntil(this.destroy$)
       )

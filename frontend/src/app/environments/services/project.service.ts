@@ -1,12 +1,9 @@
-// src/app/environments/services/project.service.ts
-
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ProjectDTO } from '../models/environment.model';
 import { environment } from '../../config/environment';
 
-// Même logique que pour UserService
 export type SortDirection = 'asc' | 'desc';
 
 export interface PaginationRequest {
@@ -34,13 +31,10 @@ export class ProjectService {
 
   constructor(private http: HttpClient) {}
 
-  // 🔍 Recherche paginée (admin / écran global projets)
   search(req: PaginationRequest): Observable<PaginatedResponse<ProjectDTO>> {
     const url = `${this.baseUrl}/search`;
     return this.http.post<PaginatedResponse<ProjectDTO>>(url, req);
   }
-
-  // Toujours utile pour d'autres écrans éventuels
   getByEnvironmentType(typeCode: string): Observable<ProjectDTO[]> {
     return this.http.get<ProjectDTO[]>(`${this.baseUrl}/by-environment-type/${typeCode}`);
   }
